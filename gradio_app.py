@@ -5,8 +5,6 @@
 """
 
 import io
-import json
-
 import cv2
 import gradio as gr
 import httpx
@@ -28,14 +26,11 @@ def fetch_health() -> str:
         return f"API ไม่พร้อม ({exc}) - รัน `python main.py` ก่อน"
 
 
-# --- ฟิลเตอร์พรีวิวให้ตรงกับฝั่ง API (ต้องเหมือน main.py ทุกประการ) ---
+# --- ฟิลเตอร์พรีวิวให้ตรงกับฝั่ง API ---
 def _rotate_gradio(img_bgr, angle):
-    if angle == 90:
-        return cv2.rotate(img_bgr, cv2.ROTATE_90_CLOCKWISE)
-    if angle == 180:
-        return cv2.rotate(img_bgr, cv2.ROTATE_180)
-    if angle == 270:
-        return cv2.rotate(img_bgr, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    if angle == 90: return cv2.rotate(img_bgr, cv2.ROTATE_90_CLOCKWISE)
+    if angle == 180: return cv2.rotate(img_bgr, cv2.ROTATE_180)
+    if angle == 270: return cv2.rotate(img_bgr, cv2.ROTATE_90_COUNTERCLOCKWISE)
     return img_bgr
 
 def _clahe_gradio(img_bgr):
@@ -51,35 +46,22 @@ def _histeq_gradio(img_bgr):
     return cv2.cvtColor(cv2.merge([y, cr, cb]), cv2.COLOR_YCrCb2BGR)
 
 def _inverse_remap_bbox(bbox, angle, img_w, img_h):
-    """กรอบจากพิกัดภาพต้นฉบับ -> พิกัดภาพที่หมุนแล้ว (ตรงข้าม _remap_bbox) เพื่อวาดบน preview ที่หมุนแล้วให้ตรง"""
     x1, y1, x2, y2 = bbox
-    if angle == 0:
-        return bbox
-    if angle == 90:
-        # _remap 90: [y1, h-x2, y2, h-x1]  ดังนั้น inverse: [h-y2, x1, h-y1, x2] ??? คิดจากสมการ
-        # processed (rw = h, rh = w) -> original: [y1, h-x2, y2, h-x1]
-        # ดังนั้น original [x1,y1,x2,y2] -> processed [h-y2, x1, h-y1, x2] ??? ตรวจด้วยบrute
-        # ใช้ brute: processed -> original ที่รู้ผล ลอง invert แบบสมมาตร
-        return [img_h - y2, x1, img_h - y1, x2]  # ทดสอบแล้วตรงกับ _rotate inverse
-    if angle == 180:
-        return [img_w - x2, img_h - y2, img_w - x1, img_h - y1]
-    # 270: _remap [w-y2, x1, w-y1, x2] -> inverse [y1, w-x2, y2, w-x1]
-    return [y1, img_w - x2, y2, img_w - x1]
-
+    if angle == 0: return bbox
+    if angle == 90: return [img_h - y2, x1, img_h - y1, x2]
+    if angle == 180: return [img_w - x2, img_h - y2, img_w - x1, img_h - y1]
+    if angle == 270: return [y1, img_w - x2, y2, img_w - x1]
+    return bbox
 
 def draw_digits_processed(image_rgb, digits, best_angle=0, prep="orig"):
-    """วาด box + ป้ายตัวเลขลงบนภาพที่หมุนและใส่ฟิลเตอร์ตามที่โมเดลใช้ตรวจจับจริง"""
     if image_rgb is None or not image_rgb.size:
         return image_rgb
     h, w = image_rgb.shape[:2]
     bgr = cv2.cvtColor(image_rgb, cv2.COLOR_RGB2BGR)
     rot = _rotate_gradio(bgr, best_angle)
-    if prep == "clahe":
-        proc_bgr = _clahe_gradio(rot)
-    elif prep == "histeq":
-        proc_bgr = _histeq_gradio(rot)
-    else:
-        proc_bgr = rot
+    if prep == "clahe": proc_bgr = _clahe_gradio(rot)
+    elif prep == "histeq": proc_bgr = _histeq_gradio(rot)
+    else: proc_bgr = rot
     canvas = cv2.cvtColor(proc_bgr, cv2.COLOR_BGR2RGB)
 
     for d in digits:
@@ -119,45 +101,37 @@ def predict(image: Image.Image | None):
     annotated = draw_digits_processed(arr_rgb, data.get("digits", []), best_angle=best_angle, prep=prep)
 
     rows = [[d["position"], d["digit"], f"{d['confidence']:.2%}",
-             "แน่ใจ" if d["reliable"] else "⚠ ตรวจเอง"] for d in data.get("digits", [])]
+             "แน่ใจ" if d["reliable"] else "⚠ ตรวจสอบ"] for d in data.get("digits", [])]
     mc = data["meter_check"]
     check_line = (f"✅ มิเตอร์น้ำ ({mc['confidence']:.0%})"
                   if mc["verified"] else
                   f"❌ ไม่ใช่มิเตอร์น้ำ → จำแนกว่า {mc['predicted_class']} ({mc['confidence']:.0%})")
 
-    if best is None:
-        variant = "—"
-    elif prep == "histeq":
-        variant = f"มุม {best['angle']}° + HistEq"
-    elif prep == "clahe":
-        variant = f"มุม {best['angle']}° + CLAHE"
+    if best is None: variant = "—"
+    elif prep == "histeq": variant = f"มุม {best['angle']}° + HistEq"
+    elif prep == "clahe": variant = f"มุม {best['angle']}° + CLAHE"
+    else: variant = f"มุม {best['angle']}°"
+
+    meta_info = (f"**สถานะ:** {check_line}  |  "
+                 f"**การประมวลผล:** {variant}  |  "
+                 f"**เวลา:** {data['elapsed_ms']:.0f} ms")
+
+    warns = data.get("warnings", [])
+    if warns:
+        warn_text = "### ⚠️ รายการแจ้งเตือน\n" + "\n".join(f"- {w}" for w in warns)
     else:
-        variant = f"มุม {best['angle']}°"
+        warn_text = "✅ **ผลการตรวจจับสมบูรณ์ ไม่พบข้อผิดพลาด**"
 
-    badges = []
-    if data.get("processing", {}).get("auto_corrected"):
-        badges.append("🔄 กลับหัว → แก้อัตโนมัติ")
-    if data.get("flip_check", {}).get("warned"):
-        badges.append("⚠ อาจกลับหัว")
-    if not data.get("alignment", {}).get("ok", True) and data.get("digits"):
-        badges.append("⚠ กล่องไม่เรียงแนว")
-    if data.get("cross_check", {}).get("mismatches"):
-        badges.append("⚠ YOLO vs SigLIP ขัดแย้ง")
-    flags = " | " + " | ".join(badges) if badges else ""
-    meta = (f"{check_line} | อ่านด้วย: {variant} | "
-            f"ใช้เวลา {data['elapsed_ms']:.0f} ms | "
-            f"หลักที่พบ {data['digit_count']} หลัก | warning: {len(data['warnings'])} รายการ{flags}")
+    reading_display = data["reading"] if data["reading"] else "—"
 
-    return annotated, data["reading"], rows, data, meta
+    return annotated, reading_display, rows, warn_text, meta_info
 
 
 with gr.Blocks(title="Meter Reader - อ่านค่ามิเตอร์น้ำ") as demo:
     gr.Markdown(
         """
-# 🚰 Meter Reader — อ่านค่ามิเตอร์น้ำ (Velocity Type)
-
-อัปโหลดภาพหน้าปัดมิเตอร์ → **SigLIP2** คัดแยกว่ามิเตอร์น้ำจริงหรือไม่ →
-**YOLO26** ตรวจจับและอ่านตัวเลขแต่ละหลัก (class 0-9)
+# 🚰 Meter Reader — ระบบอ่านเลขมิเตอร์น้ำอัตโนมัติ
+อัปโหลดภาพหน้าปัดมิเตอร์ → ระบบคัดแยกและอ่านตัวเลขแต่ละหลักอัตโนมัติ
         """
     )
     status = gr.Markdown()
@@ -165,19 +139,19 @@ with gr.Blocks(title="Meter Reader - อ่านค่ามิเตอร์�
 
     with gr.Row():
         with gr.Column(scale=1):
-            image_in = gr.Image(type="pil", label="ภาพมิเตอร์ (ถ่ายตรง ๆ ไม่เอียง แสงพอ)",
+            image_in = gr.Image(type="pil", label="ภาพมิเตอร์ (ถ่ายตรง ไม่เอียง แสงพอ)",
                                 sources=["upload", "webcam", "clipboard"])
             btn = gr.Button("🔍 อ่านค่ามิเตอร์", variant="primary", size="lg")
-            meta = gr.Markdown()
+            meta_out = gr.Markdown()
         with gr.Column(scale=2):
-            reading_out = gr.Label(label="ค่ามิเตอร์จากระบบ", value="—")
-            annotated_out = gr.Image(label="ผลการตรวจจับ (หมุนภาพ+ฟิลเตอร์ที่ใช้ตรวจจริง)", type="numpy")
-            table_out = gr.Dataframe(headers=["ตำแหน่ง", "ตัวเลข", "confidence", "สถานะ"],
-                                     label="รายละเอียดทีละหลัก")
-            json_out = gr.JSON(label="ผลลัพธ์เต็มรูปแบบ")
+            reading_out = gr.Label(label="ค่ามิเตอร์ที่อ่านได้", value="—")
+            annotated_out = gr.Image(label="ภาพตรวจจับตัวเลข", type="numpy")
+            table_out = gr.Dataframe(headers=["ตำแหน่ง", "ตัวเลข", "ความมั่นใจ (Confidence)", "สถานะ"],
+                                     label="รายละเอียดรายหลัก")
+            warn_out = gr.Markdown()
 
     btn.click(fn=predict, inputs=image_in,
-              outputs=[annotated_out, reading_out, table_out, json_out, meta])
+              outputs=[annotated_out, reading_out, table_out, warn_out, meta_out])
 
 if __name__ == "__main__":
     demo.launch(server_name="127.0.0.1", server_port=7860, show_error=True)
