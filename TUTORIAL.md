@@ -1245,25 +1245,17 @@ if __name__ == "__main__":
 
 ### ค. โครงสร้างระบบไฟล์ของโปรเจกต์ปัจจุบัน (Current Project Structure)
 
-&emsp;&emsp;โครงสร้างไฟล์จริงของ `meter-reader/` ในปัจจุบัน (ตรงกับ `git` และ `weights/` ที่ใช้งานจริง) มีดังนี้:
+&emsp;&emsp;โครงสร้างไฟล์ที่ปรากฏและได้รับการสอนในคู่มือฉบับนี้ ประกอบด้วยเฉพาะไฟล์หลักที่จำเป็นต่อการเรียนรู้และการใช้งานระบบ:
 
 ```text
 meter-reader/
-├── main.py                 <- FastAPI + Pipeline หลัก (YOLO26 + SigLIP2 + Safety Guards)
-├── gradio_app.py           <- Gradio UI (เรียก POST /api/read-meter)
-├── TUTORIAL.md             <- คู่มือฉบับสมบูรณ์ (ทางการ, APA7, mermaid + fallback)
-├── README.md               <- คำอธิบายสั้นสำหรับ GitHub
-├── requirements.txt        <- รายการ Dependencies ตรงกับ 1.3.2
-├── RE.docx                 <- ฉบับ Word (ปก/คำนำ/สารบัญ/สารบัญภาพ จาก Guidebook + เนื้อหา)
-├── media/
-│   └── image1.png          <- โลโก้หน้าปก (คัดลอกจาก Guidebook)
-├── meter_img/              <- ภาพตัวอย่างมาตรวัดน้ำ 7 ภาพ
-├── weights/
-│   ├── MeterOCR.pt         <- โมเดล YOLO26 ที่ใช้งานจริง (พร้อมใช้งาน)
-│   └── yolo26n.pt          <- โมเดลฐานสำหรับเทรนต่อ
-└── training/
-    ├── data.yaml           <- คอนฟิกชุดข้อมูล Roboflow
-    └── yolo_train.py       <- สคริปต์เทรน
+├── main.py            # โค้ดหลัก: API (FastAPI) และฟังก์ชันประมวลผลทั้งหมด
+├── gradio_app.py      # หน้าเว็บ UI (Gradio) สำหรับทดสอบระบบ
+├── TUTORIAL.md        # คู่มือการเรียนรู้ฉบับสมบูรณ์
+├── requirements.txt   # รายการ Library dependencies
+├── meter_img/         # ชุดภาพถ่ายมิเตอร์น้ำตัวอย่าง 7 ภาพ
+└── weights/
+    └── MeterOCR.pt    # ไฟล์โมเดล YOLO สำหรับตรวจจับตัวเลข (พร้อมใช้งาน)
 ```
 
-&emsp;&emsp;โฟลเดอร์ `thai.md`, `scripts/`, `.venv/`, `__pycache__/`, `.git/` มิได้นำมาแสดงเนื่องจากถูกละเว้นด้วย `.gitignore` หรือเป็นไฟล์ชั่วคราวของระบบ
+&emsp;&emsp;ไฟล์อื่น ๆ เช่น `README.md`, `RE.docx`, `media/`, `thai.md`, `scripts/`, `training/`, `.venv/`, `__pycache__/` มิได้นำมาแสดง เนื่องจากมิได้อยู่ในขอบเขตการสอนของคู่มือฉบับนี้
