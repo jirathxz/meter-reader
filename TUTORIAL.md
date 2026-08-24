@@ -90,18 +90,24 @@
 &emsp;&emsp;**แผนภาพการทำงานของระบบ (Pipeline Data Flow):**
 
 ```mermaid
-%% 4:3 for A4 — 3 rows, compact for Word
+%% 4:3 compact — not long line, 3 rows for A4
 flowchart TD
-    A["📷 ภาพถ่ายขาเข้า<br/>(Input)"] --> B["1. SigLIP2<br/>Verification"]
+    subgraph Row1 [ ]
+        direction LR
+        A["📷 Input"] --> B["1. SigLIP2"] --> C["2. Preprocessing<br/>4×3"]
+    end
+    subgraph Row2 [ ]
+        direction LR
+        D["3. YOLO"] --> E["4. Filtering<br/>IoU"] --> F["5. Vertical"]
+    end
+    subgraph Row3 [ ]
+        direction LR
+        G["6. Red & Scoring"] --> H["7. Remap"] --> I["8. Safety"] --> J["✅ Output"]
+    end
     B -->|"ไม่ใช่"| B1["⛔ ปฏิเสธ"]
-    B -->|"ใช่"| C["2. Preprocessing<br/>4 ทิศ × 3 ฟิลเตอร์"]
-    C --> D["3. YOLO<br/>Detection"]
-    D --> E["4. Filtering<br/>IoU"]
-    E --> F["5. Vertical<br/>Check"]
-    F --> G["6. Red & Scoring"]
-    G --> H["7. Remapping"]
-    H --> I["8. Safety Guards"]
-    I --> J["✅ Final Output"]
+    B -->|"ใช่"| C
+    C --> D
+    F --> G
 ```
 
 <details>
