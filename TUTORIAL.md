@@ -1,71 +1,151 @@
-# 📖 คู่มือพัฒนา: ระบบอ่านเลขมิเตอร์น้ำอัตโนมัติด้วย AI (Water Meter Reader)
-> **สำหรับนักศึกษาและผู้เริ่มต้น:** เรียนรู้หลักการออกแบบ การประมวลผลภาพด้วย Computer Vision และการสร้าง Web Application ด้วย Python 3.11, YOLO26, SigLIP2, FastAPI และ Gradio
+# คู่มือการพัฒนาระบบอ่านค่ามาตรวัดน้ำอัตโนมัติด้วยปัญญาประดิษฐ์
+## Automated Water Meter Reading System using Deep Learning & Computer Vision
+
+&emsp;&emsp;คู่มือฉบับนี้จัดทำขึ้นสำหรับนักพัฒนาซอฟต์แวร์ วิศวกร AI นักศึกษา และผู้สนใจด้านคอมพิวเตอร์วิทัศน์ เพื่อใช้เป็นแนวทางมาตรฐานในการศึกษาและพัฒนาระบบอ่านค่ามาตรวัดน้ำอัตโนมัติ (Water Meter OCR) ด้วยสถาปัตยกรรม **Python 3.11, YOLO26, SigLIP2, OpenCV, FastAPI และ Gradio** จัดการสภาพแวดล้อมด้วย **uv** และเขียนด้วยแนวคิด **Pure Functional Pipeline** ที่กระชับและดูแลรักษาง่าย
 
 ---
 
-## 🧭 แผนผังหลักสูตร (Curriculum Roadmap)
+## สารบัญเนื้อหา (Table of Contents)
+
+- [ข้อแนะนำเบื้องต้นสำหรับการศึกษา](#ข้อแนะนำเบื้องต้นสำหรับการศึกษา)
+- [บทที่ 1: พื้นฐาน การออกแบบ และการประมวลผลภาพ (Fundamentals, Design, and Image Processing)](#บทที่-1-พื้นฐาน-การออกแบบ-และการประมวลผลภาพ-fundamentals-design-and-image-processing)
+  - [1.1 ทฤษฎีและหลักการพื้นฐาน (Theory & Fundamentals)](#11-ทฤษฎีและหลักการพื้นฐาน-theory--fundamentals)
+  - [1.2 การฝึกแบบจำลองสำหรับการอ่านตัวเลข (Model Training)](#12-การฝึกแบบจำลองสำหรับการอ่านตัวเลข-model-training)
+  - [1.3 สภาพแวดล้อมและการจัดการโปรเจกต์ด้วย uv (Environment & Project Setup)](#13-สภาพแวดล้อมและการจัดการโปรเจกต์ด้วย-uv-environment--project-setup)
+  - [1.4 การคัดกรองภาพแบบซีโร่ช็อตด้วย SigLIP2 (Zero-shot Classification)](#14-การคัดกรองภาพแบบซีโร่ช็อตด้วย-siglip2-zero-shot-classification)
+  - [1.5 การตรวจจับและอ่านค่าตัวเลข (Computer Vision & Digit Detection Engine)](#15-การตรวจจับและอ่านค่าตัวเลข-computer-vision--digit-detection-engine)
+- [บทที่ 2: การพัฒนาแอปพลิเคชันและส่วนติดต่อผู้ใช้ (Application & UI Development)](#บทที่-2-การพัฒนาแอปพลิเคชันและส่วนติดต่อผู้ใช้-application--ui-development)
+  - [2.1 การบูรณาการระบบประมวลผลหลักและระบบความปลอดภัย (Core Pipeline & Safety Guards)](#21-การบูรณาการระบบประมวลผลหลักและระบบความปลอดภัย-core-pipeline--safety-guards)
+  - [2.2 การพัฒนาส่วนเชื่อมต่อโปรแกรมประยุกต์ด้วย FastAPI (REST API Development)](#22-การพัฒนาส่วนเชื่อมต่อโปรแกรมประยุกต์ด้วย-fastapi-rest-api-development)
+  - [2.3 การพัฒนาส่วนติดต่อผู้ใช้ด้วย Gradio (Frontend Development)](#23-การพัฒนาส่วนติดต่อผู้ใช้ด้วย-gradio-frontend-development)
+  - [2.4 การรัน ทดสอบ และคู่มือแก้ปัญหา (Testing & Troubleshooting)](#24-การรัน-ทดสอบ-และคู่มือแก้ปัญหา-testing--troubleshooting)
+  - [2.5 ข้อควรพิจารณาก่อนการใช้งานจริง (Production Readiness)](#25-ข้อควรพิจารณาก่อนการใช้งานจริง-production-readiness)
+- [อภิธานศัพท์ (Glossary)](#อภิธานศัพท์-glossary)
+- [บรรณานุกรมและเอกสารอ้างอิง (References)](#บรรณานุกรมและเอกสารอ้างอิง-references)
+
+---
+
+## ข้อแนะนำเบื้องต้นสำหรับการศึกษา
+
+สำหรับผู้ที่เพิ่งเริ่มศึกษาการพัฒนาระบบด้วยไพทอน (Python) และ Computer Vision ขอแนะนำให้ทำความเข้าใจหลักการสำคัญดังนี้:
+
+1. **ทำไมต้องใช้ Python Virtual Environment (`venv`)?:** การสร้างสภาพแวดล้อมเสมือนเปรียบเหมือน "กล่องเครื่องมือเฉพาะงาน" ช่วยแยก Library ของโปรเจกต์นี้ออกจากโปรเจกต์อื่น ป้องกันปัญหาความขัดแย้งของเวอร์ชัน (Dependency Conflicts)
+2. **ทำไมต้องใช้ `uv`?:** `uv` เป็นเครื่องมือจัดการ Python ยุคใหม่ที่เขียนด้วยภาษา Rust มีความเร็วในการสร้าง Environment และติดตั้งแพ็กเกจเร็วกว่า `pip` ปกติถึง 10–100 เท่า
+3. **การรันคำสั่งที่โฟลเดอร์หลัก (Root Directory):** ในการรันคำสั่งผ่าน Terminal หรือ PowerShell โปรดตรวจสอบว่าอยู่ที่โฟลเดอร์หลักของโปรเจกต์ (`meter-reader/`) เสมอ
+4. **การประมวลผลบนสภาพแวดล้อมจริง (Native Execution):** ระบบทำงานบนเครื่องโฮสต์โดยตรง ทำให้เข้าถึง GPU (CUDA) ได้เต็มประสิทธิภาพโดยไม่มี Overhead ของ Container
+5. **แนวคิด Pure Functional Pipeline:** โค้ดถูกออกแบบให้เขียนบนลงล่างอย่างเป็นเส้นตรง ฟังก์ชันรับข้อมูลภาพ (Input) -> ประมวลผล -> คืนค่าผลลัพธ์ (Output) โดยไม่มีความซับซ้อนของ Class และ OOP
+
+---
+
+# บทที่ 1: พื้นฐาน การออกแบบ และการประมวลผลภาพ (Fundamentals, Design, and Image Processing)
+
+---
+
+### 1.1 ทฤษฎีและหลักการพื้นฐาน (Theory & Fundamentals)
+
+การทำงานของระบบอ่านเลขมิเตอร์น้ำประกอบด้วย 3 กลไกหลัก:
 
 ```mermaid
-mindmap
-  root((ระบบอ่านเลขมิเตอร์น้ำ))
-    บทที่ 1: พื้นฐานการออกแบบและการประมวลผลภาพ
-      1.1 มโนทัศน์และคำศัพท์สำคัญ
-      1.2 สภาพแวดล้อม uv และ Python 3.11
-      1.3 การโหลดโมเดลแบบ Lazy Loading
-      1.4 เทคนิคการจัดการภาพและพิกัดเรขาคณิต
-      1.5 การตรวจจับตัวเลขและระบบความปลอดภัย
-    บทที่ 2: การพัฒนาแอปพลิเคชันและส่วนติดต่อผู้ใช้
-      2.1 การประกอบ Pipeline หลัก
-      2.2 การสร้าง REST API ด้วย FastAPI
-      2.3 การสร้าง Web Interface ด้วย Gradio
-      2.4 การทดสอบระบบและคู่มือแก้ปัญหา
+flowchart TD
+    A[📷 ภาพถ่ายมิเตอร์หน้างาน] --> B[🔍 1. SigLIP2: Zero-shot คัดแยกประเภทมิเตอร์]
+    B -->|ไม่ใช่มิเตอร์น้ำ| X[❌ ปฏิเสธภาพทันที]
+    B -->|ใช่มิเตอร์น้ำ| C[🔄 2. OpenCV: หมุน 4 ทิศ × 3 ฟิลเตอร์แสง]
+    C --> D[🤖 3. YOLO26: ตรวจจับกล่องตัวเลข 0-9]
+    D --> E[🛡️ 4. Safety Guards: กรองแนวตั้ง + ตรวจกลับหัว + ทศนิยมแดง]
+    E --> F[✅ ได้ผลลัพธ์: ค่าตัวเลข ตำแหน่ง และคำเตือน]
+```
+
+#### 1.1.1 คอมพิวเตอร์วิทัศน์และการตรวจจับวัตถุ (Computer Vision & Object Detection)
+ระบบใช้โมเดล **YOLO (You Only Look Once)** สถาปัตยกรรมล่าสุด (YOLO26 / YOLOv8 architecture) ในการตรวจจับและระบุตำแหน่งตัวเลข (Bounding Box Detection) ซึ่งมีจุดเด่นเรื่องความเร็วในการประมวลผลระดับ Real-time โมเดลจะคืนค่าพิกัด `[x1, y1, x2, y2]` ล้อมรอบตัวเลขแต่ละหลัก พร้อมระบุ Class ค่าตัวเลข $0-9$ และค่าความมั่นใจ (Confidence Score)
+
+#### 1.1.2 การจำแนกภาพแบบซีโร่ช็อต (Zero-shot Image Classification)
+แทนที่จะต้องฝึกฝน (Train) โมเดลใหม่ทั้งหมดเพื่อคัดแยกภาพที่ไม่ใช่มิเตอร์น้ำ ระบบเลือกใช้ **SigLIP2** <span class="citation">(Tschannen et al., 2025)</span> ซึ่งเป็น Vision-Language Model ขนาดใหญ่ที่ผ่านการเทรนด้วยภาพและข้อความนับพันล้านคู่ ทำให้เราสามารถป้อน Text Prompt เช่น `"water meter"`, `"electricity meter"`, `"not a meter"` เพื่อตรวจสอบความถูกต้องของภาพได้ทันทีโดยไม่ต้องเทรนเพิ่ม
+
+#### 1.1.3 การประมวลผลภาพดิจิทัล (Digital Image Processing)
+ในสภาพแวดล้อมจริง ภาพถ่ายมิเตอร์มักมีเงา แสงสะท้อนจากกระจก หรือตัวเลขเลือนราง ระบบจึงต้องปรับปรุงคุณภาพภาพ (Image Enhancement) ตามแนวคิดของ <span class="citation">Li et al. (2020)</span>:
+* **CLAHE (Contrast Limited Adaptive Histogram Equalization):** ปรับสมดุลแสงเฉพาะจุดบนช่องความสว่าง (Luminance) ช่วยดึงรายละเอียดตัวเลขในเงามืดโดยไม่ทำให้ส่วนสว่างจ้าเกินไป
+* **Histogram Equalization (HistEq):** เกลี่ยความสว่างทั่วทั้งภาพบนช่อง Y (YCrCb) ช่วยให้ภาพที่มีแสงน้อยเห็นตัวเลขคมชัดขึ้น
+
+---
+
+### 1.2 การฝึกแบบจำลองสำหรับการอ่านตัวเลข (Model Training)
+
+> [!NOTE]
+> **มีโมเดลสำเร็จรูปพร้อมใช้งานทันที:**  
+> หากต้องการใช้งานระบบทันที สามารถใช้โมเดล `weights/MeterOCR.pt` ที่ฝึกเสร็จแล้วได้ทันทีโดยไม่ต้องฝึกใหม่ หากต้องการศึกษาขั้นตอนการเทรนด้วยตนเอง สามารถทำตามขั้นตอนด้านล่างนี้ผ่าน Google Colab หรือ Kaggle
+
+#### 1.2.1 การเตรียมชุดข้อมูลจาก Roboflow
+ระบบใช้ชุดข้อมูล "Utility Meter Reading" ซึ่งมีการตีกรอบ Bounding Box ระบุ Class ตัวเลข $0-9$ ในรูปแบบ YOLO Format:
+
+```python
+# 📍 train_model_colab.ipynb — ดาวน์โหลดชุดข้อมูลจาก Roboflow
+from roboflow import Roboflow
+
+rf = Roboflow(api_key="YOUR_API_KEY")
+project = rf.workspace("watermeter-jvlgr").project("utility-meter-reading-dataset-for-automatic-reading-yolo")
+version = project.version(1)
+dataset = version.download("yolov8")
+```
+
+#### 1.2.2 การฝึกโมเดล YOLO
+```python
+# 📍 train_model_colab.ipynb — ฝึกฝนโมเดล YOLO สำหรับอ่านตัวเลข
+from ultralytics import YOLO
+
+# โหลด Base Model
+model = YOLO("yolo11n.pt")
+
+# เริ่มต้นการฝึกฝน
+results = model.train(
+    data=f"{dataset.location}/data.yaml",
+    epochs=100,
+    imgsz=960,
+    batch=16,
+    device=0,
+    name="meter_ocr_model",
+)
+
+# ประเมินผลลัพธ์บน Validation Set
+metrics = model.val()
+print(f"mAP@50: {metrics.box.map50:.4f}, mAP@50-95: {metrics.box.map:.4f}")
 ```
 
 ---
 
-# 📘 บทที่ 1: พื้นฐานการออกแบบและการประมวลผลภาพ
-
----
-
-### 1.1 ความท้าทายของโจทย์และคำศัพท์สำคัญ (Mental Model & Glossary)
-
-การอ่านเลขมิเตอร์น้ำจากภาพถ่ายหน้างานจริงมีความซับซ้อนกว่าข้อความทั่วไป เนื่องจาก:
-1. **ภาพถ่ายอาจเอียง ตะแคง หรือกลับหัว** (คนถ่ายถือกล้องตามความสะดวกหน้างาน)
-2. **ตัวเลขจาง มีคราบน้ำ หรือแสงสะท้อนบนกระจก**
-3. **มีข้อความหลอกบนตัวถัง** (เช่น เลขซีเรียลนัมเบอร์แนวดิ่ง หรือวันที่ผลิต)
-4. **ตัวเลขสมมาตรหลอกตาเมื่อกลับหัว** (เช่น $6 \leftrightarrow 9$, $2 \leftrightarrow 5$, และ $0, 1, 8$)
-
-#### 📚 คำศัพท์เทคนิคเข้าใจง่ายใน 1 นาที
-
-| คำศัพท์ | ความหมายภาษาคน | ตัวอย่างการใช้งานในชีวิตจริง |
-|---|---|---|
-| **Python Virtual Environment (`venv`)** | โฟลเดอร์ที่แยก Library ของโปรเจกต์นี้ออกจากโปรเจกต์อื่น | กล่องเครื่องมือเฉพาะงาน ป้องกันเวอร์ชัน Library ตีกัน |
-| **`uv`** | ตัวจัดการสภาพแวดล้อม Python ยุคใหม่ที่เร็วกว่า `pip` 10-100 เท่า | เครื่องมือติดตั้งและรันโปรแกรมความเร็วสูง |
-| **OpenCV (`cv2`)** | ไลบรารีจัดการภาพดิจิทัล (ตัด หมุน ปรับแสง แปลงสี) | เครื่องมือแต่งภาพให้ AI มองเห็นตัวเลขได้ชัดที่สุด |
-| **Image Preprocessing** | การปรับแต่งภาพก่อนส่งให้ AI (เช่น เพิ่มคอนทราสต์) | การเช็ดกระจกแว่นตาให้ใสก่อนอ่านหนังสือ |
-| **ROI / Bounding Box (`bbox`)** | พิกัดสี่เหลี่ยม `[x1, y1, x2, y2]` ล้อมรอบตัวเลขแต่ละหลัก | การเอาปากกาไฮไลต์ตีกรอบเฉพาะตัวเลขที่สนใจ |
-| **Model Inference** | การนำภาพส่งเข้าไปให้ AI ประมวลผลและตอบคำตอบออกมา | การส่งข้อสอบให้ผู้เชี่ยวชาญตรวจแล้วรอฟังผล |
-| **IoU (Intersection over Union)** | อัตราส่วนพื้นที่ทับซ้อนของ 2 กล่อง | ใช้ตรวจว่ามีกล่องตรวจจับซ้อนทับกันหรือไม่ |
-| **Zero-Shot Classification** | ความสามารถของ AI ในการจำแนกภาพตามคำอธิบายข้อความ | SigLIP2 ตรวจว่าภาพนี้ใช่มิเตอร์น้ำจริงหรือไม่ |
-
----
-
-### 1.2 การเตรียมสภาพแวดล้อมด้วย `uv` และ Python 3.11
+### 1.3 สภาพแวดล้อมและการจัดการโปรเจกต์ด้วย `uv` (Environment & Project Setup)
 
 > [!IMPORTANT]
-> ระบบนี้แนะนำให้ใช้ **Python 3.11** โดยใช้เครื่องมือ **`uv`** ในการจัดการ
+> ระบบนี้พัฒนาบน **Python 3.11** และใช้เครื่องมือ **`uv`** เพื่อประสิทธิภาพและความเสถียรสูงสุด
 
-#### 1. สร้าง Virtual Environment ด้วย Python 3.11
-```powershell
-uv venv --python 3.11
+#### 1.3.1 โครงสร้างไฟล์ของระบบ (Project Structure)
+```
+meter-reader/
+├── main.py            # API หลัก (FastAPI) และ Pipeline ประมวลผลภาพ (Pure Functions)
+├── gradio_app.py      # หน้าเว็บ UI (Gradio) สำหรับทดสอบระบบ
+├── TUTORIAL.md        # คู่มือพัฒนาฉบับสมบูรณ์
+├── requirements.txt   # รายการ Library dependencies
+├── meter_img/         # ชุดภาพตัวอย่างมิเตอร์น้ำสำหรับทดสอบ (7 ภาพทดสอบ)
+└── weights/           # ไฟล์น้ำหนักโมเดล (MeterOCR.pt)
 ```
 
-เปิดใช้งาน Environment:
-* **Windows (PowerShell):** `.venv\Scripts\Activate.ps1`
-* **Windows (Command Prompt):** `.venv\Scripts\activate.bat`
-* **macOS / Linux:** `source .venv/bin/activate`
+#### 1.3.2 การสร้างสภาพแวดล้อมและติดตั้ง Dependencies
+เปิด Terminal ในโฟลเดอร์ `meter-reader/` แล้วรันคำสั่ง:
 
-#### 2. สร้างไฟล์ `requirements.txt` และติดตั้ง Packages
+```powershell
+# 1. สร้าง Virtual Environment ด้วย Python 3.11
+uv venv --python 3.11
+
+# 2. เปิดใช้งาน Virtual Environment
+# Windows PowerShell:
+.venv\Scripts\Activate.ps1
+# macOS / Linux:
+# source .venv/bin/activate
+
+# 3. ติดตั้ง Library ทั้งหมดผ่าน uv
+uv pip install -r requirements.txt
+```
+
+รายการไลบรารีใน `requirements.txt`:
 ```text
 fastapi>=0.115.0
 uvicorn[standard]>=0.34.0
@@ -81,75 +161,22 @@ gradio>=5.0.0
 httpx>=0.28.0
 ```
 
-ติดตั้งด้วยคำสั่ง:
-```powershell
-uv pip install -r requirements.txt
-```
-
 ---
 
-### 1.3 การกำหนดค่าคงที่และการโหลดโมเดล (Constants & Lazy Loaders)
+### 1.4 การคัดกรองภาพแบบซีโร่ช็อตด้วย SigLIP2 (Zero-shot Classification)
 
-การรวมค่าคงที่ไว้ที่ส่วนบนสุดของไฟล์ช่วยให้ปรับแต่งระบบได้จากที่เดียว และการใช้ **Lazy Loading** ช่วยประหยัด RAM โดยจะโหลดโมเดลเข้าหน่วยความจำเมื่อมี Request แรกเข้ามาเท่านั้น
+ในการทำงานจริง มีโอกาสที่ผู้ใช้งานจะส่งภาพวัตถุอื่นที่ไม่ใช่มิเตอร์น้ำ (เช่น มิเตอร์ไฟฟ้า เกจวัดแรงดัน หรือภาพถ่ายทั่วไป) เข้ามา ระบบจึงใช้ **SigLIP2** คัดกรองภาพก่อนเป็นด่านแรก:
 
 ```python
-from __future__ import annotations
-
-import io
-from time import perf_counter
-from typing import Any
-
-import cv2
-import numpy as np
-import torch
-from PIL import Image
-
-# ---------------------------------------------------------
-# ค่าคงที่ระบบ (Constants)
-# ---------------------------------------------------------
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
-YOLO_MODEL = "weights/MeterOCR.pt"
-YOLO_IMGSZ = 960
-YOLO_CONF = 0.35
-CONF_RELIABLE = 0.60
-EXPECTED_MIN_DIGITS = 4
-EXPECTED_MAX_DIGITS = 9
-
-ROTATION_ANGLES = (0, 90, 180, 270)
-PREP_LIST = ("orig", "clahe", "histeq")
-CLAHE_CLIP = 2.0
-CLAHE_GRID = (8, 8)
-
-ORIENT_MARGIN = 0.12
-FLIP_GUARD_CONF = 0.60
-FLIP_MAP = {0: 0, 1: 1, 2: 5, 5: 2, 6: 9, 8: 8, 9: 6}
-ALIGN_MAX_SPREAD = 0.10
-RED_THRESH = 0.08
-RED_DOMINANCE = 2.0
-MIN_CROP_PX = 4
-
+# 📍 main.py — SigLIP2 Zero-shot Verification
 SIGLIP_MODEL = "google/siglip2-base-patch16-224"
 METER_LABELS = ("water meter", "electricity meter", "gas meter", "not a meter")
 METER_VERIFY_CONF = 0.50
 
-# ---------------------------------------------------------
-# โหลดโมเดลเมื่อถูกเรียกใช้ครั้งแรก (Lazy Loaders)
-# ---------------------------------------------------------
-_yolo = None
 _siglip = None
 
-def get_yolo() -> Any:
-    """โหลดโมเดล YOLO พร้อมรันภาพทดสอบ 1 ครั้ง"""
-    global _yolo
-    if _yolo is None:
-        from ultralytics import YOLO
-        _yolo = YOLO(YOLO_MODEL)
-        _yolo.predict(np.zeros((640, 640, 3), dtype=np.uint8), verbose=False)
-    return _yolo
-
 def get_siglip() -> tuple[Any, Any]:
-    """โหลดโมเดล SigLIP2 (Processor + Model) เข้า GPU/CPU"""
+    """โหลดโมเดล SigLIP2 (Processor + Model) เข้า GPU/CPU แบบ Lazy Loading"""
     global _siglip
     if _siglip is None:
         from transformers import AutoModel, AutoProcessor
@@ -157,13 +184,38 @@ def get_siglip() -> tuple[Any, Any]:
         model = AutoModel.from_pretrained(SIGLIP_MODEL).to(DEVICE).eval()
         _siglip = (processor, model)
     return _siglip
+
+@torch.inference_mode()
+def check_water_meter(rgb_img: np.ndarray) -> dict[str, Any]:
+    """SigLIP2 ตรวจสอบว่าเป็นภาพมิเตอร์น้ำจริงหรือไม่"""
+    processor, model = get_siglip()
+
+    inputs = processor(
+        text=list(METER_LABELS),
+        images=Image.fromarray(rgb_img),
+        padding="max_length",
+        return_tensors="pt",
+    ).to(DEVICE)
+
+    outputs = model(**inputs)
+    probs = torch.softmax(outputs.logits_per_image, dim=1)[0].cpu().numpy()
+    pred_idx = int(np.argmax(probs))
+    pred_label = METER_LABELS[pred_idx]
+
+    return {
+        "verified": pred_label == "water meter" and float(probs[0]) >= METER_VERIFY_CONF,
+        "predicted_class": pred_label,
+        "confidence": float(probs[0]),
+    }
 ```
 
 ---
 
-### 1.4 การจัดการภาพและพิกัดเรขาคณิต (Image & Geometry Utils)
+### 1.5 การตรวจจับและอ่านค่าตัวเลข (Computer Vision & Digit Detection Engine)
 
-#### 1. การหมุนภาพและปรับคอนทราสต์แสง
+กระบวนการอ่านตัวเลขมิเตอร์น้ำประกอบด้วย 4 ส่วนสำคัญ:
+
+#### 1. การหมุนภาพและปรับคอนทราสต์ (Image Enhancement)
 ```python
 def rotate_image(img_bgr: np.ndarray, angle: int) -> np.ndarray:
     """หมุนภาพ 90°, 180°, 270° ตามเข็มนาฬิกา"""
@@ -176,7 +228,7 @@ def rotate_image(img_bgr: np.ndarray, angle: int) -> np.ndarray:
     return img_bgr
 
 def apply_prep(img_bgr: np.ndarray, prep: str) -> np.ndarray:
-    """ปรับแสง: CLAHE (เพิ่มคอนทราสต์เฉพาะจุด) หรือ HistEq (กระจายแสงทั้งภาพ)"""
+    """ปรับแสง: CLAHE (บนช่อง L) หรือ HistEq (บนช่อง Y)"""
     if prep == "clahe":
         lab = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2LAB)
         l, a, b = cv2.split(lab)
@@ -193,11 +245,11 @@ def apply_prep(img_bgr: np.ndarray, prep: str) -> np.ndarray:
 ```
 
 #### 2. การแปลงพิกัดจุดเดี่ยว (`remap_point`) และกล่อง (`remap_bbox`)
-เมื่อหมุนภาพเพื่อตรวจจับตัวเลข พิกัดของกล่องจะอยู่บนระนาบของภาพหมุน เราจึงต้องแปลงพิกัดกลับมายังภาพต้นฉบับ:
+เมื่อตรวจจับบนภาพที่หมุน พิกัดจะอยู่ในแกนของภาพหมุน เราต้องแปลงพิกัดกลับสู่ระนาบภาพต้นฉบับ:
 
 ```python
 def remap_point(x: float, y: float, angle: int, w: int, h: int) -> tuple[float, float]:
-    """แปลงจุด 1 จุดจากภาพหมุน กลับสู่พิกัดภาพเดิม"""
+    """แปลงจุด 1 จุดจากภาพหมุน กลับสู่พิกัดภาพเดิมแบบเห็นภาพชัดเจน"""
     if angle == 90:
         return y, h - x      # หมุนขวา 90° -> แกนสลับ x=y, y=h-x
     if angle == 180:
@@ -207,7 +259,7 @@ def remap_point(x: float, y: float, angle: int, w: int, h: int) -> tuple[float, 
     return x, y
 
 def remap_bbox(bbox: list[float], angle: int, w: int, h: int) -> list[float]:
-    """แปลงจุดมุม 2 จุด แล้วหา min/max สร้างกรอบสี่เหลี่ยมที่ถูกต้อง"""
+    """แปลงจุดมุม 2 จุด แล้วหา min/max เพื่อสร้าง Bounding Box ในพิกัดภาพเดิม"""
     x1, y1, x2, y2 = bbox
     p1_x, p1_y = remap_point(x1, y1, angle, w, h)
     p2_x, p2_y = remap_point(x2, y2, angle, w, h)
@@ -219,28 +271,30 @@ def remap_bbox(bbox: list[float], angle: int, w: int, h: int) -> list[float]:
     ]
 ```
 
-#### 3. ตัดกล่องซ้อนด้วย IoU และตรวจจับสีแดงของหลักทศนิยม
+#### 3. การกรองคอลัมน์แนวตั้ง (`is_vertical`) ด้วยระยะกว้าง vs ระยะสูง
+หน้าปัดมิเตอร์น้ำจริงมักมีตัวเลขวันที่หรือซีเรียลนัมเบอร์ปั๊มเป็นแนวตั้ง ตัวเลขหน้าปัดหลักของมิเตอร์น้ำจะต้องเรียงตัวเป็น **แนวนอน** เสมอ ($\text{width\_span} > \text{height\_span}$):
+
 ```python
-def iou(box1: list[float], box2: list[float]) -> float:
-    """คำนวณพื้นที่ทับซ้อนของ 2 กล่อง"""
-    x1, y1 = max(box1[0], box2[0]), max(box1[1], box2[1])
-    x2, y2 = min(box1[2], box2[2]), min(box1[3], box2[3])
-    intersection = max(0, x2 - x1) * max(0, y2 - y1)
-    area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
-    area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
-    union = area1 + area2 - intersection
-    return (intersection / union) if union > 0 else 0.0
+def is_vertical(dets: list[dict[str, Any]], img_w: int, img_h: int) -> dict[str, Any]:
+    """ตรวจว่าแถวตัวเลขเรียงเป็นแนวตั้งหรือไม่ (แนวนอน width_span ต้องมากกว่า height_span)"""
+    if len(dets) < 2:
+        return {"vertical": False}
 
-def dedup_detections(dets: list[dict[str, Any]], thresh: float = 0.45) -> list[dict[str, Any]]:
-    """ลบกล่องที่ซ้อนทับกันเกิน 45% โดยเก็บกล่องที่มั่นใจสูงสุดไว้"""
-    kept: list[dict[str, Any]] = []
-    for d in sorted(dets, key=lambda x: x["confidence"], reverse=True):
-        if not any(iou(d["bbox"], k["bbox"]) > thresh for k in kept):
-            kept.append(d)
-    return sorted(kept, key=lambda x: x["center_x"])
+    xs = [d["center_x"] / img_w for d in dets]
+    ys = [d["center_y"] / img_h for d in dets]
 
+    width_span = max(xs) - min(xs)   # ความกว้างของแนวตัวเลข (ซ้ายสุดไปขวาสุด)
+    height_span = max(ys) - min(ys)  # ความสูงของแนวตัวเลข (บนสุดไปล่างสุด)
+
+    # ถ้าความสูงมากกว่าความกว้าง แสดงว่าเป็นคอลัมน์แนวดิ่ง (ไม่ใช่แถวหน้าปัดมิเตอร์)
+    is_vert = (height_span >= width_span * 0.8) or (width_span <= 0.05 and height_span >= 0.08)
+    return {"vertical": is_vert}
+```
+
+#### 4. การค้นหา 4 ทิศ × 3 ฟิลเตอร์ และกฎสีแดงของหลักทศนิยม (`detect_digits_best`)
+```python
 def red_ratio(img_bgr: np.ndarray, bbox: list[float]) -> float:
-    """คำนวณสัดส่วนสีแดงในกล่องตัวเลข (หลักทศนิยมมิเตอร์น้ำจะเป็นสีแดงและอยู่ขวาสุด)"""
+    """คำนวณสัดส่วนสีแดงในกล่องตัวเลข (หลักทศนิยมสีแดงต้องอยู่ขวาสุดของหน้าปัด)"""
     x1, y1, x2, y2 = [int(v) for v in bbox]
     pad_x = max(1, int((x2 - x1) * 0.15))
     pad_y = max(1, int((y2 - y1) * 0.15))
@@ -255,63 +309,10 @@ def red_ratio(img_bgr: np.ndarray, bbox: list[float]) -> float:
     hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
     mask1 = cv2.inRange(hsv, (0, 40, 40), (12, 255, 255))
     mask2 = cv2.inRange(hsv, (165, 40, 40), (180, 255, 255))
-    red_mask = mask1 | mask2
-
-    return float(np.mean(red_mask > 0))
-```
-
----
-
-### 1.5 การตรวจจับตัวเลขและระบบความปลอดภัย (Detection & Safety Engine)
-
-```mermaid
-flowchart LR
-    A[หมุน 4 ทิศ × 3 ฟิลเตอร์] --> B[YOLO หาตัวเลข 0-9]
-    B --> C{is_vertical ?}
-    C -->|ใช่ แนวตั้ง| D[ตัดทิ้ง ป้ายหลอก]
-    C -->|ไม่ใช่ แนวนอน| E[คำนวณคะแนน + กฎสีแดง]
-    E --> F[เลือกมุมที่ดีที่สุด detect_digits_best]
-```
-
-```python
-def detect_digits(img_bgr: np.ndarray) -> list[dict[str, Any]]:
-    """ใช้ YOLO หาตัวเลข 0-9 และเรียงลำดับจากซ้ายไปขวา"""
-    res = get_yolo().predict(
-        img_bgr,
-        imgsz=YOLO_IMGSZ,
-        conf=YOLO_CONF,
-        device=DEVICE,
-        verbose=False,
-    )
-    boxes = []
-    for b in res[0].boxes:
-        x1, y1, x2, y2 = b.xyxy[0].tolist()
-        boxes.append({
-            "digit": int(b.cls[0].item()),
-            "confidence": float(b.conf[0].item()),
-            "bbox": [x1, y1, x2, y2],
-            "center_x": (x1 + x2) / 2.0,
-            "center_y": (y1 + y2) / 2.0,
-        })
-    return sorted(boxes, key=lambda d: d["center_x"])
-
-def is_vertical(dets: list[dict[str, Any]], img_w: int, img_h: int) -> dict[str, Any]:
-    """ตรวจว่ากล่องเรียงตัวเป็นแนวตั้งหรือไม่ (แนวนอน width_span ต้องยาวกว่า height_span)"""
-    if len(dets) < 2:
-        return {"vertical": False}
-
-    xs = [d["center_x"] / img_w for d in dets]
-    ys = [d["center_y"] / img_h for d in dets]
-
-    width_span = max(xs) - min(xs)   # ความกว้างของแนวตัวเลข
-    height_span = max(ys) - min(ys)  # ความสูงของแนวตัวเลข
-
-    # ถ้าความสูงมากกว่าหรือใกล้เคียงความกว้าง แสดงว่าเป็นคอลัมน์แนวดิ่ง (เช่น วันที่/รุ่น)
-    is_vert = (height_span >= width_span * 0.8) or (width_span <= 0.05 and height_span >= 0.08)
-    return {"vertical": is_vert}
+    return float(np.mean((mask1 | mask2) > 0))
 
 def eval_orientation(bgr_img: np.ndarray, angle: int, prep: str) -> dict[str, Any]:
-    """ประเมินคะแนนของ 1 มุม × 1 ฟิลเตอร์"""
+    """ประเมินผลลัพธ์ของ 1 มุม × 1 ฟิลเตอร์"""
     rot = rotate_image(bgr_img, angle)
     proc = apply_prep(rot, prep)
     dets = dedup_detections(detect_digits(proc))
@@ -330,14 +331,14 @@ def eval_orientation(bgr_img: np.ndarray, angle: int, prep: str) -> dict[str, An
     r_last = red_ratio(proc, dets[-1]["bbox"])
 
     if r_first > RED_THRESH and r_first > r_last * RED_DOMINANCE:
-        score *= 0.5   # แดงอยู่ซ้าย -> ภาพน่าจะกลับหัว (ตัดคะแนน)
+        score *= 0.5   # แดงอยู่ซ้าย -> น่าจะกลับหัว (ตัดคะแนน)
     elif r_last > RED_THRESH and r_last > r_first * RED_DOMINANCE:
         score *= 1.05  # แดงอยู่ขวา -> ทิศทางถูกต้อง (เพิ่มคะแนน)
 
     return {"score": score, "dets": dets, "prep": prep, "vert": vert}
 
 def detect_digits_best(rgb_img: np.ndarray) -> tuple[list[dict[str, Any]], dict[str, Any] | None]:
-    """ทดลอง 4 ทิศ × 3 ฟิลเตอร์ (12 รูปแบบ) แล้วเลือกชุดที่คะแนนสูงสุด"""
+    """ทดลอง 4 ทิศ × 3 ฟิลเตอร์ (12 รูปแบบ) แล้วเลือกชุดที่ได้คะแนนสูงสุด"""
     h, w = rgb_img.shape[:2]
     bgr = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR)
 
@@ -378,33 +379,22 @@ def detect_digits_best(rgb_img: np.ndarray) -> tuple[list[dict[str, Any]], dict[
     return best_dets, best_meta
 ```
 
-#### กลไกความปลอดภัยเพิ่มเติม: SigLIP2 และ Flip Guard
+---
+
+# บทที่ 2: การพัฒนาแอปพลิเคชันและส่วนติดต่อผู้ใช้ (Application & UI Development)
+
+---
+
+### 2.1 การบูรณาการระบบประมวลผลหลักและระบบความปลอดภัย (Core Pipeline & Safety Guards)
+
+#### 1. การตรวจจับภาพกลับหัวแบบกระจกเงา (`flip_guard`)
+ตัวเลขในระบบตัวเลขอารบิกมีความสมมาตรเมื่อหมุน 180° ($6 \leftrightarrow 9$, $2 \leftrightarrow 5$, และ $0, 1, 8$) ฟังก์ชัน `flip_guard` จะหมุนภาพไปอีก 180° แล้วเปรียบเทียบผลลัพธ์แบบ Mirror Check:
+
 ```python
-@torch.inference_mode()
-def check_water_meter(rgb_img: np.ndarray) -> dict[str, Any]:
-    """SigLIP2 Zero-shot ตรวจสอบว่าเป็นภาพมิเตอร์น้ำจริงหรือไม่"""
-    processor, model = get_siglip()
-
-    inputs = processor(
-        text=list(METER_LABELS),
-        images=Image.fromarray(rgb_img),
-        padding="max_length",
-        return_tensors="pt",
-    ).to(DEVICE)
-
-    outputs = model(**inputs)
-    probs = torch.softmax(outputs.logits_per_image, dim=1)[0].cpu().numpy()
-    pred_idx = int(np.argmax(probs))
-    pred_label = METER_LABELS[pred_idx]
-
-    return {
-        "verified": pred_label == "water meter" and float(probs[0]) >= METER_VERIFY_CONF,
-        "predicted_class": pred_label,
-        "confidence": float(probs[0]),
-    }
+FLIP_MAP = {0: 0, 1: 1, 2: 5, 5: 2, 6: 9, 8: 8, 9: 6}
 
 def flip_guard(rgb_img: np.ndarray, digits: list[dict[str, Any]], meta: dict[str, Any] | None) -> dict[str, Any]:
-    """ตรวจสอบภาพกลับหัวแบบกระจกสะท้อน (Mirror Check เช่น 6<->9, 2<->5)"""
+    """ตรวจสอบความสมมาตร 180° ป้องกันการอ่านกลับหัว (Mirror Check)"""
     if not digits or not meta:
         return {"warned": False, "anti_reading": "", "anti_confidence": 0.0}
 
@@ -418,7 +408,7 @@ def flip_guard(rgb_img: np.ndarray, digits: list[dict[str, Any]], meta: dict[str
     anti_reading = "".join(str(d["digit"]) for d in anti_dets)
     mean_conf = float(np.mean([d["confidence"] for d in anti_dets]))
 
-    # เปรียบเทียบเลขหัว-ท้ายกับตาราง FLIP_MAP
+    # เปรียบเทียบเลขหัว-ท้ายแบบกระจกสะท้อนกับตาราง FLIP_MAP
     digits_rev = [d["digit"] for d in reversed(digits)]
     anti_vals = [d["digit"] for d in anti_dets]
 
@@ -436,68 +426,16 @@ def flip_guard(rgb_img: np.ndarray, digits: list[dict[str, Any]], meta: dict[str
         "anti_reading": anti_reading,
         "anti_confidence": round(mean_conf, 4),
     }
-
-@torch.inference_mode()
-def cross_check_digits(rgb_img: np.ndarray, digits: list[dict[str, Any]], h: int, w: int, angle: int = 0) -> list[dict[str, Any]]:
-    """SigLIP2 ตรวจทานเฉพาะหลักที่ YOLO มั่นใจต่ำ (< 0.60)"""
-    low_conf = [d for d in digits if d["confidence"] < CONF_RELIABLE]
-    if not low_conf:
-        return []
-
-    processor, model = get_siglip()
-    labels = [str(i) for i in range(10)]
-    mismatches = []
-
-    for d in low_conf:
-        x1, y1, x2, y2 = [int(v) for v in d["bbox"]]
-        crop = rgb_img[max(0, y1): min(h, y2), max(0, x1): min(w, x2)]
-
-        if crop.shape[0] < MIN_CROP_PX or crop.shape[1] < MIN_CROP_PX:
-            continue
-
-        if angle != 0:
-            crop_bgr = cv2.cvtColor(crop, cv2.COLOR_RGB2BGR)
-            crop = cv2.cvtColor(rotate_image(crop_bgr, angle), cv2.COLOR_BGR2RGB)
-
-        inputs = processor(
-            text=labels,
-            images=Image.fromarray(crop),
-            padding="max_length",
-            return_tensors="pt",
-        ).to(DEVICE)
-
-        outputs = model(**inputs)
-        probs = torch.softmax(outputs.logits_per_image, dim=1)[0].cpu().numpy()
-        pred = int(np.argmax(probs))
-
-        if pred != d["digit"]:
-            mismatches.append({
-                "position": d["position"],
-                "yolo_digit": d["digit"],
-                "siglip_digit": pred,
-                "siglip_confidence": float(probs[pred]),
-            })
-
-    return mismatches
 ```
 
----
-
-# 📗 บทที่ 2: การพัฒนาแอปพลิเคชันและส่วนติดต่อผู้ใช้
-
----
-
-### 2.1 การประกอบ Pipeline หลัก (Core Pipeline Integration)
-
-รวมทุกขั้นตอนเข้าด้วยกันในฟังก์ชันเดียว `read_meter(rgb_img)`:
-
+#### 2. ฟังก์ชันประมวลผลหลัก `read_meter(rgb_img)`
 ```python
 def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
-    """ไปป์ไลน์หลัก: รับภาพ RGB -> ตรวจสอบ 4 ขั้นตอน -> คืนผลลัพธ์พร้อมคำเตือน"""
+    """รับภาพ RGB -> ประมวลผล 4 ขั้นตอน -> คืนค่าตัวเลขและคำเตือน"""
     t0 = perf_counter()
     h, w = rgb_img.shape[:2]
 
-    # 1. ตรวจสอบชนิดมิเตอร์ (SigLIP2)
+    # ขั้นที่ 1: ตรวจสอบประเภทมิเตอร์ (SigLIP2)
     meter = check_water_meter(rgb_img)
     if not meter["verified"]:
         return {
@@ -509,7 +447,7 @@ def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
             "elapsed_ms": round((perf_counter() - t0) * 1000, 1),
         }
 
-    # 2. ค้นหามุมและตรวจจับตัวเลขที่ดีที่สุด (YOLO26)
+    # ขั้นที่ 2: ค้นหาทิศและตัวเลขที่ดีที่สุด (YOLO26)
     dets, meta = detect_digits_best(rgb_img)
     if not dets:
         return {
@@ -530,7 +468,7 @@ def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
     } for i, d in enumerate(dets, 1)]
     mean_conf = float(np.mean([d["confidence"] for d in digits]))
 
-    # 3. กรองคอลัมน์แนวตั้ง
+    # ขั้นที่ 3: กรองคอลัมน์แนวตั้ง
     if meta and meta["angle"] == 0 and is_vertical(dets, w, h)["vertical"]:
         return {
             "reading": "",
@@ -541,7 +479,7 @@ def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
             "elapsed_ms": round((perf_counter() - t0) * 1000, 1),
         }
 
-    # 4. ตรวจสอบความถูกต้องและสร้างคำเตือน
+    # ขั้นที่ 4: ตรวจสอบความปลอดภัยและสร้างคำเตือน
     flip = flip_guard(rgb_img, digits, meta)
     align_vals = [
         (d["bbox"][0] + d["bbox"][2]) / (2 * w)
@@ -592,35 +530,29 @@ def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
 
 ---
 
-### 2.2 การสร้าง REST API ด้วย FastAPI
+### 2.2 การพัฒนาส่วนเชื่อมต่อโปรแกรมประยุกต์ด้วย FastAPI (REST API Development)
 
-เราจะนำฟังก์ชัน `read_meter` มาเปิดให้บริการผ่าน FastAPI เพื่อให้แอปพลิเคชันอื่นเรียกใช้ผ่าน HTTP ได้:
+เปิดให้บริการผ่าน REST API ด้วย FastAPI เพื่อรองรับการเรียกใช้งานจาก Frontend, Mobile App หรือระบบภายนอก:
 
 ```python
-from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.middleware.cors import CORSMiddleware
-from starlette.concurrency import run_in_threadpool
-import uvicorn
-
+# 📍 main.py — FastAPI Application
 app = FastAPI(
     title="Meter Reader API",
     version="1.1",
     description="API อ่านเลขมิเตอร์น้ำอัตโนมัติ (Pure Functional Pipeline)",
 )
 
-# เปิด CORS เพื่อให้ Frontend สามารถเรียก API ข้ามโดเมนได้
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp", "image/bmp"}
 
 @app.get("/api/health")
 def health() -> dict[str, Any]:
-    """Endpoint ตรวจสอบสถานะการทำงานของเซิร์ฟเวอร์และโมเดล"""
+    """ตรวจสอบสถานะความพร้อมของระบบและโมเดล AI"""
     return {
         "status": "ok",
         "device": DEVICE,
@@ -630,7 +562,7 @@ def health() -> dict[str, Any]:
 
 @app.post("/api/read-meter")
 async def read_meter_endpoint(file: UploadFile = File(...)) -> dict[str, Any]:
-    """Endpoint รับไฟล์ภาพมิเตอร์ และประมวลผลคืนค่า JSON"""
+    """รับไฟล์ภาพมิเตอร์น้ำและส่งออกผลการอ่านค่าตัวเลข"""
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(status_code=415, detail="ชนิดไฟล์ไม่รองรับ")
 
@@ -642,7 +574,6 @@ async def read_meter_endpoint(file: UploadFile = File(...)) -> dict[str, Any]:
     except Exception:
         raise HTTPException(status_code=422, detail="อ่านไฟล์ภาพไม่ได้")
 
-    # รันบน Threadpool เพื่อไม่ให้บล็อก Event Loop ของ FastAPI
     return await run_in_threadpool(read_meter, arr)
 
 if __name__ == "__main__":
@@ -651,11 +582,12 @@ if __name__ == "__main__":
 
 ---
 
-### 2.3 การสร้าง Web Interface ด้วย Gradio (`gradio_app.py`)
+### 2.3 การพัฒนาส่วนติดต่อผู้ใช้ด้วย Gradio (Frontend Development)
 
-สร้างหน้าเว็บ Interactive UI ที่ผู้ใช้งานสามารถลากรูปภาพมาวาง แล้วแสดงผลลัพธ์พร้อมวาดกล่อง Bounding Box แบบ Real-time:
+สร้างหน้าเว็บ Interactive Web Interface ในไฟล์ `gradio_app.py`:
 
 ```python
+# 📍 gradio_app.py — Gradio Web Interface
 import io
 import cv2
 import gradio as gr
@@ -668,7 +600,7 @@ READ_ENDPOINT = f"{API_URL}/api/read-meter"
 HEALTH_ENDPOINT = f"{API_URL}/api/health"
 
 def fetch_health() -> str:
-    """ดึงสถานะจาก Backend API"""
+    """เช็คสถานะการเชื่อมต่อกับ Backend"""
     try:
         data = httpx.get(HEALTH_ENDPOINT, timeout=10).json()
         return (f"API: ok | device: {data['device']} | "
@@ -678,7 +610,7 @@ def fetch_health() -> str:
         return f"API ไม่พร้อม ({exc}) - กรุณารัน `uv run python main.py` ก่อน"
 
 def predict(image: Image.Image | None):
-    """ส่งภาพไปยัง API และวาดกล่อง Bounding Box บนภาพพรีวิว"""
+    """ส่งภาพไปยัง API และรับผลลัพธ์มาแสดงผล"""
     if image is None:
         raise gr.Error("กรุณาเลือกภาพมิเตอร์ก่อน")
 
@@ -707,10 +639,9 @@ def predict(image: Image.Image | None):
 
     return reading, f"{mean_conf:.2%}", warn_text
 
-# สร้างหน้าเว็บด้วย Gradio Blocks
 with gr.Blocks(title="Water Meter Reader") as demo:
     gr.Markdown("# 💧 ระบบอ่านเลขมิเตอร์น้ำอัตโนมัติ (Water Meter Reader)")
-    
+
     with gr.Row():
         status_box = gr.Textbox(value=fetch_health, label="สถานะระบบ", interactive=False)
         refresh_btn = gr.Button("🔄 เช็คสถานะ", size="sm")
@@ -720,7 +651,7 @@ with gr.Blocks(title="Water Meter Reader") as demo:
         with gr.Column():
             input_img = gr.Image(type="pil", label="อัปโหลดภาพมิเตอร์น้ำ")
             submit_btn = gr.Button("🔍 เริ่มอ่านเลขมิเตอร์", variant="primary")
-        
+
         with gr.Column():
             reading_out = gr.Textbox(label="ตัวเลขที่อ่านได้", scale=2)
             conf_out = gr.Textbox(label="ความมั่นใจเฉลี่ย")
@@ -738,17 +669,17 @@ if __name__ == "__main__":
 
 ---
 
-### 2.4 การรัน ทดสอบ และคู่มือแก้ปัญหา (Testing & Debugging)
+### 2.4 การรัน ทดสอบ และคู่มือแก้ปัญหา (Testing & Troubleshooting)
 
-#### 🚀 วิธีรันระบบด้วย `uv`
+#### 🚀 วิธีการรันระบบด้วย `uv`
 
-1. **เปิดเทอร์มินัลที่ 1 — รัน FastAPI Backend:**
+1. **รัน FastAPI Backend:**
    ```powershell
    uv run python main.py
    ```
-   *เข้าดู Interactive API Docs ได้ที่ [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)*
+   *เข้าชม Interactive Swagger API Docs ได้ที่ [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)*
 
-2. **เปิดเทอร์มินัลที่ 2 — รัน Gradio Frontend:**
+2. **รัน Gradio Web UI:**
    ```powershell
    uv run python gradio_app.py
    ```
@@ -758,10 +689,40 @@ if __name__ == "__main__":
 
 #### 🛠️ คู่มือวิเคราะห์และแก้ปัญหาเมื่อ AI อ่านผิด (Debugging Matrix)
 
-| อาการที่พบ (Symptom) | สาเหตุทางเทคนิค (Root Cause) | วิธีแก้ไขและการตั้งค่า (Action) |
+| ปัญหาที่พบ (Issue) | สาเหตุทางเทคนิค (Root Cause) | แนวทางแก้ไข (Solution) |
 |---|---|---|
-| **ตอบว่า "ภาพนี้ไม่ใช่มิเตอร์น้ำ"** | SigLIP2 ให้คะแนนความน่าจะเป็นต่ำกว่า `METER_VERIFY_CONF` | ครอปภาพให้เห็นหน้าปัดมิเตอร์ชัดขึ้น หรือปรับลดเกณฑ์ `METER_VERIFY_CONF = 0.40` ใน `main.py` |
-| **ตัวเลขหายไปบางหลัก (เช่น 5 หลักอ่านได้ 4 หลัก)** | ตัวเลขจางหรือแสงสะท้อนทำให้ Confidence ต่ำกว่า `YOLO_CONF` | ปรับลด `YOLO_CONF = 0.30` หรือทดสอบเปลี่ยนฟิลเตอร์เป็น `clahe` / `histeq` |
-| **อ่านได้เลขกลับหัว เช่น 9 เป็น 6** | ภาพถ่ายคว่ำ 180° และไม่มีทศนิยมสีแดง | ตรวจดูที่กล่องคำเตือน ระบบจะแจ้งเตือน `⚠️ อาจกลับหัว` เพื่อให้เจ้าหน้าที่ตรวจสอบ |
-| **AI ไปอ่านป้ายวันที่ข้างตัวเรือน** | มีตัวเลขพิมพ์ในแนวตั้งบนตัวถังมิเตอร์ | ฟังก์ชัน `is_vertical()` จะคำนวณ `height_span >= width_span` และปฏิเสธแถวนั้นให้อัตโนมัติ |
-| **หน้าเว็บขึ้น "API ไม่พร้อม"** | Backend ยังไม่ได้เริ่มทำงาน | ตรวจสอบว่ารัน `uv run python main.py` ในเทอร์มินัลที่ 1 แล้วหรือไม่ |
+| **ตอบว่า "ภาพนี้ไม่ใช่มิเตอร์น้ำ"** | SigLIP2 ให้คะแนนความน่าจะเป็นต่ำกว่า `METER_VERIFY_CONF` | ครอปภาพให้เห็นหน้าปัดมิเตอร์ชัดเจนขึ้น หรือปรับลดเกณฑ์ `METER_VERIFY_CONF = 0.40` ใน `main.py` |
+| **ตัวเลขหายไป 1-2 หลัก** | แสงสะท้อนหรือตัวเลขจางทำให้ Confidence ต่ำกว่า `YOLO_CONF` | ปรับลด `YOLO_CONF = 0.30` หรือทดสอบเปิดใช้งานฟิลเตอร์ `histeq` |
+| **อ่านได้เลขกลับหัว เช่น 9 เป็น 6** | ภาพถ่ายคว่ำ 180° และไม่มีทศนิยมสีแดง | ดูที่กล่องคำเตือน ระบบจะแจ้งเตือน `⚠️ อาจกลับหัว` เพื่อให้เจ้าหน้าที่ตรวจสอบ |
+| **AI ไปอ่านป้ายวันที่ข้างตัวเรือน** | มีตัวเลขพิมพ์ในแนวตั้งบนตัวถังมิเตอร์ | ฟังก์ชัน `is_vertical()` จะคำนวณ `height_span >= width_span` และตัดทิ้งให้อัตโนมัติ |
+| **เว็บขึ้น "API ไม่พร้อม"** | Backend ยังไม่ได้เริ่มทำงาน | ตรวจสอบว่ารัน `uv run python main.py` เรียบร้อยแล้วหรือไม่ |
+
+---
+
+### 2.5 ข้อควรพิจารณาก่อนการใช้งานจริง (Production Readiness)
+
+1. **สิทธิ์การใช้งาน (License):** YOLO (Ultralytics) ใช้ AGPL-3.0 สำหรับ Open Source หรือ Commercial License สำหรับการค้า, SigLIP2 อยู่ภายใต้ Apache 2.0
+2. **ความเป็นส่วนตัวของข้อมูล (PDPA):** ภาพถ่ายมิเตอร์น้ำที่ติดบ้านเรือนหรือเลขทะเบียนผู้ใช้น้ำ ควรกำหนดระยะเวลาลบไฟล์ชั่วคราว (Retention Policy) ทันทีหลังประมวลผลเสร็จ
+3. **การประมวลผลบนคลาวด์/เซิร์ฟเวอร์:** หากต้องการความเร็วสูง แนะนำให้ติดตั้งไดรเวอร์ NVIDIA CUDA และรันบน GPU ซึ่งจะใช้เวลาประมวลผลเฉลี่ยเพียง **50–150 ms ต่อภาพ**
+
+---
+
+## อภิธานศัพท์ (Glossary)
+
+* **Bounding Box:** กรอบสี่เหลี่ยมระบุตำแหน่งวัตถุในระบบพิกัด $X, Y$
+* **CLAHE:** เทคนิคการปรับสมดุลความคมชัดของภาพเฉพาะจุดเพื่อลดปัญหาแสงสะท้อนและเงามืด
+* **Confidence Score:** ค่าความน่าจะเป็น (0.00 – 1.00) ที่โมเดลมั่นใจในคำตอบ
+* **Intersection over Union (IoU):** อัตราส่วนพื้นที่ทับซ้อนใช้สำหรับกรองกล่องตรวจจับที่ซ้ำซ้อน
+* **Lazy Loading:** การชะลอการโหลดโมเดลเข้าหน่วยความจำจนกว่าจะถูกเรียกใช้งานครั้งแรก
+* **Non-Maximum Suppression (NMS):** อัลกอริทึมคัดเลือกกล่องตรวจจับที่ดีที่สุดและกำจัดกล่องซ้ำ
+* **Zero-shot Learning:** ความสามารถของโมเดลในการจำแนกประเภทสิ่งที่ไม่เคยเห็นในชุดฝึกมาก่อนผ่านคำอธิบายภาษาธรรมชาติ
+
+---
+
+## บรรณานุกรมและเอกสารอ้างอิง (References)
+
+1. **Tschannen, M., et al. (2025).** *SigLIP 2: Multilingual Vision-Language Encoders with Improved Semantic Understanding.* Google Research.
+2. **Li, X., et al. (2020).** *Water Meter Reading Recognition Based on Computer Vision and Deep Learning.* IEEE Access.
+3. **Ultralytics (2024).** *YOLOv8 & YOLO11: Real-Time Object Detection and Image Segmentation.* [https://docs.ultralytics.com](https://docs.ultralytics.com)
+4. **FastAPI Documentation (2024).** *FastAPI framework, high performance, easy to learn, fast to code.* [https://fastapi.tiangolo.com](https://fastapi.tiangolo.com)
+5. **Gradio Documentation (2024).** *Build and Share Delightful Machine Learning Apps.* [https://gradio.app](https://gradio.app)
