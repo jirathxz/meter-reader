@@ -1142,14 +1142,24 @@ if __name__ == "__main__":
 
 ## บรรณานุกรมและเอกสารอ้างอิง (References)
 
-1. **Tschannen, M., et al. (2025).** *SigLIP 2: Multilingual Vision-Language Encoders with Improved Semantic Understanding, Localization, and Dense Features.* arXiv:2502.14786. https://doi.org/10.48550/arXiv.2502.14786 — Google Research (ต้นฉบับ SigLIP: Zhai, X. et al. (2023). *Sigmoid Loss for Language Image Pre-Training.* ICCV 2023). [ตรวจสอบแล้ว: arXiv มีอยู่จริง]
-2. **Li, X., et al. (2020).** *Water Meter Reading Recognition Based on Computer Vision and Deep Learning.* IEEE Access. [วารสาร Q1 IEEE]
-3. **Ultralytics (2024).** *YOLOv8 & YOLO11: Real-Time Object Detection and Image Segmentation.* [https://docs.ultralytics.com](https://docs.ultralytics.com)
-4. **FastAPI Documentation (2024).** *FastAPI framework, high performance, easy to learn, fast to code.* [https://fastapi.tiangolo.com](https://fastapi.tiangolo.com)
-5. **Gradio Documentation (2024).** *Build and Share Delightful Machine Learning Apps.* [https://gradio.app](https://gradio.app)
-6. **Nguyen Van, B., et al. (2025).** *Water Meter Reading Based on Text Recognition Techniques and Deep Learning.* IEEE Access, 13, 41422–41434. https://doi.org/10.1109/ACCESS.2025.3547225 — Q1 (IF ~3.9) IEEE, เทียบ 6 OCR (PP-OCRv3, SPIN, TrOCR, SAR, CRNN) หลัง YOLOv8 ตรงกับ pipeline `detect_digits_best()` [ตรวจสอบแล้ว: DOI มีอยู่จริง]
-7. **Liang, Y., et al. (2022).** *Research on water meter reading recognition based on deep learning.* Scientific Reports, 12, 12861. https://doi.org/10.1038/s41598-022-17255-3 — Q1 Nature, IF ~3.8–4.5, เปรียบเทียบ Faster R-CNN / SSD / YOLOv3 อธิบายทำไมเลือก YOLO [ตรวจสอบแล้ว: Nature มีอยู่จริง]
-8. **Salomon, G., Laroca, R. & Menotti, D. (2022).** *Image-based Automatic Dial Meter Reading in Unconstrained Scenarios.* Measurement, 204, 112025. https://doi.org/10.1016/j.measurement.2022.112025 — Q1 Elsevier (IF ~5.2), วิเคราะห์ dial meter เอียง/เบลอ/บังฝุ่น ตรงกับ `is_vertical`/`flip_guard` [ตรวจสอบแล้ว: DOI มีอยู่จริง]
-9. **Wang, Y. & Xiang, X. (2024).** *GMS-YOLO: an enhanced algorithm for water meter reading recognition in complex environments.* Journal of Real-Time Image Processing, 21, 173. https://doi.org/10.1007/s11554-024-01551-4 — Q1/Q2 Springer, แก้ tilt/blur/ตัวขาด รองรับเหตุผล 4 ทิศ×3 ฟิลเตอร์ [ตรวจสอบแล้ว: DOI มีอยู่จริง]
-10. **Zhai, X., et al. (2023).** *Sigmoid Loss for Language Image Pre-Training (SigLIP).* Proc. IEEE/CVF International Conference on Computer Vision (ICCV 2023). https://arxiv.org/abs/2303.15343 — Top-tier CORE A*, ต้นฉบับ SigLIP ที่ SigLIP2 ต่อยอด, อธิบาย sigmoid loss แทน softmax [ตรวจสอบแล้ว: ICCV + arXiv มีอยู่จริง]
-11. **Zou, Z., et al. (2023).** *Object detection in 20 years: A survey.* Proceedings of the IEEE, 111(3), 257–276. https://doi.org/10.1109/JPROC.2023.3238524 — Q1 Flagship IEEE (IF ~23), survey เทียบ one-stage vs two-stage รองรับคำอธิบาย YOLO ใน 1.1.1 [ตรวจสอบแล้ว: DOI มีอยู่จริง]
+1. Tschannen, M., Gritsenko, A., Wang, X., Naeem, M. F., Alabdulmohsin, I., Parthasarathy, N., Evans, T., Beyer, L., Xia, Y., Mustafa, B., Hénaff, O., Harmsen, J., Steiner, A., & Zhai, X. (2025). SigLIP 2: Multilingual vision-language encoders with improved semantic understanding, localization, and dense features. *arXiv*. https://doi.org/10.48550/arXiv.2502.14786
+
+2. Li, X., et al. (2020). Water meter reading recognition based on computer vision and deep learning. *IEEE Access*.
+
+3. Ultralytics. (2024). *YOLOv8 & YOLO11: Real-time object detection and image segmentation*. https://docs.ultralytics.com
+
+4. FastAPI. (2024). *FastAPI framework, high performance, easy to learn, fast to code*. https://fastapi.tiangolo.com
+
+5. Gradio. (2024). *Build and share delightful machine learning apps*. https://gradio.app
+
+6. Nguyen Van, B., Nguyen, A., Tran-Trung, K., Ho Huong, T., Duong Thi Hong, H., Nguyen Trung, H., & Truong Hoang, V. (2025). Water meter reading based on text recognition techniques and deep learning. *IEEE Access*, *13*, 41422–41434. https://doi.org/10.1109/ACCESS.2025.3547225
+
+7. Liang, Y., Liao, Y., Li, S., Wu, W., Qiu, T., & Zhang, W. (2022). Research on water meter reading recognition based on deep learning. *Scientific Reports*, *12*, 12861. https://doi.org/10.1038/s41598-022-17255-3
+
+8. Salomon, G., Laroca, R., & Menotti, D. (2022). Image-based automatic dial meter reading in unconstrained scenarios. *Measurement*, *204*, 112025. https://doi.org/10.1016/j.measurement.2022.112025
+
+9. Wang, Y., & Xiang, X. (2024). GMS-YOLO: An enhanced algorithm for water meter reading recognition in complex environments. *Journal of Real-Time Image Processing*, *21*(5), 173. https://doi.org/10.1007/s11554-024-01551-4
+
+10. Zhai, X., Mustafa, B., Kolesnikov, A., & Beyer, L. (2023). Sigmoid loss for language image pre-training. In *Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)* (pp. 11941–11952). https://arxiv.org/abs/2303.15343
+
+11. Zou, Z., Chen, K., Shi, Z., Guo, Y., & Ye, J. (2023). Object detection in 20 years: A survey. *Proceedings of the IEEE*, *111*(3), 257–276. https://doi.org/10.1109/JPROC.2023.3238524
