@@ -1253,5 +1253,3 @@ meter-reader/
 └── weights/
     └── MeterOCR.pt    # ไฟล์โมเดล YOLO สำหรับตรวจจับตัวเลข (พร้อมใช้งาน)
 ```
-
-&emsp;&emsp;ไฟล์อื่น ๆ เช่น `TUTORIAL.md`, `meter_img/`, `README.md`, `RE.docx`, `media/`, `thai.md`, `scripts/`, `training/`, `.venv/`, `__pycache__/` มิได้นำมาแสดง เนื่องจากมิได้อยู่ในขอบเขตการสอนของคู่มือฉบับนี้
