@@ -90,18 +90,18 @@
 &emsp;&emsp;**แผนภาพการทำงานของระบบ (Pipeline Data Flow):**
 
 ```mermaid
-%% 16:9 layout — horizontal flow for widescreen
-flowchart LR
-    A["📷 ภาพถ่ายขาเข้า<br/>(Input Image)"] --> B["1. SigLIP2<br/>Verification"]
-    B -->|"ไม่ใช่ → ปฏิเสธ"| B1["⛔ ปฏิเสธ"]
+%% 4:3 for A4 — 3 rows, compact for Word
+flowchart TD
+    A["📷 ภาพถ่ายขาเข้า<br/>(Input)"] --> B["1. SigLIP2<br/>Verification"]
+    B -->|"ไม่ใช่"| B1["⛔ ปฏิเสธ"]
     B -->|"ใช่"| C["2. Preprocessing<br/>4 ทิศ × 3 ฟิลเตอร์"]
-    C --> D["3. YOLO<br/>Digit Detection"]
-    D --> E["4. Filtering<br/>IoU Dedup"]
+    C --> D["3. YOLO<br/>Detection"]
+    D --> E["4. Filtering<br/>IoU"]
     E --> F["5. Vertical<br/>Check"]
     F --> G["6. Red & Scoring"]
-    G --> H["7. Remapping<br/>remap_bbox"]
+    G --> H["7. Remapping"]
     H --> I["8. Safety Guards"]
-    I --> J["✅ Final Output<br/>reading + bbox + conf + warnings"]
+    I --> J["✅ Final Output"]
 ```
 
 <details>
