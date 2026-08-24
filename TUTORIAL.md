@@ -251,8 +251,10 @@ meter-reader/
 ├── main.py            # โค้ดหลัก: API (FastAPI) และฟังก์ชันประมวลผลทั้งหมด
 ├── gradio_app.py      # หน้าเว็บ UI (Gradio) สำหรับทดสอบระบบ
 ├── requirements.txt   # รายการ Library dependencies
-└── weights/
-    └── MeterOCR.pt    # ไฟล์โมเดล YOLO สำหรับตรวจจับตัวเลข (พร้อมใช้งาน)
+├── weights/
+│   └── MeterOCR.pt    # ไฟล์โมเดล YOLO สำหรับตรวจจับตัวเลข (พร้อมใช้งาน)
+└── training/
+    └── yolo_train.py  # สคริปต์เทรน YOLO26 (ตาม Guidebook 1.2.3)
 ```
 
 &emsp;&emsp;โครงสร้างข้างต้นเป็นแบบเรียบง่ายสำหรับการเรียนรู้ สำหรับโครงสร้างไฟล์แบบเต็มของโปรเจกต์ปัจจุบัน โปรดดู **ภาคผนวก ค. โครงสร้างระบบไฟล์ของโปรเจกต์ปัจจุบัน**
@@ -1270,6 +1272,8 @@ meter-reader/
 ├── main.py            # โค้ดหลัก: API (FastAPI) และฟังก์ชันประมวลผลทั้งหมด
 ├── gradio_app.py      # หน้าเว็บ UI (Gradio) สำหรับทดสอบระบบ
 ├── requirements.txt   # รายการ Library dependencies
-└── weights/
-    └── MeterOCR.pt    # ไฟล์โมเดล YOLO สำหรับตรวจจับตัวเลข (พร้อมใช้งาน)
+├── weights/
+│   └── MeterOCR.pt    # ไฟล์โมเดล YOLO สำหรับตรวจจับตัวเลข (พร้อมใช้งาน)
+└── training/
+    └── yolo_train.py  # สคริปต์เทรน YOLO26 (ตาม Guidebook 1.2.3)
 ```
