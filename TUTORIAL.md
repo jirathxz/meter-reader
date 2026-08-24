@@ -225,6 +225,8 @@ results = model.train(
 > **ทำไมต้องทำ (WHY)?:** เพื่อเตรียมโฟลเดอร์และติดตั้งไลบรารีให้พร้อม ก่อนเริ่มทดลองระบบจริง
 
 #### 1.3.1 โครงสร้างไฟล์ของระบบ (Project Structure)
+โครงสร้างปัจจุบันของ `meter-reader/` (แบบเรียบง่ายสำหรับการเรียนรู้):
+
 ```text
 meter-reader/
 ├── main.py            # โค้ดหลัก: API (FastAPI) และฟังก์ชันประมวลผลทั้งหมด
@@ -235,6 +237,34 @@ meter-reader/
 └── weights/
     └── MeterOCR.pt    # ไฟล์โมเดล YOLO สำหรับตรวจจับตัวเลข (พร้อมใช้งาน)
 ```
+
+โครงสร้างอ้างอิงแบบแยกเลเยอร์ตาม `Guidebook/docs/Water_Meter_OCR_Guidebook-Draft.md` (ภาคผนวก — โครงสร้างระบบไฟล์อ้างอิง) สำหรับระบบที่ต้องการแยกหน้าที่ชัดเจน:
+
+```text
+/
+├── main.py               <- จุดเริ่มต้นเซิร์ฟเวอร์ FastAPI
+├── requirements.txt      <- รายการ Dependencies
+├── gradio/
+│   └── app.py            <- Gradio UI Frontend
+├── image/                <- โฟลเดอร์เก็บไฟล์ภาพชั่วคราว (Storage.save)
+├── weights/
+│   └── Water-Meter-Digit.pt  <- ไฟล์โมเดล YOLO (ดาวน์โหลดจาก Colab/Hugging Face → วางเป็น weights/MeterOCR.pt ในโปรเจกต์นี้)
+├── src/
+│   ├── __init__.py
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   └── storage.py          <- จัดการบันทึก/ลบไฟล์ชั่วคราว
+│   └── meter/
+│       ├── __init__.py
+│       ├── ocr.py              <- OCR Engine (YOLO + Computer Vision)
+│       ├── validator.py        <- Image Validator (SigLIP2)
+│       ├── service.py          <- Business Logic Orchestrator
+│       ├── controller.py       <- Security & Request Handler
+│       ├── dependencies.py     <- FastAPI Dependency Injection
+│       └── router.py           <- API Route Definitions
+```
+
+&emsp;&emsp;ในการศึกษาเบื้องต้นใช้โครงสร้างเรียบง่ายด้านบนก็เพียงพอ ส่วนโครงสร้างแยกเลเยอร์ด้านล่างเป็นแนวทางเมื่อต้องการขยายระบบให้ดูแลรักษาง่ายและทดสอบแยกส่วนได้
 
 #### 1.3.2 การสร้างสภาพแวดล้อมและติดตั้ง Dependencies
 
