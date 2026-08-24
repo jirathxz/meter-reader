@@ -179,6 +179,19 @@ flowchart TD
 
 &emsp;&emsp;ระบบใช้ชุดข้อมูล "Utility Meter Reading" จากแพลตฟอร์ม Roboflow ซึ่งประกอบด้วยภาพหน้าปัดมาตรวัดน้ำที่มีการทำเครื่องหมายกำกับพิกัด (Annotation) ในฟอร์แมตที่เข้ากันได้กับ YOLO:
 
+##### ขั้นตอนสมัคร Roboflow และรับ API Key
+
+&emsp;&emsp;1. เปิด [Roboflow](https://app.roboflow.com) แล้วกด **Sign up** สมัครด้วยบัญชี Google, GitHub หรืออีเมล (บัญชีฟรี ไม่ต้องใช้บัตรเครดิต)
+&emsp;&emsp;2. หลังเข้าสู่ระบบ คลิกที่รูปโปรไฟล์ (มุมขวาบน) แล้วเลือก **Settings** หรือเข้าโดยตรงที่ [app.roboflow.com/settings/api](https://app.roboflow.com/settings/api)
+&emsp;&emsp;3. ในหน้า Settings เลื่อนไปที่หัวข้อ **API Key** กดปุ่ม **Copy** เพื่อคัดลอก Key (เป็นตัวอักษรและตัวเลขปนกัน ประมาณ 30–40 หลัก)
+&emsp;&emsp;4. นำ Key ไปวางแทน `YOUR_API_KEY` ในโค้ดด้านล่าง
+
+> **คำเตือน:** API Key เป็นความลับส่วนตัว ห้ามแชร์หรือเผลอ commit ขึ้น Git สาธารณะ สำหรับ Google Colab แนะนำให้เก็บ Key ไว้ใน **Secrets** (ปุ่มรูปกุญแจที่แถบซ้ายของ Colab) แล้วเรียกใช้ด้วยโค้ดต่อไปนี้แทนการพิมพ์ Key ลงใน Notebook โดยตรง:
+> ```python
+> from google.colab import userdata
+> rf = Roboflow(api_key=userdata.get('ROBOFLOW_API_KEY'))
+> ```
+
 ```python
 # 📍 train_model_colab.ipynb — ดาวน์โหลดชุดข้อมูลจาก Roboflow
 from roboflow import Roboflow
