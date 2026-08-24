@@ -58,6 +58,23 @@
 
 **แผนภาพการทำงานของระบบ (Pipeline Data Flow):**
 
+```mermaid
+flowchart TD
+    A["📷 ภาพถ่ายขาเข้า<br/>(Input Image)"] --> B["1. SigLIP2 Verification<br/>ภาพนี้ใช่มิเตอร์น้ำจริงหรือไม่?"]
+    B -->|"ไม่ใช่ → ปฏิเสธทันที"| B1["⛔ ปฏิเสธ"]
+    B -->|"ใช่"| C["2. Preprocessing & Search<br/>ลองหมุน 4 ทิศ (0°, 90°, 180°, 270°) × ปรับแสง 3 แบบ<br/>(Orig, CLAHE, HistEq)"]
+    C --> D["3. YOLO Digit Detection<br/>ตรวจหากล่อง Bounding Box ของตัวเลข 0-9 ทุกหลัก"]
+    D --> E["4. Candidate Filtering<br/>ตัดกรอบซ้อนด้วย IoU (Dedup)"]
+    E --> F["5. Vertical Check<br/>ตรวจว่าแถวเป็นแนวนอน (กรองป้ายวันที่)"]
+    F --> G["6. Red Digit & Scoring<br/>ตรวจสีแดงขวาสุด + ให้คะแนนเลือกมุมที่ดีที่สุด"]
+    G --> H["7. Coordinate Remapping<br/>แปลงพิกัดกล่องกลับสู่ภาพต้นฉบับ (remap_bbox)"]
+    H --> I["8. Safety Guards<br/>ตรวจกลับหัว 180° (flip_guard) + SigLIP2 ตรวจซ้ำ"]
+    I --> J["✅ ตัวเลขผลลัพธ์ (Final Output)<br/>reading + bbox + confidence + warnings"]
+```
+
+<details>
+<summary>📄 ดูเวอร์ชันข้อความ (fallback)</summary>
+
 ```text
 [ 📷 ภาพถ่ายขาเข้า (Input Image) ]
               │
@@ -88,6 +105,7 @@
               ▼
 [ ✅ ตัวเลขผลลัพธ์ (Final Output) ] ──> ได้ค่าตัวเลข พิกัดกล่อง ค่าความมั่นใจ และรายการคำเตือน
 ```
+</details>
 
 #### 1.1.1 คอมพิวเตอร์วิทัศน์และการตรวจจับวัตถุ (Computer Vision & Object Detection)
 **คอมพิวเตอร์วิทัศน์ (Computer Vision)** คือการสอนคอมพิวเตอร์ให้ “มองภาพแล้วเข้าใจ” ส่วน **OCR (Optical Character Recognition)** คือการเปลี่ยนตัวเลขในภาพให้เป็นข้อความที่เอาไปใช้งานต่อได้
