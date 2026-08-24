@@ -176,7 +176,7 @@ flowchart TD
 
 #### 1.2.1 การเตรียมชุดข้อมูลจาก Roboflow
 
-&emsp;&emsp;**Dataset** คือชุดภาพมิเตอร์น้ำที่มีการตีกรอบบอกตำแหน่งเลข 0–9 ไว้แล้ว (Annotation) ดาวน์โหลดได้จาก Roboflow:
+&emsp;&emsp;ระบบใช้ชุดข้อมูล "Utility Meter Reading" จากแพลตฟอร์ม Roboflow ซึ่งประกอบด้วยภาพหน้าปัดมาตรวัดน้ำที่มีการทำเครื่องหมายกำกับพิกัด (Annotation) ในฟอร์แมตที่เข้ากันได้กับ YOLO:
 
 ```python
 # 📍 train_model_colab.ipynb — ดาวน์โหลดชุดข้อมูลจาก Roboflow
@@ -185,33 +185,37 @@ from roboflow import Roboflow
 rf = Roboflow(api_key="YOUR_API_KEY")
 project = rf.workspace("watermeter-jvlgr").project("utility-meter-reading-dataset-for-automatic-reading-yolo")
 version = project.version(1)
-dataset = version.download("yolov8")
+dataset = version.download("yolo26")
 ```
 
 #### 1.2.2 การฝึกโมเดล YOLO
 
+&emsp;&emsp;ระบบเลือกใช้แบบจำลอง **Ultralytics YOLO26 Nano (`yolo26n.pt`)** (Jocher et al., 2026) ซึ่งเป็นสถาปัตยกรรมแบบ End-to-End Vision Model ที่เบาและเร็วที่สุดในตระกูล YOLO26 เหมาะกับงานตรวจจับตัวเลขบนหน้าปัดที่ต้องรันต่อเนื่องบนทรัพยากรจำกัด (Single GPU / CPU) โดย YOLO มีจุดเด่นคือการมองภาพรวมเพียงครั้งเดียวแล้วระบุตำแหน่งตัวเลขได้ทันทีบน GPU (Tesla T4) แม้รุ่น Nano จะแม่นยำน้อยกว่ารุ่น Medium เล็กน้อย แต่ใช้ VRAM น้อยกว่าและประมวลผลได้เร็วกว่าอย่างมีนัยสำคัญ
+
 ```python
-# 📍 train_model_colab.ipynb — ฝึกฝนโมเดล YOLO สำหรับอ่านตัวเลข
+# 📍 train_model_colab.ipynb — กำหนดพารามิเตอร์และเริ่มกระบวนการเทรน
 from ultralytics import YOLO
 
-# โหลด Base Model
-model = YOLO("yolo11n.pt")
-
-# เริ่มต้นการฝึกฝน
+model = YOLO("yolo26n.pt")
 results = model.train(
     data=f"{dataset.location}/data.yaml",
-    epochs=100,
-    imgsz=960,
-    batch=16,
-    device=0,
-    name="meter_ocr_model",
+    epochs=100,                # จำนวนรอบการฝึกฝนสูงสุด
+    patience=30,               # กลไกหยุดอัตโนมัติหากค่า mAP ไม่ดีขึ้น
+    imgsz=640,                 # ความละเอียดของภาพ
+    batch=64,                  # ขนาดชุดข้อมูลต่อรอบ (Nano ใช้ VRAM น้อย เพิ่ม batch ได้)
+    amp=True,                  # ใช้ Mixed Precision (FP16) ลดการใช้ VRAM
+    optimizer="AdamW",         # อัลกอริทึมสำหรับปรับค่าน้ำหนัก
+    lr0=0.001,                 # อัตราการเรียนรู้เริ่มต้น
+    mosaic=1.0,                # รวม 4 ภาพเพื่อสร้างความหลากหลาย
+    mixup=0.15,                # ซ้อนทับภาพป้องกัน Overfitting
+    degrees=15.0,              # หมุนภาพชดเชยมุมเอียง
+    hsv_v=0.4,                 # ปรับความสว่างจำลองสภาพแสงน้อย
 )
-
-# ประเมินผลลัพธ์บน Validation Set
-metrics = model.val()
-print(f"mAP@50: {metrics.box.map50:.4f}, mAP@50-95: {metrics.box.map:.4f}")
 ```
-&emsp;&emsp;**ผลลัพธ์ที่คาดหวัง:** ได้ไฟล์น้ำหนักที่ดีที่สุด `best.pt` ใน `runs/detect/meter_ocr_model/weights/` — ให้คัดลอกมาวางที่ `weights/MeterOCR.pt` แล้วรันระบบได้ทันทีโดยไม่ต้องแก้โค้ดอื่น
+
+> **หมายเหตุ:** การเปิดใช้งาน `amp=True` (Automatic Mixed Precision) ช่วยลดการใช้ VRAM และเร่งความเร็วการเทรนบนการ์ดจอที่รองรับ
+
+&emsp;&emsp;**ผลลัพธ์ที่คาดหวัง:** ได้ไฟล์ `best.pt` ใน `runs/detect/train/weights/` — ให้คัดลอกมาวางที่ `weights/MeterOCR.pt` แล้วรันระบบได้ทันทีโดยไม่ต้องแก้โค้ดอื่น
 
 ---
 
