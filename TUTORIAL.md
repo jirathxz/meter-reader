@@ -1,44 +1,99 @@
-# 📖 คู่มือการสร้างระบบอ่านเลขมิเตอร์น้ำอัตโนมัติ (Step-by-Step Guide)
-
-คู่มือนี้จะพาคุณสร้างระบบ **Automated Water Meter Reader** ตั้งแต่บรรทัดแรกจนเสร็จสมบูรณ์ ด้วย **Python 3.11, YOLO26, SigLIP2, OpenCV และ FastAPI** จัดการสภาพแวดล้อมด้วย **uv** และเขียนในรูปแบบ **Pure Functional Pipeline** ที่กระชับและเข้าใจง่าย
+# 📖 คู่มือเรียนรู้: สร้างระบบอ่านเลขมิเตอร์น้ำด้วย AI ฉบับนักศึกษาและมือใหม่
+> **เป้าหมาย:** เข้าใจหลักการคิด (Concept), คำศัพท์สำคัญ (Glossary) และลงมือสร้าง AI อ่านมิเตอร์น้ำจริงทีละขั้นตอนแบบไม่หลงทาง
 
 ---
 
-## 🎯 ภาพรวมสถาปัตยกรรม (System Architecture)
+## 🧭 สารบัญการเรียนรู้
+
+1. [บทนำ: ปัญหาคืออะไร และ AI มองภาพอย่างไร?](#บทที่-1-ปัญหาคืออะไร-และ-ai-มองภาพอย่างไร)
+2. [คำศัพท์เทคนิคเข้าใจง่ายใน 1 นาที (Glossary)](#บทที่-2-คำศัพท์เทคนิคเข้าใจง่ายใน-1-นาที-glossary)
+3. [แผนที่การทำงานของระบบ (Mental Model)](#บทที่-3-แผนที่การทำงานของระบบ-mental-model)
+4. [เตรียมโต๊ะทำงานด้วย `uv` และ Python 3.11](#บทที่-4-เตรียมโต๊ะทำงานด้วย-uv-และ-python-311)
+5. [ผ่าโครงสร้างโค้ดทีละชิ้นส่วน (Step-by-Step Code)](#บทที่-5-ผ่าโครงสร้างโค้ดทีละชิ้นส่วน-step-by-step)
+   * 5.1 ตั้งค่าพารามิเตอร์ (Constants)
+   * 5.2 โหลดสมอง AI (Lazy Model Loaders)
+   * 5.3 จัดการภาพและแปลงพิกัดเรขาคณิต (Image & Geometry)
+   * 5.4 ตรวจจับตัวเลขและค้นหามุมที่ดีที่สุด (Detection Engine)
+   * 5.5 กฎความปลอดภัยกันอ่านผิด (Safety Guards)
+   * 5.6 รวมฟังก์ชันหลักและการเปิดบริการ REST API
+6. [คู่มือการแก้ปัญหาเมื่อ AI อ่านผิด (Debugging Guide)](#บทที่-6-คู่มือการแก้ปัญหาเมื่อ-ai-อ่านผิด-debugging-guide)
+
+---
+
+## บทที่ 1: ปัญหาคืออะไร และ AI มองภาพอย่างไร?
+
+การให้คอมพิวเตอร์อ่านเลขมิเตอร์น้ำจริงจากภาพถ่ายมือถือนั้น **ยากกว่าที่คิด** เพราะในชีวิตจริงเราจะเจอปัญหาเหล่านี้:
+1. **ภาพถ่ายตะแคงหรือกลับหัว:** คนถ่ายอาจถือกล้องแนวตั้งหรือแนวนอน
+2. **แสงสะท้อนและตัวเลขจาง:** มิเตอร์เก่าเป็นรอย มีคราบน้ำ หรืออยู่ในมุมมืด
+3. **มีข้อความหลอกบนหน้าปัด:** เช่น วันที่ผลิต, เลขซีเรียลนัมเบอร์ปั๊มแนวดิ่ง, หรือยี่ห้อมิเตอร์
+4. **ตัวเลขกลับหัวหลอกตา:** เลข $6$ พลิกหัวเป็น $9$, เลข $2$ พลิกคล้าย $5$, เลข $0, 1, 8$ พลิกแล้วหน้าตาเหมือนเดิม
+
+```
+ภาพถ่ายจริงหน้างาน  ──>  [มีแสงสะท้อน / ตะแคง 90° / เลขจาง]
+                               ↓
+หากใช้ OCR ทั่วไป   ──>  [อ่านไม่ออก หรือ อ่านเลขกลับหัว]
+                               ↓
+สิ่งที่เราต้องทำ     ──>  [ล้างภาพ + หมุนหาทิศ + AI ตรวจสอบ 4 ชั้น]
+```
+
+---
+
+## บทที่ 2: คำศัพท์เทคนิคเข้าใจง่ายใน 1 นาที (Glossary)
+
+ก่อนเริ่มเขียนโค้ด มาทำความเข้าใจคำศัพท์เหล่านี้ด้วยการเปรียบเทียบกับชีวิตประจำวัน:
+
+| คำศัพท์ | ความหมายภาษาคน | เปรียบเหมือนกับ... |
+|---|---|---|
+| **Python Virtual Environment (`venv`)** | โฟลเดอร์ที่แยกชุดคำสั่งและไลบรารีของโปรเจกต์นี้ไว้ต่างหาก | **กล่องเครื่องมือเฉพาะงาน** เพื่อไม่ให้เครื่องมือปนกับโปรเจกต์อื่น |
+| **`uv`** | โปรแกรมจัดการ Python ยุคใหม่ที่เร็วกว่า `pip` 10-100 เท่า | **เครื่องมือช่างความเร็วสูง** ที่ช่วยติดตั้งและรันโปรแกรม |
+| **OpenCV (`cv2`)** | ไลบรารีสำหรับจัดการภาพดิจิทัล (ตัด, หมุน, ปรับแสง, แปลงสี) | **แว่นตาและเครื่องมือแต่งภาพ** ที่ช่วยปรับภาพให้ AI มองเห็นชัดที่สุด |
+| **Image Preprocessing** | กระบวนการตกแต่งภาพก่อนส่งให้ AI (เช่น ปรับคอนทราสต์) | **การเช็ดกระจกแว่นตา** ให้ใสก่อนจะอ่านหนังสือ |
+| **ROI (Region of Interest)** | พื้นที่เฉพาะส่วนที่เราสนใจในภาพ (เช่น กรอบตัวเลขมิเตอร์) | **การเอาปากกาไฮไลต์** ตีกรอบเฉพาะข้อความที่ต้องการอ่าน |
+| **Bounding Box (`bbox`)** | พิกัดสี่เหลี่ยม `[x1, y1, x2, y2]` ที่ล้อมรอบวัตถุ | **กรอบสี่เหลี่ยม** ที่ระบุตำแหน่งว่าตัวเลขนั้นอยู่ตรงไหนในภาพ |
+| **Model Inference** | การนำภาพส่งเข้าไปให้โมเดล AI ประมวลผลและตอบคำตอบออกมา | **การนำข้อสอบไปให้ผู้เชี่ยวชาญตรวจ** แล้วรอฟังคำตอบ |
+| **Zero-Shot Classification** | ความสามารถของ AI ในการจำแนกภาพโดยไม่ต้องเทรนภาพตัวอย่างนั้นมาก่อน | **คนที่รอบรู้รอบตัว** ถามอะไรก็ตอบได้ตามคำอธิบายภาษาธรรมชาติ |
+| **IoU (Intersection over Union)** | ค่าอัตราส่วนพื้นที่ทับซ้อนของ 2 กล่อง (ใช้เช็คว่าเจอกล่องซ้ำไหม) | **การดูว่ากระดาษสองแผ่นวางทับซ้อนกันกี่เปอร์เซ็นต์** |
+
+---
+
+## บทที่ 3: แผนที่การทำงานของระบบ (Mental Model)
+
+ระบบของเราแบ่งการทำงานออกเป็น **4 ประตูคัดกรอง** เลียนแบบสายตาและการคิดของมนุษย์:
 
 ```mermaid
 flowchart TD
-    A[📷 ภาพถ่ายมิเตอร์ RGB] --> B[🔍 ขั้นตอนที่ 1: SigLIP2 คัดแยกมิเตอร์น้ำ]
-    B -->|ไม่ใช่มิเตอร์| X[❌ ปฏิเสธภาพทันที]
-    B -->|ใช่มิเตอร์น้ำ| C[🔄 ขั้นตอนที่ 2: หมุน 4 ทิศ × 3 ฟิลเตอร์]
-    C --> D[🤖 ขั้นตอนที่ 3: YOLO26 ตรวจจับตัวเลข 0-9]
-    D --> E[📐 ขั้นตอนที่ 4: กรองแถวแนวตั้ง is_vertical]
-    E --> F[🛡️ ขั้นตอนที่ 5: ตรวจกลับหัว flip_guard + ทศนิยมสีแดง]
-    F --> G[🔬 ขั้นตอนที่ 6: SigLIP2 Cross-check หลักที่ conf ต่ำ]
-    G --> H[✅ ได้ผลลัพธ์: ตัวเลข + ตำแหน่ง + คำเตือน]
+    Start([📷 ได้รับภาพถ่าย]) --> Step1[1. SigLIP2 ยืนยัน:\nภาพนี้ใช่มิเตอร์น้ำจริงหรือไม่?]
+    
+    Step1 -->|ไม่ใช่| Reject[❌ ปฏิเสธภาพทันที ไม่เปลืองแรงอ่านต่อ]
+    Step1 -->|ใช่| Step2[2. ทดลอง 4 ทิศ × 3 ฟิลเตอร์:\nหาภาพที่ตัวเลขชัดและตั้งตรงที่สุด]
+    
+    Step2 --> Step3[3. YOLO26 ตรวจจับตัวเลข 0-9:\nหาตำแหน่ง Bounding Box ทุกหลัก]
+    
+    Step3 --> Step4[4. ตัวกรองความปลอดภัย:\n- กรองคอลัมน์แนวตั้ง is_vertical\n- ตรวจกลับหัว 180° flip_guard\n- ตรวจหลักทศนิยมสีแดง red_ratio]
+    
+    Step4 --> Output([✅ ได้ตัวเลขมิเตอร์ที่ถูกต้องและมั่นใจ 100%])
 ```
 
 ---
 
-## 🛠️ ขั้นตอนที่ 0: ติดตั้งสภาพแวดล้อมด้วย `uv` (Python 3.11)
+## บทที่ 4: เตรียมโต๊ะทำงานด้วย `uv` และ Python 3.11
 
 > [!IMPORTANT]
-> ระบบนี้แนะนำให้ใช้ **Python 3.11** (รองรับ Python 3.10 – 3.12) และใช้เครื่องมือ **uv** ในการสร้าง Virtual Environment เพื่อความรวดเร็วและแม่นยำ
+> ระบบนี้ทำงานได้ดีที่สุดบน **Python 3.11** เราจะใช้เครื่องมือชื่อ **`uv`** ในการเตรียมสภาพแวดล้อม
 
 ### 1. สร้าง Virtual Environment ด้วย Python 3.11
-```bash
-# สร้าง virtual environment เจาะจงเวอร์ชัน Python 3.11
+เปิด Terminal (หรือ PowerShell) ในโฟลเดอร์โปรเจกต์:
+```powershell
 uv venv --python 3.11
 ```
 
-เปิดใช้งาน virtual environment:
+เปิดใช้งาน Virtual Environment:
 * **Windows (PowerShell):** `.venv\Scripts\Activate.ps1`
 * **Windows (Command Prompt):** `.venv\Scripts\activate.bat`
 * **macOS / Linux:** `source .venv/bin/activate`
 
----
-
-### 2. สร้างไฟล์ `requirements.txt` และติดตั้ง Packages
+### 2. ติดตั้งไลบรารีที่จำเป็นผ่าน `uv`
+สร้างไฟล์ `requirements.txt` ที่มีรายการต่อไปนี้:
 ```text
 fastapi>=0.115.0
 uvicorn[standard]>=0.34.0
@@ -54,16 +109,22 @@ gradio>=5.0.0
 httpx>=0.28.0
 ```
 
-ติดตั้งด้วยคำสั่ง:
-```bash
+ติดตั้งลงใน Environment ด้วยคำสั่งเดียว:
+```powershell
 uv pip install -r requirements.txt
 ```
 
 ---
 
-## ⚙️ ขั้นตอนที่ 1: กำหนดค่าคงที่ (Constants)
+## บทที่ 5: ผ่าโครงสร้างโค้ดทีละชิ้นส่วน (Step-by-Step)
 
-เปิดไฟล์ `main.py` เริ่มต้นด้วยการนำเข้าไลบรารีและตั้งค่าพารามิเตอร์ทั้งหมดไว้ที่ส่วนบนสุด เพื่อให้ปรับแต่งได้จากที่เดียว
+เราจะเปิดดูและเขียนโค้ดใน `main.py` ทีละส่วน พร้อมอธิบายว่า **ทำไมต้องเขียนบรรทัดนี้**
+
+---
+
+### 5.1 กำหนดค่าคงที่ (Constants) — ควบคุมทุกอย่างจากจุดเดียว
+
+แทนที่จะกระจายตัวเลขไว้ตามฟังก์ชันต่างๆ เราจะรวมค่าคงที่ไว้ที่ส่วนบนสุดของไฟล์:
 
 ```python
 from __future__ import annotations
@@ -85,30 +146,30 @@ import uvicorn
 # 1. Device & YOLO Settings
 # ---------------------------------------------------------
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-YOLO_MODEL = "weights/MeterOCR.pt"
-YOLO_IMGSZ = 960
-YOLO_CONF = 0.35
-CONF_RELIABLE = 0.60
-EXPECTED_MIN_DIGITS = 4
-EXPECTED_MAX_DIGITS = 9
+YOLO_MODEL = "weights/MeterOCR.pt"  # ตำแหน่งไฟล์น้ำหนักโมเดล
+YOLO_IMGSZ = 960                   # ปรับขนาดภาพเข้าโมเดล (ภาพชัดขึ้น)
+YOLO_CONF = 0.35                   # เกณฑ์ความมั่นใจขั้นต่ำของ YOLO
+CONF_RELIABLE = 0.60               # ถ้าความมั่นใจเกิน 0.60 ถือว่าเชื่อถือได้
+EXPECTED_MIN_DIGITS = 4            # มิเตอร์น้ำทั่วไปมีอย่างน้อย 4 หลัก
+EXPECTED_MAX_DIGITS = 9            # และไม่เกิน 9 หลัก
 
 # ---------------------------------------------------------
 # 2. Search Space (การค้นหามุมและฟิลเตอร์)
 # ---------------------------------------------------------
-ROTATION_ANGLES = (0, 90, 180, 270)
-PREP_LIST = ("orig", "clahe", "histeq")
+ROTATION_ANGLES = (0, 90, 180, 270)       # 4 ทิศทางที่ภาพอาจตะแคง
+PREP_LIST = ("orig", "clahe", "histeq")   # ภาพเดิม, ปรับคมเฉพาะจุด, ปรับสว่างทั้งภาพ
 CLAHE_CLIP = 2.0
 CLAHE_GRID = (8, 8)
 
 # ---------------------------------------------------------
-# 3. Safety Guards (ตัวตรวจจับความปลอดภัย)
+# 3. Safety Guards (ตัวช่วยตรวจจับความปลอดภัย)
 # ---------------------------------------------------------
-ORIENT_MARGIN = 0.12
-FLIP_GUARD_CONF = 0.60
-FLIP_MAP = {0: 0, 1: 1, 2: 5, 5: 2, 6: 9, 8: 8, 9: 6}
-ALIGN_MAX_SPREAD = 0.10
-RED_THRESH = 0.08
-RED_DOMINANCE = 2.0
+ORIENT_MARGIN = 0.12               # มุมอื่นต้องชนะมุม 0° เกิน 0.12 ถึงจะยอมสลับมุม
+FLIP_GUARD_CONF = 0.60             # ถ้าอ่านแบบกลับหัว 180° แล้วได้ความมั่นใจเกินนี้ จะเริ่มตรวจสอบ
+FLIP_MAP = {0: 0, 1: 1, 2: 5, 5: 2, 6: 9, 8: 8, 9: 6}  # ตารางเลขสมมาตร
+ALIGN_MAX_SPREAD = 0.10            # การเบี่ยงเบนแนวระนาบของตัวเลข
+RED_THRESH = 0.08                  # สัดส่วนสีแดงขั้นต่ำ
+RED_DOMINANCE = 2.0                # อัตราส่วนความเด่นของสีแดง
 MIN_CROP_PX = 4
 
 # ---------------------------------------------------------
@@ -124,22 +185,18 @@ METER_LABELS = (
 METER_VERIFY_CONF = 0.50
 ```
 
-> [!TIP]
-> `FLIP_MAP` คือตารางตัวเลขที่มีลักษณะสมมาตรเมื่อหมุน 180° เช่น $6 \leftrightarrow 9$, $2 \leftrightarrow 5$, และ $0, 1, 8$ ที่คงรูปเดิม
-
 ---
 
-## 🧠 ขั้นตอนที่ 2: โหลดโมเดลแบบ Lazy Loading
+### 5.2 โหลดสมอง AI (Lazy Loading) — ไม่เปลือง RAM
 
-เพื่อไม่ให้เปลือง RAM และเปิดแอปได้ทันที เราจะโหลดโมเดลเมื่อมี Request แรกเข้ามาเท่านั้น
+เราใช้เทคนิค **Lazy Loading** คือ ไม่โหลดโมเดลตอนเปิดโปรแกรม แต่จะโหลดเมื่อมีภาพแรกเข้ามา:
 
 ```python
 _yolo = None
 _siglip = None
 
-
 def get_yolo() -> Any:
-    """โหลดโมเดล YOLO เมื่อเรียกใช้ครั้งแรก พร้อม warm-up 1 ครั้ง"""
+    """โหลดโมเดล YOLO เมื่อถูกเรียกใช้ครั้งแรก พร้อม warm-up ภาพเปล่า 1 ครั้ง"""
     global _yolo
     if _yolo is None:
         from ultralytics import YOLO
@@ -147,9 +204,8 @@ def get_yolo() -> Any:
         _yolo.predict(np.zeros((640, 640, 3), dtype=np.uint8), verbose=False)
     return _yolo
 
-
 def get_siglip() -> tuple[Any, Any]:
-    """โหลดโมเดล SigLIP2 (Processor + Model) เมื่อเรียกใช้ครั้งแรก"""
+    """โหลดโมเดล SigLIP2 (Processor + Model) เข้า GPU/CPU"""
     global _siglip
     if _siglip is None:
         from transformers import AutoModel, AutoProcessor
@@ -161,14 +217,12 @@ def get_siglip() -> tuple[Any, Any]:
 
 ---
 
-## 🎨 ขั้นตอนที่ 3: ฟังก์ชันจัดการภาพและพิกัดเรขาคณิต (Image & Geometry)
+### 5.3 จัดการภาพและแปลงพิกัดเรขาคณิต (Image & Geometry)
 
-ในการอ่านมิเตอร์จริง ภาพมักจะ **ตะแคง, เลขจาง, หรือมีแสงสะท้อน** เราจึงต้องมีเครื่องมือจัดการภาพ:
-
-### 3.1 การหมุนภาพและปรับคอนทราสต์
+#### ก. การหมุนภาพและปรับคอนทราสต์
 ```python
 def rotate_image(img_bgr: np.ndarray, angle: int) -> np.ndarray:
-    """หมุนภาพตามเข็มนาฬิกา 90°, 180°, 270°"""
+    """หมุนภาพ 90°, 180°, 270° ตามเข็มนาฬิกา"""
     if angle == 90:
         return cv2.rotate(img_bgr, cv2.ROTATE_90_CLOCKWISE)
     if angle == 180:
@@ -177,9 +231,8 @@ def rotate_image(img_bgr: np.ndarray, angle: int) -> np.ndarray:
         return cv2.rotate(img_bgr, cv2.ROTATE_90_COUNTERCLOCKWISE)
     return img_bgr
 
-
 def apply_prep(img_bgr: np.ndarray, prep: str) -> np.ndarray:
-    """ปรับคอนทราสต์: CLAHE (บนช่อง L) หรือ HistEq (บนช่อง Y)"""
+    """ปรับแสง: CLAHE (เพิ่มคอนทราสต์เฉพาะจุด) หรือ HistEq (ปรับเฉลี่ยทั้งภาพ)"""
     if prep == "clahe":
         lab = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2LAB)
         l, a, b = cv2.split(lab)
@@ -195,23 +248,19 @@ def apply_prep(img_bgr: np.ndarray, prep: str) -> np.ndarray:
     return img_bgr
 ```
 
-### 3.2 การแปลงพิกัดจุดเรขาคณิตย้อนกลับ (`remap_point` & `remap_bbox`)
-เมื่อตรวจจับตัวเลขบนภาพที่หมุนแล้ว เราแปลงพิกัดกลับมาที่ภาพต้นฉบับทีละจุด $(x, y)$:
+#### ข. การแปลงพิกัดจุดเดี่ยว (`remap_point`) และกล่อง (`remap_bbox`)
+เมื่อตรวจจับบนภาพที่หมุน 90° พิกัด $(x, y)$ จะเปลี่ยนไป เราต้องมีสูตรแปลงจุดกลับมาที่เดิม:
 
 ```python
 def remap_point(x: float, y: float, angle: int, w: int, h: int) -> tuple[float, float]:
-    """แปลงจุด (x, y) จากภาพที่หมุนแล้ว กลับสู่พิกัดภาพเดิม"""
-    if angle == 90:
-        return y, h - x      # หมุนขวา 90° -> x=y, y=h-x
-    if angle == 180:
-        return w - x, h - y  # กลับหัว 180° -> x=w-x, y=h-y
-    if angle == 270:
-        return w - y, x      # หมุนซ้าย 90° -> x=w-y, y=x
+    """แปลงจุด 1 จุดจากภาพหมุน กลับสู่ภาพตั้งต้น"""
+    if angle == 90:  return y, h - x      # แกนสลับ: x กลายเป็น y เดิม
+    if angle == 180: return w - x, h - y  # กลับหัวทั้งสองแกน
+    if angle == 270: return w - y, x      # แกนสลับตรงกันข้าม
     return x, y
 
-
 def remap_bbox(bbox: list[float], angle: int, w: int, h: int) -> list[float]:
-    """แปลงกล่อง [x1, y1, x2, y2] กลับเป็นพิกัดภาพเดิม"""
+    """แปลงมุมทั้ง 2 มุมของกล่องสี่เหลี่ยม แล้วหาจุด min/max เพื่อสร้างกรอบที่ถูกต้อง"""
     x1, y1, x2, y2 = bbox
     p1_x, p1_y = remap_point(x1, y1, angle, w, h)
     p2_x, p2_y = remap_point(x2, y2, angle, w, h)
@@ -223,32 +272,28 @@ def remap_bbox(bbox: list[float], angle: int, w: int, h: int) -> list[float]:
     ]
 ```
 
-### 3.3 การตัดกล่องซ้อน (NMS/Dedup) และการตรวจจับสีแดง
+#### ค. ตัดกล่องซ้อน (IoU Dedup) และตรวจสัดส่วนสีแดง (`red_ratio`)
 ```python
 def iou(box1: list[float], box2: list[float]) -> float:
-    """คำนวณพื้นที่ทับซ้อน (Intersection over Union)"""
+    """คำนวณพื้นที่ทับซ้อนของ 2 กล่อง"""
     x1, y1 = max(box1[0], box2[0]), max(box1[1], box2[1])
     x2, y2 = min(box1[2], box2[2]), min(box1[3], box2[3])
-
     intersection = max(0, x2 - x1) * max(0, y2 - y1)
     area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
     area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
     union = area1 + area2 - intersection
-
     return (intersection / union) if union > 0 else 0.0
 
-
 def dedup_detections(dets: list[dict[str, Any]], thresh: float = 0.45) -> list[dict[str, Any]]:
-    """ตัดกล่องที่ซ้อนทับกันออก เหลือเฉพาะตัวที่มั่นใจสูงสุด"""
+    """ลบกล่องที่ซ้อนทับกันเกิน 45% โดยเก็บกล่องที่มั่นใจสูงสุดไว้"""
     kept: list[dict[str, Any]] = []
     for d in sorted(dets, key=lambda x: x["confidence"], reverse=True):
         if not any(iou(d["bbox"], k["bbox"]) > thresh for k in kept):
             kept.append(d)
     return sorted(kept, key=lambda x: x["center_x"])
 
-
 def red_ratio(img_bgr: np.ndarray, bbox: list[float]) -> float:
-    """คำนวณสัดส่วนสีแดงในกล่องตัวเลข (หลักทศนิยมสีแดงต้องอยู่ขวาสุดเสมอ)"""
+    """คำนวณสัดส่วนสีแดงในกล่องตัวเลข (หลักทศนิยมมิเตอร์น้ำจะเป็นสีแดงและอยู่ขวาสุด)"""
     x1, y1, x2, y2 = [int(v) for v in bbox]
     pad_x = max(1, int((x2 - x1) * 0.15))
     pad_y = max(1, int((y2 - y1) * 0.15))
@@ -270,12 +315,11 @@ def red_ratio(img_bgr: np.ndarray, bbox: list[float]) -> float:
 
 ---
 
-## 🔍 ขั้นตอนที่ 4: การตรวจจับและค้นหามุมที่ดีที่สุด (Detection Engine)
+### 5.4 ตรวจจับตัวเลขและค้นหามุมที่ดีที่สุด (Detection Engine)
 
-### 4.1 ตรวจจับตัวเลขและกรองคอลัมน์แนวตั้ง (`is_vertical`)
 ```python
 def detect_digits(img_bgr: np.ndarray) -> list[dict[str, Any]]:
-    """ใช้ YOLO ตรวจจับตัวเลข 0-9 และเรียงจากซ้ายไปขวา"""
+    """ใช้ YOLO หาตัวเลข 0-9 และเรียงลำดับจากซ้ายไปขวา"""
     res = get_yolo().predict(
         img_bgr,
         imgsz=YOLO_IMGSZ,
@@ -283,7 +327,6 @@ def detect_digits(img_bgr: np.ndarray) -> list[dict[str, Any]]:
         device=DEVICE,
         verbose=False,
     )
-
     boxes = []
     for b in res[0].boxes:
         x1, y1, x2, y2 = b.xyxy[0].tolist()
@@ -294,28 +337,23 @@ def detect_digits(img_bgr: np.ndarray) -> list[dict[str, Any]]:
             "center_x": (x1 + x2) / 2.0,
             "center_y": (y1 + y2) / 2.0,
         })
-
     return sorted(boxes, key=lambda d: d["center_x"])
 
-
 def is_vertical(dets: list[dict[str, Any]], img_w: int, img_h: int) -> dict[str, Any]:
-    """ตรวจว่ากล่องเรียงตัวเป็นแนวตั้งหรือไม่ (แนวนอน width_span ต้องมากกว่า height_span)"""
+    """ตรวจว่ากล่องเรียงตัวเป็นแนวตั้งหรือไม่ (แถวมิเตอร์แนวนอน width_span ต้องยาวกว่า height_span)"""
     if len(dets) < 2:
         return {"vertical": False}
 
     xs = [d["center_x"] / img_w for d in dets]
     ys = [d["center_y"] / img_h for d in dets]
 
-    width_span = max(xs) - min(xs)   # ระยะกว้างแนวนอน
-    height_span = max(ys) - min(ys)  # ระยะสูงแนวตั้ง
+    width_span = max(xs) - min(xs)   # ความกว้างของแนวตัวเลข
+    height_span = max(ys) - min(ys)  # ความสูงของแนวตัวเลข
 
-    # ถ้าความสูงมากกว่าความกว้าง แสดงว่าเป็นคอลัมน์แนวตั้ง (เช่น วันที่/เลขรุ่น)
+    # ถ้าความสูงมากกว่าความกว้าง แสดงว่าเป็นคอลัมน์แนวดิ่ง (เช่น วันที่/รุ่น)
     is_vert = (height_span >= width_span * 0.8) or (width_span <= 0.05 and height_span >= 0.08)
     return {"vertical": is_vert}
-```
 
-### 4.2 ค้นหา 4 ทิศ × 3 ฟิลเตอร์ (`detect_digits_best`)
-```python
 def eval_orientation(bgr_img: np.ndarray, angle: int, prep: str) -> dict[str, Any]:
     """ประเมินคะแนนของ 1 มุม × 1 ฟิลเตอร์"""
     rot = rotate_image(bgr_img, angle)
@@ -327,12 +365,7 @@ def eval_orientation(bgr_img: np.ndarray, angle: int, prep: str) -> dict[str, An
     n = len(dets)
 
     if not dets or vert["vertical"] or not (EXPECTED_MIN_DIGITS <= n <= EXPECTED_MAX_DIGITS):
-        return {
-            "score": 0.0,
-            "dets": dets,
-            "prep": prep,
-            "vert": vert,
-        }
+        return {"score": 0.0, "dets": dets, "prep": prep, "vert": vert}
 
     mean_conf = float(np.mean([d["confidence"] for d in dets]))
     score = mean_conf * n
@@ -346,13 +379,7 @@ def eval_orientation(bgr_img: np.ndarray, angle: int, prep: str) -> dict[str, An
     elif r_last > RED_THRESH and r_last > r_first * RED_DOMINANCE:
         score *= 1.05  # แดงอยู่ขวา -> ทิศทางถูกต้อง (เพิ่มคะแนน)
 
-    return {
-        "score": score,
-        "dets": dets,
-        "prep": prep,
-        "vert": vert,
-    }
-
+    return {"score": score, "dets": dets, "prep": prep, "vert": vert}
 
 def detect_digits_best(rgb_img: np.ndarray) -> tuple[list[dict[str, Any]], dict[str, Any] | None]:
     """ทดลอง 4 ทิศ × 3 ฟิลเตอร์ (12 รูปแบบ) แล้วเลือกชุดที่คะแนนสูงสุด"""
@@ -401,13 +428,12 @@ def detect_digits_best(rgb_img: np.ndarray) -> tuple[list[dict[str, Any]], dict[
 
 ---
 
-## 🛡️ ขั้นตอนที่ 5: ระบบตรวจสอบความปลอดภัย (Safety Guards)
+### 5.5 กฎความปลอดภัยกันอ่านผิด (Safety Guards)
 
-### 5.1 ยืนยันว่าเป็นมิเตอร์น้ำด้วย SigLIP2
 ```python
 @torch.inference_mode()
 def check_water_meter(rgb_img: np.ndarray) -> dict[str, Any]:
-    """SigLIP2 Zero-shot Classifier ตรวจสอบว่าเป็นภาพมิเตอร์น้ำจริง"""
+    """SigLIP2 Zero-shot ตรวจสอบว่าเป็นภาพมิเตอร์น้ำจริงหรือไม่"""
     processor, model = get_siglip()
 
     inputs = processor(
@@ -427,29 +453,18 @@ def check_water_meter(rgb_img: np.ndarray) -> dict[str, Any]:
         "predicted_class": pred_label,
         "confidence": float(probs[0]),
     }
-```
 
-### 5.2 ตรวจสอบการกลับหัว 180° (`flip_guard`) และ Cross-check
-```python
 def flip_guard(rgb_img: np.ndarray, digits: list[dict[str, Any]], meta: dict[str, Any] | None) -> dict[str, Any]:
     """ตรวจสอบภาพกลับหัวแบบกระจกสะท้อน (Mirror Check เช่น 6<->9, 2<->5)"""
     if not digits or not meta:
-        return {
-            "warned": False,
-            "anti_reading": "",
-            "anti_confidence": 0.0,
-        }
+        return {"warned": False, "anti_reading": "", "anti_confidence": 0.0}
 
     anti_angle = (meta["angle"] + 180) % 360
     rot_bgr = rotate_image(cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR), anti_angle)
     anti_dets = dedup_detections(detect_digits(apply_prep(rot_bgr, meta["prep"])))
 
     if not anti_dets:
-        return {
-            "warned": False,
-            "anti_reading": "",
-            "anti_confidence": 0.0,
-        }
+        return {"warned": False, "anti_reading": "", "anti_confidence": 0.0}
 
     anti_reading = "".join(str(d["digit"]) for d in anti_dets)
     mean_conf = float(np.mean([d["confidence"] for d in anti_dets]))
@@ -472,7 +487,6 @@ def flip_guard(rgb_img: np.ndarray, digits: list[dict[str, Any]], meta: dict[str
         "anti_reading": anti_reading,
         "anti_confidence": round(mean_conf, 4),
     }
-
 
 @torch.inference_mode()
 def cross_check_digits(rgb_img: np.ndarray, digits: list[dict[str, Any]], h: int, w: int, angle: int = 0) -> list[dict[str, Any]]:
@@ -520,11 +534,11 @@ def cross_check_digits(rgb_img: np.ndarray, digits: list[dict[str, Any]], h: int
 
 ---
 
-## 🚀 ขั้นตอนที่ 6: ประกอบ Pipeline หลัก และ FastAPI Endpoint
+### 5.6 รวมฟังก์ชันหลักและการเปิดบริการ REST API (FastAPI)
 
 ```python
 def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
-    """ไปป์ไลน์หลัก: รับภาพ RGB -> ประมวลผล -> ส่งออกผลลัพธ์ที่สะอาดและกะทัดรัด"""
+    """ไปป์ไลน์หลัก: รับภาพ RGB -> ประมวลผล 4 ขั้นตอน -> ส่งผลลัพธ์พร้อมคำเตือน"""
     t0 = perf_counter()
     h, w = rgb_img.shape[:2]
 
@@ -540,7 +554,7 @@ def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
             "elapsed_ms": round((perf_counter() - t0) * 1000, 1),
         }
 
-    # 2. ค้นหาตัวเลขและมุมที่ดีที่สุด
+    # 2. ค้นหามุมและอ่านตัวเลข
     dets, meta = detect_digits_best(rgb_img)
     if not dets:
         return {
@@ -574,7 +588,6 @@ def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
 
     # 4. ตรวจสอบความถูกต้องและสร้างคำเตือน
     flip = flip_guard(rgb_img, digits, meta)
-
     align_vals = [
         (d["bbox"][0] + d["bbox"][2]) / (2 * w)
         if meta and meta["angle"] in (90, 270)
@@ -582,14 +595,7 @@ def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
         for d in digits
     ]
     align_ok = float(np.std(align_vals)) <= ALIGN_MAX_SPREAD
-
-    mismatches = cross_check_digits(
-        rgb_img,
-        digits,
-        h,
-        w,
-        meta["angle"] if meta else 0,
-    )
+    mismatches = cross_check_digits(rgb_img, digits, h, w, meta["angle"] if meta else 0)
 
     warns = [
         msg
@@ -608,13 +614,11 @@ def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
         ]
         if cond
     ]
-
     warns += [
         f"หลักที่ {d['position']} ({d['digit']}) conf ต่ำ {d['confidence']:.2f} — ควรตรวจด้วยตา"
         for d in digits
         if not d["reliable"]
     ]
-
     warns += [
         f"หลักที่ {m['position']}: YOLO {m['yolo_digit']} vs SigLIP {m['siglip_digit']} ({m['siglip_confidence']:.2f})"
         for m in mismatches
@@ -629,7 +633,6 @@ def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
         "warnings": warns,
         "elapsed_ms": round((perf_counter() - t0) * 1000, 1),
     }
-
 
 # ---------------------------------------------------------
 # FastAPI Web Service
@@ -647,7 +650,6 @@ app.add_middleware(
 )
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp", "image/bmp"}
 
-
 @app.get("/api/health")
 def health() -> dict[str, Any]:
     return {
@@ -656,7 +658,6 @@ def health() -> dict[str, Any]:
         "yolo_loaded": _yolo is not None,
         "siglip_loaded": _siglip is not None,
     }
-
 
 @app.post("/api/read-meter")
 async def read_meter_endpoint(file: UploadFile = File(...)) -> dict[str, Any]:
@@ -673,23 +674,17 @@ async def read_meter_endpoint(file: UploadFile = File(...)) -> dict[str, Any]:
 
     return await run_in_threadpool(read_meter, arr)
 
-
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
 ```
 
 ---
 
-## 🧪 ขั้นตอนที่ 7: การรันและทดสอบด้วย `uv`
+## บทที่ 6: คู่มือการแก้ปัญหาเมื่อ AI อ่านผิด (Debugging Guide)
 
-### 1. รัน FastAPI Backend:
-```bash
-uv run python main.py
-```
-เปิดทดสอบ API Docs แบบ Interactive ได้ที่ [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-
-### 2. รัน Gradio Frontend:
-```bash
-uv run python gradio_app.py
-```
-เปิดเบราว์เซอร์ที่ [http://127.0.0.1:7860](http://127.0.0.1:7860) แล้วอัปโหลดภาพมิเตอร์น้ำเพื่อทดสอบการอ่านค่าและตรวจจับตัวเลขได้ทันที 🎉
+| อาการที่พบ (Symptom) | สาเหตุที่เป็นไปได้ (Root Cause) | วิธีตรวจสอบและแก้ไข (Solution) |
+|---|---|---|
+| **ตอบว่า "ภาพนี้ไม่ใช่มิเตอร์น้ำ"** | ถ่ายภาพไกลเกินไป หรือเห็นฉากหลังเยอะกว่าหน้าปัด | ครอปภาพให้เห็นหน้าปัดมิเตอร์ชัดเจนขึ้น หรือปรับลดเกณฑ์ `METER_VERIFY_CONF` ใน `main.py` |
+| **ตัวเลขหายไป 1-2 หลัก** | แสงมืดไป หรือหน้าปัดเป็นฝ้า | ระบบจะลองใช้ฟิลเตอร์ `CLAHE` และ `HistEq` ให้อัตโนมัติ หากยังไม่ติด ให้ลองลดค่า `YOLO_CONF` ลงเล็กน้อย เช่น 0.30 |
+| **อ่านได้เลขกลับหัว เช่น 9 เป็น 6** | ภาพถ่ายคว่ำ 180° และไม่มีทศนิยมสีแดงให้สังเกต | ดูที่กล่อง `warnings` ระบบจะแจ้งเตือน `⚠️ อาจกลับหัว` เพื่อให้คนตรวจทานก่อนบันทึก |
+| **AI ไปอ่านป้ายวันที่ข้างตัวเรือน** | มีตัวเลขพิมพ์ในแนวตั้งบนตัวถังมิเตอร์ | ฟังก์ชัน `is_vertical()` จะตรวจจับ `height_span >= width_span` และตัดทิ้งให้อัตโนมัติ |
