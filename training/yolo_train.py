@@ -1,13 +1,12 @@
-"""Fine-tune YOLO26 on the meter-digit dataset.
+"""Fine-tune YOLO26 on the meter-digit dataset — แบบเดียวกับสคริปต์ในคู่มือ (Guidebook)
+
+อิงตาม Guidebook/docs/Water_Meter_OCR_Guidebook-Draft.md 1.2.3
+รันบน Colab/Kaggle ที่มี GPU (Tesla T4 แนะนำ) หรือเครื่องที่มี CUDA
 
 Usage:
-    python training/yolo_train.py                            # defaults
-    python training/yolo_train.py --model yolo26s.pt --epochs 80
-    python training/yolo_train.py --resume                   # resume last run
-
-The YOLO26 official recipe (MuSGD optimizer, close_mosaic, end2end head,
-STAL for small objects) is enabled by the ultralytics defaults for this
-model family. Train at the same model size you will deploy.
+    python training/yolo_train.py
+    # หรือระบุพารามิเตอร์เอง:
+    #   python training/yolo_train.py --epochs 100 --batch 64 --imgsz 640
 """
 
 import argparse
@@ -18,25 +17,16 @@ from ultralytics import YOLO
 BASE = Path(__file__).resolve().parent.parent
 DEFAULT_DATA = BASE / "training" / "data.yaml"
 
-# Per-size starting LR from the official YOLO26 COCO recipe (fine-tune
-# schedules typically need lower values; zero means "use model default").
-LR0_BY_SIZE = {"n": 0.0054, "s": 0.00038, "m": 0.00038, "l": 0.00038, "x": 0.00038}
-
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Fine-tune YOLO26 on meter digits")
-    p.add_argument("--data", type=Path, default=DEFAULT_DATA)
-    p.add_argument("--model", default="yolo26n.pt",
-                   help="pretrained weights to start from, e.g. yolo26n.pt / yolo26s.pt")
-    p.add_argument("--epochs", type=int, default=100)
-    p.add_argument("--imgsz", type=int, default=640)
-    p.add_argument("--batch", type=int, default=-1, help="-1 = auto")
-    p.add_argument("--name", default="meter_digits", help="experiment name (under runs/detect/)")
-    p.add_argument("--lr0", type=float, default=None,
-                   help="override initial LR; default per-size value if omitted")
-    p.add_argument("--device", default=None, help="cuda:0 / cpu; auto if omitted")
-    p.add_argument("--patience", type=int, default=30, help="early-stop patience")
-    p.add_argument("--resume", action="store_true", help="resume the latest run")
+    p = argparse.ArgumentParser(description="Fine-tune YOLO26 Nano on meter digits (Guidebook recipe)")
+    p.add_argument("--data", type=Path, default=DEFAULT_DATA, help="path to data.yaml")
+    p.add_argument("--model", default="yolo26n.pt", help="pretrained weights, e.g. yolo26n.pt")
+    p.add_argument("--epochs", type=int, default=100, help="จำนวนรอบการฝึกฝนสูงสุด")
+    p.add_argument("--patience", type=int, default=30, help="หยุดอัตโนมัติหาก mAP ไม่ดีขึ้น")
+    p.add_argument("--imgsz", type=int, default=640, help="ความละเอียดภาพ")
+    p.add_argument("--batch", type=int, default=64, help="ขนาด batch (Nano ใช้ VRAM น้อย เพิ่มได้)")
+    p.add_argument("--name", default="train", help="ชื่อ experiment ใต้ runs/detect/")
     return p.parse_args()
 
 
@@ -44,40 +34,37 @@ def main():
     args = parse_args()
 
     if not args.data.exists():
-        raise SystemExit(f"ไม่พบ data.yaml ที่ {args.data} - ตรวจสอบว่าสร้าง dataset แล้ว")
+        raise SystemExit(f"ไม่พบ {args.data} — ตรวจสอบว่าได้รัน 1.2.1 ดาวน์โหลด dataset แล้ว")
 
+    # โหลดโมเดลฐาน YOLO26 Nano
     model = YOLO(args.model)
 
-    if args.resume:
-        results = model.train(resume=True, name=args.name)
-    else:
-        size = args.model.lower().split("yolo26")[-1][0]  # n/s/m/l/x
-        lr0 = args.lr0 if args.lr0 is not None else LR0_BY_SIZE.get(size)
-        kwargs = dict(
-            data=str(args.data),
-            epochs=args.epochs,
-            imgsz=args.imgsz,
-            name=args.name,
-            patience=args.patience,
-            close_mosaic=10,
-            lr0=lr0,
-            device=args.device or "",
-        )
-        if args.batch > 0:
-            kwargs["batch"] = args.batch
-        results = model.train(**kwargs)
+    # เทรนตามสูตร Guidebook 1.2.3 — ครบทุกพารามิเตอร์ที่สอนใน TUTORIAL.md
+    results = model.train(
+        data=str(args.data),
+        epochs=args.epochs,
+        patience=args.patience,
+        imgsz=args.imgsz,
+        batch=args.batch,
+        amp=True,               # Mixed Precision (FP16) ลด VRAM
+        optimizer="AdamW",
+        lr0=0.001,
+        mosaic=1.0,
+        mixup=0.15,
+        degrees=15.0,
+        hsv_v=0.4,
+        name=args.name,
+    )
 
-    # Evaluate the best weights on the validation split.
-    best = Path(model.trainer.best) if model.trainer else None
+    # ประเมินบนชุด validation
+    best = Path(model.trainer.best) if getattr(model, "trainer", None) and getattr(model.trainer, "best", None) else None
     if best and best.exists():
-        best_model = YOLO(str(best))
-        metrics = best_model.val(data=str(args.data), device=args.device or "")
-        print("\n===== ผลการประเมินบน val set =====")
-        print(f"mAP@0.5     : {metrics.box.map50:.4f}")
-        print(f"mAP@0.5:0.95: {metrics.box.map:.4f}")
-        print(f"Precision   : {metrics.box.mp:.4f}")
-        print(f"Recall      : {metrics.box.mr:.4f}")
-        print(f"บันทึก best weights ไว้ที่: {best}")
+        print(f"\nบันทึก best weights ไว้ที่: {best}")
+        print("คัดลอกไป weights/MeterOCR.pt แล้วรันระบบได้ทันที")
+        m = YOLO(str(best))
+        metrics = m.val(data=str(args.data))
+        print(f"mAP50: {metrics.box.map50:.4f}, mAP50-95: {metrics.box.map:.4f}")
+
     return results
 
 
