@@ -237,7 +237,7 @@ meter-reader/
     └── MeterOCR.pt    # ไฟล์โมเดล YOLO สำหรับตรวจจับตัวเลข (พร้อมใช้งาน)
 ```
 
-&emsp;&emsp;โครงสร้างข้างต้นเป็นแบบเรียบง่ายสำหรับการเรียนรู้ สำหรับโครงสร้างแบบแยกเลเยอร์ที่เหมาะกับการขยายระบบ โปรดดู **ภาคผนวก ค. โครงสร้างระบบไฟล์อ้างอิง**
+&emsp;&emsp;โครงสร้างข้างต้นเป็นแบบเรียบง่ายสำหรับการเรียนรู้ สำหรับโครงสร้างไฟล์แบบเต็มของโปรเจกต์ปัจจุบัน (รวม `training/`, `scripts/`, `media/`, `weights/` ทั้งหมด) โปรดดู **ภาคผนวก ค. โครงสร้างระบบไฟล์ของโปรเจกต์ปัจจุบัน**
 
 #### 1.3.2 การสร้างสภาพแวดล้อมและติดตั้ง Dependencies
 
@@ -1243,32 +1243,30 @@ if __name__ == "__main__":
 
 &emsp;&emsp;การดำเนินการตามมาตรการข้างต้นอย่างครบถ้วนจะช่วยให้ระบบสามารถให้บริการได้อย่างปลอดภัย มีเสถียรภาพ และตรวจสอบได้ในสภาพแวดล้อมการใช้งานจริง
 
-### ค. โครงสร้างระบบไฟล์อ้างอิง (Project Structure Reference)
+### ค. โครงสร้างระบบไฟล์ของโปรเจกต์ปัจจุบัน (Current Project Structure)
 
-&emsp;&emsp;โครงสร้างอ้างอิงแบบแยกเลเยอร์ตาม `Guidebook/docs/Water_Meter_OCR_Guidebook-Draft.md` (ภาคผนวก — โครงสร้างระบบไฟล์อ้างอิง) สำหรับระบบที่ต้องการแยกหน้าที่ชัดเจนและทดสอบแยกส่วนได้:
+&emsp;&emsp;โครงสร้างไฟล์จริงของ `meter-reader/` ในปัจจุบัน (ตรงกับ `git` และ `weights/` ที่ใช้งานจริง) มีดังนี้:
 
 ```text
-/
-├── main.py               <- จุดเริ่มต้นเซิร์ฟเวอร์ FastAPI
-├── requirements.txt      <- รายการ Dependencies
-├── gradio/
-│   └── app.py            <- Gradio UI Frontend
-├── image/                <- โฟลเดอร์เก็บไฟล์ภาพชั่วคราว (Storage.save)
+meter-reader/
+├── main.py                 <- FastAPI + Pipeline หลัก (YOLO26 + SigLIP2 + Safety Guards)
+├── gradio_app.py           <- Gradio UI (เรียก POST /api/read-meter)
+├── TUTORIAL.md             <- คู่มือฉบับสมบูรณ์ (ทางการ, APA7, mermaid + fallback)
+├── thai.md                 <- คู่มือภาษาทางการ (Tab + Thai Distributed)
+├── README.md               <- คำอธิบายสั้นสำหรับ GitHub
+├── requirements.txt        <- รายการ Dependencies ตรงกับ 1.3.2
+├── RE.docx                 <- ฉบับ Word (ปก/คำนำ/สารบัญ/สารบัญภาพ จาก Guidebook + เนื้อหา)
+├── media/
+│   └── image1.png          <- โลโก้หน้าปก (คัดลอกจาก Guidebook)
+├── meter_img/              <- ภาพตัวอย่างมาตรวัดน้ำ 7 ภาพ
 ├── weights/
-│   └── Water-Meter-Digit.pt  <- ไฟล์โมเดล YOLO (ดาวน์โหลดจาก Colab/Hugging Face → วางเป็น weights/MeterOCR.pt ในโปรเจกต์นี้)
-├── src/
-│   ├── __init__.py
-│   ├── utils/
-│   │   ├── __init__.py
-│   │   └── storage.py          <- จัดการบันทึก/ลบไฟล์ชั่วคราว
-│   └── meter/
-│       ├── __init__.py
-│       ├── ocr.py              <- OCR Engine (YOLO + Computer Vision)
-│       ├── validator.py        <- Image Validator (SigLIP2)
-│       ├── service.py          <- Business Logic Orchestrator
-│       ├── controller.py       <- Security & Request Handler
-│       ├── dependencies.py     <- FastAPI Dependency Injection
-│       └── router.py           <- API Route Definitions
+│   ├── MeterOCR.pt         <- โมเดล YOLO26 ที่ใช้งานจริง (พร้อมใช้งาน)
+│   └── yolo26n.pt          <- โมเดลฐานสำหรับเทรนต่อ
+├── training/
+│   ├── data.yaml           <- คอนฟิกชุดข้อมูล Roboflow
+│   └── yolo_train.py       <- สคริปต์เทรน (ถ้ามี)
+└── scripts/
+    └── label_data.py       <- สคริปต์ช่วยติดป้ายข้อมูล
 ```
 
-&emsp;&emsp;ในการศึกษาเบื้องต้นใช้โครงสร้างเรียบง่ายในหัวข้อ 1.3.1 ก็เพียงพอ ส่วนโครงสร้างแยกเลเยอร์ข้างต้นเป็นแนวทางเมื่อต้องการขยายระบบให้ดูแลรักษาง่ายและทดสอบแยกส่วนได้
+&emsp;&emsp;โฟลเดอร์ ` .venv/`, `__pycache__/`, `.git/` มิได้นำมาแสดงเนื่องจากเป็นไฟล์ชั่วคราวของระบบ
