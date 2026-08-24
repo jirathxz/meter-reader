@@ -1252,7 +1252,6 @@ meter-reader/
 ├── main.py                 <- FastAPI + Pipeline หลัก (YOLO26 + SigLIP2 + Safety Guards)
 ├── gradio_app.py           <- Gradio UI (เรียก POST /api/read-meter)
 ├── TUTORIAL.md             <- คู่มือฉบับสมบูรณ์ (ทางการ, APA7, mermaid + fallback)
-├── thai.md                 <- คู่มือภาษาทางการ (Tab + Thai Distributed)
 ├── README.md               <- คำอธิบายสั้นสำหรับ GitHub
 ├── requirements.txt        <- รายการ Dependencies ตรงกับ 1.3.2
 ├── RE.docx                 <- ฉบับ Word (ปก/คำนำ/สารบัญ/สารบัญภาพ จาก Guidebook + เนื้อหา)
@@ -1262,11 +1261,9 @@ meter-reader/
 ├── weights/
 │   ├── MeterOCR.pt         <- โมเดล YOLO26 ที่ใช้งานจริง (พร้อมใช้งาน)
 │   └── yolo26n.pt          <- โมเดลฐานสำหรับเทรนต่อ
-├── training/
-│   ├── data.yaml           <- คอนฟิกชุดข้อมูล Roboflow
-│   └── yolo_train.py       <- สคริปต์เทรน (ถ้ามี)
-└── scripts/
-    └── label_data.py       <- สคริปต์ช่วยติดป้ายข้อมูล
+└── training/
+    ├── data.yaml           <- คอนฟิกชุดข้อมูล Roboflow
+    └── yolo_train.py       <- สคริปต์เทรน
 ```
 
-&emsp;&emsp;โฟลเดอร์ ` .venv/`, `__pycache__/`, `.git/` มิได้นำมาแสดงเนื่องจากเป็นไฟล์ชั่วคราวของระบบ
+&emsp;&emsp;โฟลเดอร์ `thai.md`, `scripts/`, `.venv/`, `__pycache__/`, `.git/` มิได้นำมาแสดงเนื่องจากถูกละเว้นด้วย `.gitignore` หรือเป็นไฟล์ชั่วคราวของระบบ

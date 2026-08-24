@@ -8,3 +8,5 @@ training/dataset/
 training/raw/
 *.log
 .DS_Store
+thai.md
+scripts/
