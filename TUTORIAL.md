@@ -1,6 +1,6 @@
 # 📖 คู่มือการสร้างระบบอ่านเลขมิเตอร์น้ำอัตโนมัติ (Step-by-Step Guide)
 
-คู่มือนี้จะพาคุณสร้างระบบ **Automated Water Meter Reader** ตั้งแต่บรรทัดแรกจนเสร็จสมบูรณ์ ด้วย **Python, YOLO26, SigLIP2, OpenCV และ FastAPI** โดยใช้รูปแบบ **Pure Functional Pipeline** ที่กระชับและเข้าใจง่าย
+คู่มือนี้จะพาคุณสร้างระบบ **Automated Water Meter Reader** ตั้งแต่บรรทัดแรกจนเสร็จสมบูรณ์ ด้วย **Python 3.11, YOLO26, SigLIP2, OpenCV และ FastAPI** จัดการสภาพแวดล้อมด้วย **uv** และเขียนในรูปแบบ **Pure Functional Pipeline** ที่กระชับและเข้าใจง่าย
 
 ---
 
@@ -20,10 +20,25 @@ flowchart TD
 
 ---
 
-## 🛠️ ขั้นตอนที่ 0: ติดตั้ง Dependencies
+## 🛠️ ขั้นตอนที่ 0: ติดตั้งสภาพแวดล้อมด้วย `uv` (Python 3.11)
 
-สร้างไฟล์ `requirements.txt` และติดตั้งไลบรารีที่จำเป็น:
+> [!IMPORTANT]
+> ระบบนี้แนะนำให้ใช้ **Python 3.11** (รองรับ Python 3.10 – 3.12) และใช้เครื่องมือ **uv** ในการสร้าง Virtual Environment เพื่อความรวดเร็วและแม่นยำ
 
+### 1. สร้าง Virtual Environment ด้วย Python 3.11
+```bash
+# สร้าง virtual environment เจาะจงเวอร์ชัน Python 3.11
+uv venv --python 3.11
+```
+
+เปิดใช้งาน virtual environment:
+* **Windows (PowerShell):** `.venv\Scripts\Activate.ps1`
+* **Windows (Command Prompt):** `.venv\Scripts\activate.bat`
+* **macOS / Linux:** `source .venv/bin/activate`
+
+---
+
+### 2. สร้างไฟล์ `requirements.txt` และติดตั้ง Packages
 ```text
 fastapi>=0.115.0
 uvicorn[standard]>=0.34.0
@@ -41,7 +56,7 @@ httpx>=0.28.0
 
 ติดตั้งด้วยคำสั่ง:
 ```bash
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 ```
 
 ---
@@ -100,7 +115,12 @@ MIN_CROP_PX = 4
 # 4. Zero-Shot Verification (SigLIP2)
 # ---------------------------------------------------------
 SIGLIP_MODEL = "google/siglip2-base-patch16-224"
-METER_LABELS = ("water meter", "electricity meter", "gas meter", "not a meter")
+METER_LABELS = (
+    "water meter",
+    "electricity meter",
+    "gas meter",
+    "not a meter",
+)
 METER_VERIFY_CONF = 0.50
 ```
 
@@ -117,6 +137,7 @@ METER_VERIFY_CONF = 0.50
 _yolo = None
 _siglip = None
 
+
 def get_yolo() -> Any:
     """โหลดโมเดล YOLO เมื่อเรียกใช้ครั้งแรก พร้อม warm-up 1 ครั้ง"""
     global _yolo
@@ -125,6 +146,7 @@ def get_yolo() -> Any:
         _yolo = YOLO(YOLO_MODEL)
         _yolo.predict(np.zeros((640, 640, 3), dtype=np.uint8), verbose=False)
     return _yolo
+
 
 def get_siglip() -> tuple[Any, Any]:
     """โหลดโมเดล SigLIP2 (Processor + Model) เมื่อเรียกใช้ครั้งแรก"""
@@ -141,7 +163,7 @@ def get_siglip() -> tuple[Any, Any]:
 
 ## 🎨 ขั้นตอนที่ 3: ฟังก์ชันจัดการภาพและพิกัดเรขาคณิต (Image & Geometry)
 
-ในการอ่านมิเตอร์จริง ภาพมักจะ **ตะแคง, เลขจาง, หรือมีแสงสะท้อน** เราจึงต้องมีเครื่องมือ 5 ตัว:
+ในการอ่านมิเตอร์จริง ภาพมักจะ **ตะแคง, เลขจาง, หรือมีแสงสะท้อน** เราจึงต้องมีเครื่องมือจัดการภาพ:
 
 ### 3.1 การหมุนภาพและปรับคอนทราสต์
 ```python
@@ -154,6 +176,7 @@ def rotate_image(img_bgr: np.ndarray, angle: int) -> np.ndarray:
     if angle == 270:
         return cv2.rotate(img_bgr, cv2.ROTATE_90_COUNTERCLOCKWISE)
     return img_bgr
+
 
 def apply_prep(img_bgr: np.ndarray, prep: str) -> np.ndarray:
     """ปรับคอนทราสต์: CLAHE (บนช่อง L) หรือ HistEq (บนช่อง Y)"""
@@ -173,7 +196,7 @@ def apply_prep(img_bgr: np.ndarray, prep: str) -> np.ndarray:
 ```
 
 ### 3.2 การแปลงพิกัดจุดเรขาคณิตย้อนกลับ (`remap_point` & `remap_bbox`)
-เมื่อตรวจจับตัวเลขบนภาพที่หมุนแล้ว เราต้องแปลงพิกัดกลับมาที่ภาพต้นฉบับ:
+เมื่อตรวจจับตัวเลขบนภาพที่หมุนแล้ว เราแปลงพิกัดกลับมาที่ภาพต้นฉบับทีละจุด $(x, y)$:
 
 ```python
 def remap_point(x: float, y: float, angle: int, w: int, h: int) -> tuple[float, float]:
@@ -185,6 +208,7 @@ def remap_point(x: float, y: float, angle: int, w: int, h: int) -> tuple[float, 
     if angle == 270:
         return w - y, x      # หมุนซ้าย 90° -> x=w-y, y=x
     return x, y
+
 
 def remap_bbox(bbox: list[float], angle: int, w: int, h: int) -> list[float]:
     """แปลงกล่อง [x1, y1, x2, y2] กลับเป็นพิกัดภาพเดิม"""
@@ -205,11 +229,14 @@ def iou(box1: list[float], box2: list[float]) -> float:
     """คำนวณพื้นที่ทับซ้อน (Intersection over Union)"""
     x1, y1 = max(box1[0], box2[0]), max(box1[1], box2[1])
     x2, y2 = min(box1[2], box2[2]), min(box1[3], box2[3])
+
     intersection = max(0, x2 - x1) * max(0, y2 - y1)
     area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
     area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
     union = area1 + area2 - intersection
+
     return (intersection / union) if union > 0 else 0.0
+
 
 def dedup_detections(dets: list[dict[str, Any]], thresh: float = 0.45) -> list[dict[str, Any]]:
     """ตัดกล่องที่ซ้อนทับกันออก เหลือเฉพาะตัวที่มั่นใจสูงสุด"""
@@ -218,6 +245,7 @@ def dedup_detections(dets: list[dict[str, Any]], thresh: float = 0.45) -> list[d
         if not any(iou(d["bbox"], k["bbox"]) > thresh for k in kept):
             kept.append(d)
     return sorted(kept, key=lambda x: x["center_x"])
+
 
 def red_ratio(img_bgr: np.ndarray, bbox: list[float]) -> float:
     """คำนวณสัดส่วนสีแดงในกล่องตัวเลข (หลักทศนิยมสีแดงต้องอยู่ขวาสุดเสมอ)"""
@@ -235,7 +263,9 @@ def red_ratio(img_bgr: np.ndarray, bbox: list[float]) -> float:
     hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
     mask1 = cv2.inRange(hsv, (0, 40, 40), (12, 255, 255))
     mask2 = cv2.inRange(hsv, (165, 40, 40), (180, 255, 255))
-    return float(np.mean((mask1 | mask2) > 0))
+    red_mask = mask1 | mask2
+
+    return float(np.mean(red_mask > 0))
 ```
 
 ---
@@ -253,6 +283,7 @@ def detect_digits(img_bgr: np.ndarray) -> list[dict[str, Any]]:
         device=DEVICE,
         verbose=False,
     )
+
     boxes = []
     for b in res[0].boxes:
         x1, y1, x2, y2 = b.xyxy[0].tolist()
@@ -263,7 +294,9 @@ def detect_digits(img_bgr: np.ndarray) -> list[dict[str, Any]]:
             "center_x": (x1 + x2) / 2.0,
             "center_y": (y1 + y2) / 2.0,
         })
+
     return sorted(boxes, key=lambda d: d["center_x"])
+
 
 def is_vertical(dets: list[dict[str, Any]], img_w: int, img_h: int) -> dict[str, Any]:
     """ตรวจว่ากล่องเรียงตัวเป็นแนวตั้งหรือไม่ (แนวนอน width_span ต้องมากกว่า height_span)"""
@@ -294,19 +327,32 @@ def eval_orientation(bgr_img: np.ndarray, angle: int, prep: str) -> dict[str, An
     n = len(dets)
 
     if not dets or vert["vertical"] or not (EXPECTED_MIN_DIGITS <= n <= EXPECTED_MAX_DIGITS):
-        return {"score": 0.0, "dets": dets, "prep": prep, "vert": vert}
+        return {
+            "score": 0.0,
+            "dets": dets,
+            "prep": prep,
+            "vert": vert,
+        }
 
-    score = float(np.mean([d["confidence"] for d in dets])) * n
+    mean_conf = float(np.mean([d["confidence"] for d in dets]))
+    score = mean_conf * n
 
     # กฎสีแดง: หลักทศนิยมสีแดงต้องอยู่ขวาสุดเสมอ
     r_first = red_ratio(proc, dets[0]["bbox"])
     r_last = red_ratio(proc, dets[-1]["bbox"])
+
     if r_first > RED_THRESH and r_first > r_last * RED_DOMINANCE:
         score *= 0.5   # แดงอยู่ซ้าย -> ภาพน่าจะกลับหัว (ตัดคะแนน)
     elif r_last > RED_THRESH and r_last > r_first * RED_DOMINANCE:
         score *= 1.05  # แดงอยู่ขวา -> ทิศทางถูกต้อง (เพิ่มคะแนน)
 
-    return {"score": score, "dets": dets, "prep": prep, "vert": vert}
+    return {
+        "score": score,
+        "dets": dets,
+        "prep": prep,
+        "vert": vert,
+    }
+
 
 def detect_digits_best(rgb_img: np.ndarray) -> tuple[list[dict[str, Any]], dict[str, Any] | None]:
     """ทดลอง 4 ทิศ × 3 ฟิลเตอร์ (12 รูปแบบ) แล้วเลือกชุดที่คะแนนสูงสุด"""
@@ -322,7 +368,10 @@ def detect_digits_best(rgb_img: np.ndarray) -> tuple[list[dict[str, Any]], dict[
         candidates[angle] = best_in_angle
 
     cand0 = candidates[0]
-    best_angle, best_cand = max(candidates.items(), key=lambda item: item[1]["score"])
+    best_angle, best_cand = max(
+        candidates.items(),
+        key=lambda item: item[1]["score"],
+    )
 
     # Margin Rule: มุมอื่นต้องชนะมุม 0° เกินกำหนด จึงยอมสลับมุม (กันพลิกฉิวเฉียด)
     if (
@@ -358,8 +407,9 @@ def detect_digits_best(rgb_img: np.ndarray) -> tuple[list[dict[str, Any]], dict[
 ```python
 @torch.inference_mode()
 def check_water_meter(rgb_img: np.ndarray) -> dict[str, Any]:
-    """SigLIP2 Zero-shot Classifier"""
+    """SigLIP2 Zero-shot Classifier ตรวจสอบว่าเป็นภาพมิเตอร์น้ำจริง"""
     processor, model = get_siglip()
+
     inputs = processor(
         text=list(METER_LABELS),
         images=Image.fromarray(rgb_img),
@@ -369,7 +419,8 @@ def check_water_meter(rgb_img: np.ndarray) -> dict[str, Any]:
 
     outputs = model(**inputs)
     probs = torch.softmax(outputs.logits_per_image, dim=1)[0].cpu().numpy()
-    pred_label = METER_LABELS[int(np.argmax(probs))]
+    pred_idx = int(np.argmax(probs))
+    pred_label = METER_LABELS[pred_idx]
 
     return {
         "verified": pred_label == "water meter" and float(probs[0]) >= METER_VERIFY_CONF,
@@ -381,16 +432,24 @@ def check_water_meter(rgb_img: np.ndarray) -> dict[str, Any]:
 ### 5.2 ตรวจสอบการกลับหัว 180° (`flip_guard`) และ Cross-check
 ```python
 def flip_guard(rgb_img: np.ndarray, digits: list[dict[str, Any]], meta: dict[str, Any] | None) -> dict[str, Any]:
-    """ตรวจสอบภาพกลับหัวแบบกระจกสะท้อน (Mirror Check)"""
+    """ตรวจสอบภาพกลับหัวแบบกระจกสะท้อน (Mirror Check เช่น 6<->9, 2<->5)"""
     if not digits or not meta:
-        return {"warned": False, "anti_reading": "", "anti_confidence": 0.0}
+        return {
+            "warned": False,
+            "anti_reading": "",
+            "anti_confidence": 0.0,
+        }
 
     anti_angle = (meta["angle"] + 180) % 360
     rot_bgr = rotate_image(cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR), anti_angle)
     anti_dets = dedup_detections(detect_digits(apply_prep(rot_bgr, meta["prep"])))
 
     if not anti_dets:
-        return {"warned": False, "anti_reading": "", "anti_confidence": 0.0}
+        return {
+            "warned": False,
+            "anti_reading": "",
+            "anti_confidence": 0.0,
+        }
 
     anti_reading = "".join(str(d["digit"]) for d in anti_dets)
     mean_conf = float(np.mean([d["confidence"] for d in anti_dets]))
@@ -413,6 +472,7 @@ def flip_guard(rgb_img: np.ndarray, digits: list[dict[str, Any]], meta: dict[str
         "anti_reading": anti_reading,
         "anti_confidence": round(mean_conf, 4),
     }
+
 
 @torch.inference_mode()
 def cross_check_digits(rgb_img: np.ndarray, digits: list[dict[str, Any]], h: int, w: int, angle: int = 0) -> list[dict[str, Any]]:
@@ -468,40 +528,53 @@ def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
     t0 = perf_counter()
     h, w = rgb_img.shape[:2]
 
-    # 1. ตรวจสอบชนิดมิเตอร์
+    # 1. ตรวจสอบว่าใช่มิเตอร์น้ำจริงไหม
     meter = check_water_meter(rgb_img)
     if not meter["verified"]:
         return {
-            "reading": "", "digits": [], "meter_check": meter, "processing": None,
+            "reading": "",
+            "digits": [],
+            "meter_check": meter,
+            "processing": None,
             "warnings": [f"ภาพนี้ไม่ใช่มิเตอร์น้ำ ({meter['predicted_class']})"],
             "elapsed_ms": round((perf_counter() - t0) * 1000, 1),
         }
 
-    # 2. ค้นหามุมและอ่านตัวเลข
+    # 2. ค้นหาตัวเลขและมุมที่ดีที่สุด
     dets, meta = detect_digits_best(rgb_img)
     if not dets:
         return {
-            "reading": "", "digits": [], "meter_check": meter, "processing": meta,
+            "reading": "",
+            "digits": [],
+            "meter_check": meter,
+            "processing": meta,
             "warnings": ["ตรวจไม่พบตัวเลข"],
             "elapsed_ms": round((perf_counter() - t0) * 1000, 1),
         }
 
     digits = [{
-        "position": i, "digit": d["digit"], "confidence": round(d["confidence"], 4),
-        "bbox": d["bbox"], "reliable": d["confidence"] >= CONF_RELIABLE,
+        "position": i,
+        "digit": d["digit"],
+        "confidence": round(d["confidence"], 4),
+        "bbox": d["bbox"],
+        "reliable": d["confidence"] >= CONF_RELIABLE,
     } for i, d in enumerate(dets, 1)]
     mean_conf = float(np.mean([d["confidence"] for d in digits]))
 
-    # 3. กรองคอลัมน์แนวตั้ง
+    # 3. ตรวจสอบว่าไม่ใช่คอลัมน์แนวตั้ง (เช่น วันที่)
     if meta and meta["angle"] == 0 and is_vertical(dets, w, h)["vertical"]:
         return {
-            "reading": "", "digits": [], "meter_check": meter, "processing": meta,
+            "reading": "",
+            "digits": [],
+            "meter_check": meter,
+            "processing": meta,
             "warnings": ["กล่องเรียงแนวตั้ง — ไม่ใช่ค่ามิเตอร์"],
             "elapsed_ms": round((perf_counter() - t0) * 1000, 1),
         }
 
     # 4. ตรวจสอบความถูกต้องและสร้างคำเตือน
     flip = flip_guard(rgb_img, digits, meta)
+
     align_vals = [
         (d["bbox"][0] + d["bbox"][2]) / (2 * w)
         if meta and meta["angle"] in (90, 270)
@@ -509,19 +582,43 @@ def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
         for d in digits
     ]
     align_ok = float(np.std(align_vals)) <= ALIGN_MAX_SPREAD
-    mismatches = cross_check_digits(rgb_img, digits, h, w, meta["angle"] if meta else 0)
+
+    mismatches = cross_check_digits(
+        rgb_img,
+        digits,
+        h,
+        w,
+        meta["angle"] if meta else 0,
+    )
 
     warns = [
-        msg for cond, msg in [
-            (not (EXPECTED_MIN_DIGITS <= len(digits) <= EXPECTED_MAX_DIGITS), f"จำนวนหลัก {len(digits)} นอกช่วง {EXPECTED_MIN_DIGITS}-{EXPECTED_MAX_DIGITS}"),
+        msg
+        for cond, msg in [
+            (
+                not (EXPECTED_MIN_DIGITS <= len(digits) <= EXPECTED_MAX_DIGITS),
+                f"จำนวนหลัก {len(digits)} นอกช่วง {EXPECTED_MIN_DIGITS}-{EXPECTED_MAX_DIGITS}",
+            ),
             (digits[0]["digit"] == 0, "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"),
             (mean_conf < CONF_RELIABLE, f"mean conf ต่ำ {mean_conf:.2f} — ภาพอาจเบลอ/เอียง"),
-            (flip["warned"], f"อาจกลับหัว! หมุน 180° ได้ {flip['anti_reading']} ({flip['anti_confidence']:.2f}) — ตรวจภาพก่อนบันทึก"),
+            (
+                flip["warned"],
+                f"อาจกลับหัว! หมุน 180° ได้ {flip['anti_reading']} ({flip['anti_confidence']:.2f}) — ตรวจภาพก่อนบันทึก",
+            ),
             (not align_ok, "กล่องไม่เรียงแนว — อาจเป็นป้าย/วันที่"),
-        ] if cond
+        ]
+        if cond
     ]
-    warns += [f"หลักที่ {d['position']} ({d['digit']}) conf ต่ำ {d['confidence']:.2f} — ควรตรวจด้วยตา" for d in digits if not d["reliable"]]
-    warns += [f"หลักที่ {m['position']}: YOLO {m['yolo_digit']} vs SigLIP {m['siglip_digit']} ({m['siglip_confidence']:.2f})" for m in mismatches]
+
+    warns += [
+        f"หลักที่ {d['position']} ({d['digit']}) conf ต่ำ {d['confidence']:.2f} — ควรตรวจด้วยตา"
+        for d in digits
+        if not d["reliable"]
+    ]
+
+    warns += [
+        f"หลักที่ {m['position']}: YOLO {m['yolo_digit']} vs SigLIP {m['siglip_digit']} ({m['siglip_confidence']:.2f})"
+        for m in mismatches
+    ]
 
     return {
         "reading": "".join(str(d["digit"]) for d in digits),
@@ -533,21 +630,39 @@ def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
         "elapsed_ms": round((perf_counter() - t0) * 1000, 1),
     }
 
+
 # ---------------------------------------------------------
-# FastAPI Service
+# FastAPI Web Service
 # ---------------------------------------------------------
-app = FastAPI(title="Meter Reader API", version="1.1")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app = FastAPI(
+    title="Meter Reader API",
+    version="1.1",
+    description="API อ่านเลขมิเตอร์น้ำอัตโนมัติ (Intuitive Functional Pipeline)",
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp", "image/bmp"}
+
 
 @app.get("/api/health")
 def health() -> dict[str, Any]:
-    return {"status": "ok", "device": DEVICE, "yolo_loaded": _yolo is not None, "siglip_loaded": _siglip is not None}
+    return {
+        "status": "ok",
+        "device": DEVICE,
+        "yolo_loaded": _yolo is not None,
+        "siglip_loaded": _siglip is not None,
+    }
+
 
 @app.post("/api/read-meter")
 async def read_meter_endpoint(file: UploadFile = File(...)) -> dict[str, Any]:
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(status_code=415, detail="ชนิดไฟล์ไม่รองรับ")
+
     data = await file.read()
     try:
         img = Image.open(io.BytesIO(data))
@@ -555,7 +670,9 @@ async def read_meter_endpoint(file: UploadFile = File(...)) -> dict[str, Any]:
         arr = np.asarray(img.convert("RGB"))
     except Exception:
         raise HTTPException(status_code=422, detail="อ่านไฟล์ภาพไม่ได้")
+
     return await run_in_threadpool(read_meter, arr)
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
@@ -563,17 +680,16 @@ if __name__ == "__main__":
 
 ---
 
-## 🧪 ขั้นตอนที่ 7: การรันและทดสอบ
+## 🧪 ขั้นตอนที่ 7: การรันและทดสอบด้วย `uv`
 
 ### 1. รัน FastAPI Backend:
 ```bash
-python main.py
-# หรือ uvicorn main:app --reload
+uv run python main.py
 ```
-เปิดทดสอบ API Docs ได้ที่ [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+เปิดทดสอบ API Docs แบบ Interactive ได้ที่ [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 ### 2. รัน Gradio Frontend:
 ```bash
-python gradio_app.py
+uv run python gradio_app.py
 ```
-เปิดเบราว์เซอร์ที่ [http://127.0.0.1:7860](http://127.0.0.1:7860) แล้วอัปโหลดภาพมิเตอร์น้ำเพื่อทดสอบได้ทันที 🎉
+เปิดเบราว์เซอร์ที่ [http://127.0.0.1:7860](http://127.0.0.1:7860) แล้วอัปโหลดภาพมิเตอร์น้ำเพื่อทดสอบการอ่านค่าและตรวจจับตัวเลขได้ทันที 🎉
