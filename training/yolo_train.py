@@ -1,72 +1,39 @@
-"""Fine-tune YOLO26 on the meter-digit dataset — แบบเดียวกับสคริปต์ในคู่มือ (Guidebook)
+"""training/yolo_train.py — สคริปต์เทรน YOLO26 ตรงกับ TUTORIAL.md 1.2.1–1.2.2
 
-อิงตาม Guidebook/docs/Water_Meter_OCR_Guidebook-Draft.md 1.2.3
 รันบน Colab/Kaggle ที่มี GPU (Tesla T4 แนะนำ) หรือเครื่องที่มี CUDA
+ตรงกับโค้ดใน TUTORIAL.md ทุกบรรทัด (yolo26n.pt, yolo26 dataset, พารามิเตอร์ครบ)
 
 Usage:
     python training/yolo_train.py
-    # หรือระบุพารามิเตอร์เอง:
-    #   python training/yolo_train.py --epochs 100 --batch 64 --imgsz 640
 """
 
-import argparse
-from pathlib import Path
-
+from roboflow import Roboflow
 from ultralytics import YOLO
 
-BASE = Path(__file__).resolve().parent.parent
-DEFAULT_DATA = BASE / "training" / "data.yaml"
+# 1.2.1 — ดาวน์โหลดชุดข้อมูลจาก Roboflow (yolo26)
+rf = Roboflow(api_key="YOUR_API_KEY")
+project = rf.workspace("watermeter-jvlgr").project("utility-meter-reading-dataset-for-automatic-reading-yolo")
+version = project.version(1)
+dataset = version.download("yolo26")
 
+# 1.2.2 — กำหนดพารามิเตอร์และเริ่มกระบวนการเทรน (YOLO26 Nano)
+model = YOLO("yolo26n.pt")
+results = model.train(
+    data=f"{dataset.location}/data.yaml",
+    epochs=100,                # จำนวนรอบการฝึกฝนสูงสุด
+    patience=30,               # กลไกหยุดอัตโนมัติหากค่า mAP ไม่ดีขึ้น
+    imgsz=640,                 # ความละเอียดของภาพ
+    batch=64,                  # ขนาดชุดข้อมูลต่อรอบ (Nano ใช้ VRAM น้อย เพิ่ม batch ได้)
+    amp=True,                  # ใช้ Mixed Precision (FP16) ลดการใช้ VRAM
+    optimizer="AdamW",         # อัลกอริทึมสำหรับปรับค่าน้ำหนัก
+    lr0=0.001,                 # อัตราการเรียนรู้เริ่มต้น
+    mosaic=1.0,                # รวม 4 ภาพเพื่อสร้างความหลากหลาย
+    mixup=0.15,                # ซ้อนทับภาพป้องกัน Overfitting
+    degrees=15.0,              # หมุนภาพชดเชยมุมเอียง
+    hsv_v=0.4,                 # ปรับความสว่างจำลองสภาพแสงน้อย
+)
 
-def parse_args():
-    p = argparse.ArgumentParser(description="Fine-tune YOLO26 Nano on meter digits (Guidebook recipe)")
-    p.add_argument("--data", type=Path, default=DEFAULT_DATA, help="path to data.yaml")
-    p.add_argument("--model", default="yolo26n.pt", help="pretrained weights, e.g. yolo26n.pt")
-    p.add_argument("--epochs", type=int, default=100, help="จำนวนรอบการฝึกฝนสูงสุด")
-    p.add_argument("--patience", type=int, default=30, help="หยุดอัตโนมัติหาก mAP ไม่ดีขึ้น")
-    p.add_argument("--imgsz", type=int, default=640, help="ความละเอียดภาพ")
-    p.add_argument("--batch", type=int, default=64, help="ขนาด batch (Nano ใช้ VRAM น้อย เพิ่มได้)")
-    p.add_argument("--name", default="train", help="ชื่อ experiment ใต้ runs/detect/")
-    return p.parse_args()
-
-
-def main():
-    args = parse_args()
-
-    if not args.data.exists():
-        raise SystemExit(f"ไม่พบ {args.data} — ตรวจสอบว่าได้รัน 1.2.1 ดาวน์โหลด dataset แล้ว")
-
-    # โหลดโมเดลฐาน YOLO26 Nano
-    model = YOLO(args.model)
-
-    # เทรนตามสูตร Guidebook 1.2.3 — ครบทุกพารามิเตอร์ที่สอนใน TUTORIAL.md
-    results = model.train(
-        data=str(args.data),
-        epochs=args.epochs,
-        patience=args.patience,
-        imgsz=args.imgsz,
-        batch=args.batch,
-        amp=True,               # Mixed Precision (FP16) ลด VRAM
-        optimizer="AdamW",
-        lr0=0.001,
-        mosaic=1.0,
-        mixup=0.15,
-        degrees=15.0,
-        hsv_v=0.4,
-        name=args.name,
-    )
-
-    # ประเมินบนชุด validation
-    best = Path(model.trainer.best) if getattr(model, "trainer", None) and getattr(model.trainer, "best", None) else None
-    if best and best.exists():
-        print(f"\nบันทึก best weights ไว้ที่: {best}")
-        print("คัดลอกไป weights/MeterOCR.pt แล้วรันระบบได้ทันที")
-        m = YOLO(str(best))
-        metrics = m.val(data=str(args.data))
-        print(f"mAP50: {metrics.box.map50:.4f}, mAP50-95: {metrics.box.map:.4f}")
-
-    return results
-
-
-if __name__ == "__main__":
-    main()
+# ประเมินบนชุด validation (ตรงกับ TUTORIAL.md)
+metrics = model.val()
+print(f"mAP50: {metrics.box.map50:.4f}, mAP50-95: {metrics.box.map:.4f}")
+print(f"best.pt อยู่ที่ runs/detect/train/weights/best.pt — คัดลอกไป weights/MeterOCR.pt แล้วรันระบบได้ทันที")
