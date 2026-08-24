@@ -1,6 +1,6 @@
 """
 main.py — ระบบอ่านเลขมิเตอร์น้ำอัตโนมัติ (Automated Water Meter Reader v1.1)
-โครงสร้าง Functional อ่านเข้าใจง่าย ไม่ซับซ้อน ไม่ตัดฟังก์ชันใดๆ ออก
+Functional Pipeline ล้วน — ออกแบบให้อ่านและทำความเข้าใจตามได้ง่ายที่สุด (Intuitive & Clean)
 รัน API: python main.py → http://127.0.0.1:8000/docs
 """
 from __future__ import annotations
@@ -42,8 +42,6 @@ ORIENT_MARGIN = 0.12
 FLIP_GUARD_CONF = 0.60
 FLIP_MAP = {0: 0, 1: 1, 2: 5, 5: 2, 6: 9, 8: 8, 9: 6}
 ALIGN_MAX_SPREAD = 0.10
-VERTICAL_MAX_X = 0.02
-VERTICAL_MIN_Y = 0.03
 RED_THRESH = 0.08
 RED_DOMINANCE = 2.0
 MIN_CROP_PX = 4
@@ -74,7 +72,7 @@ def get_siglip() -> tuple[Any, Any]:
     return _siglip
 
 # ================================================================
-# 3) ฟังก์ชันจัดการภาพ (Image Utilities)
+# 3) ฟังก์ชันจัดการภาพและพิกัดเรขาคณิต (Image & Geometry Utils)
 # ================================================================
 def rotate_image(img_bgr: np.ndarray, angle: int) -> np.ndarray:
     """หมุนภาพตามองศา 90, 180, 270 (0 = คงเดิม)"""
@@ -97,6 +95,20 @@ def apply_prep(img_bgr: np.ndarray, prep: str) -> np.ndarray:
         return cv2.cvtColor(cv2.merge([y_eq, cr, cb]), cv2.COLOR_YCrCb2BGR)
     return img_bgr
 
+def remap_point(x: float, y: float, angle: int, w: int, h: int) -> tuple[float, float]:
+    """แปลงจุด (x, y) จากภาพที่หมุนแล้ว กลับสู่พิกัดภาพเดิมแบบทีละจุด"""
+    if angle == 90:  return y, h - x      # หมุนขวา 90° -> ย้อนกลับ x=y, y=h-x
+    if angle == 180: return w - x, h - y  # กลับหัว 180° -> ย้อนกลับ x=w-x, y=h-y
+    if angle == 270: return w - y, x      # หมุนซ้าย 90° -> ย้อนกลับ x=w-y, y=x
+    return x, y
+
+def remap_bbox(bbox: list[float], angle: int, w: int, h: int) -> list[float]:
+    """แปลงกล่อง [x1, y1, x2, y2] จากภาพที่หมุนแล้ว กลับเป็นพิกัดภาพเดิม"""
+    x1, y1, x2, y2 = bbox
+    p1_x, p1_y = remap_point(x1, y1, angle, w, h)
+    p2_x, p2_y = remap_point(x2, y2, angle, w, h)
+    return [min(p1_x, p2_x), min(p1_y, p2_y), max(p1_x, p2_x), max(p1_y, p2_y)]
+
 def iou(box1: list[float], box2: list[float]) -> float:
     """คำนวณพื้นที่ทับซ้อน (IoU) ระหว่าง 2 กล่อง"""
     x1, y1 = max(box1[0], box2[0]), max(box1[1], box2[1])
@@ -115,14 +127,6 @@ def dedup_detections(dets: list[dict[str, Any]], thresh: float = 0.45) -> list[d
             kept.append(d)
     return sorted(kept, key=lambda x: x["center_x"])
 
-def remap_bbox(bbox: list[float], angle: int, w: int, h: int) -> list[float]:
-    """แปลงพิกัดกล่องจากภาพที่หมุนแล้ว กลับเป็นพิกัดภาพต้นฉบับ"""
-    x1, y1, x2, y2 = bbox
-    if angle == 90: return [y1, h - x2, y2, h - x1]
-    if angle == 180: return [w - x2, h - y2, w - x1, h - y1]
-    if angle == 270: return [w - y2, x1, w - y1, x2]
-    return bbox
-
 def red_ratio(img_bgr: np.ndarray, bbox: list[float]) -> float:
     """คำนวณสัดส่วนพิกเซลสีแดงภายในกล่องตัวเลข (หลักทศนิยม)"""
     x1, y1, x2, y2 = [int(v) for v in bbox]
@@ -135,7 +139,7 @@ def red_ratio(img_bgr: np.ndarray, bbox: list[float]) -> float:
     return float(np.mean((mask1 | mask2) > 0))
 
 # ================================================================
-# 4) ตรวจจับตัวเลขและประเมินทิศทาง
+# 4) ตรวจจับตัวเลขและประเมินทิศทาง (Detection & Search)
 # ================================================================
 def detect_digits(img_bgr: np.ndarray) -> list[dict[str, Any]]:
     """YOLO หาตัวเลข 0-9 เรียงจากซ้ายไปขวา"""
@@ -150,12 +154,15 @@ def detect_digits(img_bgr: np.ndarray) -> list[dict[str, Any]]:
     return sorted(boxes, key=lambda d: d["center_x"])
 
 def is_vertical(dets: list[dict[str, Any]], img_w: int, img_h: int) -> dict[str, Any]:
-    """ตรวจว่ากล่องเรียงตัวเป็นคอลัมน์แนวตั้ง (เช่น วันที่/รุ่น) หรือไม่"""
-    if len(dets) < 2: return {"vertical": False, "x_spread": 0.0, "y_spread": 0.0}
-    x_spread = float(np.std([d["center_x"] / img_w for d in dets]))
-    y_spread = float(np.std([d["center_y"] / img_h for d in dets]))
-    is_vert = (y_spread >= x_spread * 0.8) or (x_spread <= VERTICAL_MAX_X and y_spread >= VERTICAL_MIN_Y)
-    return {"vertical": is_vert, "x_spread": round(x_spread, 4), "y_spread": round(y_spread, 4)}
+    """ตรวจว่ากล่องเรียงเป็นแนวตั้งหรือไม่ (แถวมิเตอร์แนวนอน ความกว้าง width_span ต้องมากกว่า height_span)"""
+    if len(dets) < 2: return {"vertical": False}
+    xs = [d["center_x"] / img_w for d in dets]
+    ys = [d["center_y"] / img_h for d in dets]
+    width_span = max(xs) - min(xs)   # ความกว้างของแถวตัวเลข
+    height_span = max(ys) - min(ys)  # ความสูงของแถวตัวเลข
+    # ถ้าความสูงมากกว่าหรือใกล้เคียงความกว้าง แสดงว่าเป็นคอลัมน์แนวดิ่ง (เช่น วันที่/รุ่น)
+    is_vert = (height_span >= width_span * 0.8) or (width_span <= 0.05 and height_span >= 0.08)
+    return {"vertical": is_vert}
 
 def eval_orientation(bgr_img: np.ndarray, angle: int, prep: str) -> dict[str, Any]:
     """ประเมินผลลัพธ์ของ 1 มุม × 1 ฟิลเตอร์"""
@@ -167,7 +174,7 @@ def eval_orientation(bgr_img: np.ndarray, angle: int, prep: str) -> dict[str, An
     n = len(dets)
 
     if not dets or vert["vertical"] or not (EXPECTED_MIN_DIGITS <= n <= EXPECTED_MAX_DIGITS):
-        return {"score": 0.0, "dets": dets, "mean": 0.0, "prep": prep, "vert": vert}
+        return {"score": 0.0, "dets": dets, "prep": prep, "vert": vert}
 
     mean_conf = float(np.mean([d["confidence"] for d in dets]))
     score = mean_conf * n
@@ -180,14 +187,13 @@ def eval_orientation(bgr_img: np.ndarray, angle: int, prep: str) -> dict[str, An
     elif r_last > RED_THRESH and r_last > r_first * RED_DOMINANCE:
         score *= 1.05  # แดงอยู่ขวา -> ทิศทางถูกต้อง
 
-    return {"score": score, "dets": dets, "mean": mean_conf, "prep": prep, "vert": vert}
+    return {"score": score, "dets": dets, "prep": prep, "vert": vert}
 
-def detect_digits_best(rgb_img: np.ndarray) -> tuple[list[dict[str, Any]], dict[str, Any] | None, bool]:
+def detect_digits_best(rgb_img: np.ndarray) -> tuple[list[dict[str, Any]], dict[str, Any] | None]:
     """ทดลอง 4 ทิศ × 3 ฟิลเตอร์ แล้วเลือกชุดที่ได้คะแนนรวมสูงสุด"""
     h, w = rgb_img.shape[:2]
     bgr = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR)
 
-    # หาวิธีที่ดีที่สุดของแต่ละมุม
     candidates = {}
     for angle in ROTATION_ANGLES:
         best_in_angle = max([eval_orientation(bgr, angle, prep) for prep in PREP_LIST], key=lambda c: c["score"])
@@ -197,12 +203,11 @@ def detect_digits_best(rgb_img: np.ndarray) -> tuple[list[dict[str, Any]], dict[
     best_angle, best_cand = max(candidates.items(), key=lambda item: item[1]["score"])
 
     # Margin Rule: มุมอื่นต้องชนะมุม 0° เกินกำหนด จึงยอมสลับมุม (กันพลิกฉิวเฉียด)
-    margin_applied = bool(best_angle != 0 and cand0["dets"] and not cand0["vert"]["vertical"] and (best_cand["score"] - cand0["score"] < ORIENT_MARGIN))
-    if margin_applied:
+    if best_angle != 0 and cand0["dets"] and not cand0["vert"]["vertical"] and (best_cand["score"] - cand0["score"] < ORIENT_MARGIN):
         best_angle, best_cand = 0, cand0
 
     best_dets = best_cand["dets"]
-    best_meta = {"angle": best_angle, "clahe": best_cand["prep"] == "clahe", "prep": best_cand["prep"]} if best_dets else None
+    best_meta = {"angle": best_angle, "prep": best_cand["prep"], "clahe": best_cand["prep"] == "clahe"} if best_dets else None
 
     if best_meta:
         for d in best_dets:
@@ -210,10 +215,10 @@ def detect_digits_best(rgb_img: np.ndarray) -> tuple[list[dict[str, Any]], dict[
             d["center_x"] = (d["bbox"][0] + d["bbox"][2]) / 2.0
             d["center_y"] = (d["bbox"][1] + d["bbox"][3]) / 2.0
 
-    return best_dets, best_meta, margin_applied
+    return best_dets, best_meta
 
 # ================================================================
-# 5) ตรวจสอบความถูกต้องและป้องกันข้อผิดพลาด
+# 5) ตรวจสอบความถูกต้องและป้องกันข้อผิดพลาด (Safety Guards)
 # ================================================================
 @torch.inference_mode()
 def check_water_meter(rgb_img: np.ndarray) -> dict[str, Any]:
@@ -225,45 +230,44 @@ def check_water_meter(rgb_img: np.ndarray) -> dict[str, Any]:
     return {
         "verified": pred == "water meter" and float(probs[0]) >= METER_VERIFY_CONF,
         "predicted_class": pred, "confidence": float(probs[0]),
-        "probabilities": dict(zip(METER_LABELS, probs.astype(float))),
     }
 
-def flip_guard(rgb_img: np.ndarray, digits: list[dict[str, Any]], meta: dict[str, Any] | None, h: int, w: int) -> dict[str, Any]:
-    """ตรวจสอบความสมมาตร 180° ป้องกันการอ่านเลขกลับหัว (เช่น 6<->9, 2<->5)"""
+def flip_guard(rgb_img: np.ndarray, digits: list[dict[str, Any]], meta: dict[str, Any] | None) -> dict[str, Any]:
+    """ตรวจสอบความสมมาตร 180° ป้องกันอ่านกลับหัว (Mirror Check เช่น 6<->9, 2<->5)"""
     if not digits or not meta:
-        return {"consistent": True, "anti_reading": "", "anti_confidence": 0.0, "warned": False, "anti_angle": None}
+        return {"warned": False, "anti_reading": "", "anti_confidence": 0.0}
 
     anti_angle = (meta["angle"] + 180) % 360
     rot_bgr = rotate_image(cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR), anti_angle)
     anti_dets = dedup_detections(detect_digits(apply_prep(rot_bgr, meta["prep"])))
     if not anti_dets:
-        return {"consistent": True, "anti_reading": "", "anti_confidence": 0.0, "warned": False, "anti_angle": anti_angle}
+        return {"warned": False, "anti_reading": "", "anti_confidence": 0.0}
 
     anti_reading = "".join(str(d["digit"]) for d in anti_dets)
     mean_conf = float(np.mean([d["confidence"] for d in anti_dets]))
 
-    # เปรียบเทียบตัวเลขกลับด้านกับตาราง FLIP_MAP
-    digits_reversed = [d["digit"] for d in reversed(digits)]
-    anti_digits = [d["digit"] for d in anti_dets]
-    consistent = len(anti_digits) == len(digits_reversed) and all(
-        FLIP_MAP.get(orig) == anti for orig, anti in zip(digits_reversed, anti_digits) if orig in FLIP_MAP
+    # เปรียบเทียบเลขหัว-ท้ายแบบกระจกสะท้อนกับตาราง FLIP_MAP
+    digits_rev = [d["digit"] for d in reversed(digits)]
+    anti_vals = [d["digit"] for d in anti_dets]
+    consistent = len(anti_vals) == len(digits_rev) and all(
+        FLIP_MAP.get(orig) == anti for orig, anti in zip(digits_rev, anti_vals) if orig in FLIP_MAP
     )
 
     return {
-        "consistent": consistent, "anti_reading": anti_reading, "anti_confidence": round(mean_conf, 4),
-        "warned": bool(mean_conf >= FLIP_GUARD_CONF and not consistent), "anti_angle": anti_angle,
+        "warned": bool(mean_conf >= FLIP_GUARD_CONF and not consistent),
+        "anti_reading": anti_reading, "anti_confidence": round(mean_conf, 4),
     }
 
 @torch.inference_mode()
-def cross_check_digits(rgb_img: np.ndarray, digits: list[dict[str, Any]], h: int, w: int, angle: int = 0) -> dict[str, Any]:
+def cross_check_digits(rgb_img: np.ndarray, digits: list[dict[str, Any]], h: int, w: int, angle: int = 0) -> list[dict[str, Any]]:
     """SigLIP2 Cross-check ตรวจทานเฉพาะหลักที่ YOLO มั่นใจต่ำ (< 0.60)"""
-    low_conf_digits = [d for d in digits if d["confidence"] < CONF_RELIABLE]
-    if not low_conf_digits: return {"enabled": True, "checked": 0, "mismatches": []}
+    low_conf = [d for d in digits if d["confidence"] < CONF_RELIABLE]
+    if not low_conf: return []
 
     proc, model = get_siglip()
     labels, mismatches = [str(i) for i in range(10)], []
 
-    for d in low_conf_digits:
+    for d in low_conf:
         x1, y1, x2, y2 = [int(v) for v in d["bbox"]]
         crop = rgb_img[max(0, y1):min(h, y2), max(0, x1):min(w, x2)]
         if crop.shape[0] < MIN_CROP_PX or crop.shape[1] < MIN_CROP_PX: continue
@@ -272,24 +276,16 @@ def cross_check_digits(rgb_img: np.ndarray, digits: list[dict[str, Any]], h: int
 
         inp = proc(text=labels, images=Image.fromarray(crop), padding="max_length", return_tensors="pt").to(DEVICE)
         probs = torch.softmax(model(**inp).logits_per_image, dim=1)[0].cpu().numpy()
-        pred_digit = int(np.argmax(probs))
+        pred = int(np.argmax(probs))
 
-        if pred_digit != d["digit"]:
-            mismatches.append({"position": d["position"], "yolo_digit": d["digit"], "siglip_digit": pred_digit, "siglip_confidence": float(probs[pred_digit])})
+        if pred != d["digit"]:
+            mismatches.append({"position": d["position"], "yolo_digit": d["digit"], "siglip_digit": pred, "siglip_confidence": float(probs[pred])})
 
-    return {"enabled": True, "checked": len(low_conf_digits), "mismatches": mismatches}
+    return mismatches
 
 # ================================================================
-# 6) ไปป์ไลน์หลัก (Pipeline Response)
+# 6) ฟังก์ชันอ่านมิเตอร์หลัก (Main Pipeline)
 # ================================================================
-def _build_result(reading: str, digits: list, mean_conf: float, meter: dict, meta: dict | None, margin: bool, warns: list[str], t0: float, w: int, h: int, flip=None, align=None, cross=None) -> dict[str, Any]:
-    return {
-        "reading": reading, "digits": digits, "digit_count": len(digits), "mean_confidence": mean_conf,
-        "meter_check": meter, "processing": {"best": meta, "margin_applied": margin, "auto_corrected": False},
-        "flip_check": flip or {}, "alignment": align or {}, "cross_check": cross or {},
-        "warnings": warns, "elapsed_ms": (perf_counter() - t0) * 1000, "image_size": [w, h],
-    }
-
 def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
     """รับภาพ RGB -> ตรวจชนิดมิเตอร์ -> หาตัวเลข -> ตรวจความถูกต้อง -> คืนผลลัพธ์"""
     t0, (h, w) = perf_counter(), rgb_img.shape[:2]
@@ -297,47 +293,53 @@ def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
     # 1. ตรวจสอบว่าใช่มิเตอร์น้ำจริงไหม
     meter = check_water_meter(rgb_img)
     if not meter["verified"]:
-        return _build_result("", [], 0.0, meter, None, False, [f"ภาพนี้ไม่ใช่มิเตอร์น้ำ ({meter['predicted_class']})"], t0, w, h)
+        return {"reading": "", "digits": [], "meter_check": meter, "processing": None, "warnings": [f"ภาพนี้ไม่ใช่มิเตอร์น้ำ ({meter['predicted_class']})"], "elapsed_ms": round((perf_counter() - t0) * 1000, 1)}
 
-    # 2. ค้นหามุมและตัวเลขที่ดีที่สุด
-    dets, meta, margin = detect_digits_best(rgb_img)
+    # 2. ค้นหาตัวเลขและมุมที่ดีที่สุด
+    dets, meta = detect_digits_best(rgb_img)
     if not dets:
-        return _build_result("", [], 0.0, meter, meta, margin, ["ตรวจไม่พบตัวเลข"], t0, w, h)
+        return {"reading": "", "digits": [], "meter_check": meter, "processing": meta, "warnings": ["ตรวจไม่พบตัวเลข"], "elapsed_ms": round((perf_counter() - t0) * 1000, 1)}
 
     digits = [{
-        "position": i, "digit": d["digit"], "confidence": d["confidence"],
-        "bbox": d["bbox"], "center_x": d["center_x"], "center_y": d["center_y"],
-        "reliable": d["confidence"] >= CONF_RELIABLE,
+        "position": i, "digit": d["digit"], "confidence": round(d["confidence"], 4),
+        "bbox": d["bbox"], "reliable": d["confidence"] >= CONF_RELIABLE,
     } for i, d in enumerate(dets, 1)]
     mean_conf = float(np.mean([d["confidence"] for d in digits]))
 
     # 3. ตรวจสอบว่าไม่ใช่คอลัมน์แนวตั้ง (เช่น วันที่)
-    if meta and meta["angle"] == 0 and is_vertical(digits, w, h)["vertical"]:
-        return _build_result("", [], 0.0, meter, meta, margin, ["กล่องเรียงแนวตั้ง — ไม่ใช่ค่ามิเตอร์"], t0, w, h)
+    if meta and meta["angle"] == 0 and is_vertical(dets, w, h)["vertical"]:
+        return {"reading": "", "digits": [], "meter_check": meter, "processing": meta, "warnings": ["กล่องเรียงแนวตั้ง — ไม่ใช่ค่ามิเตอร์"], "elapsed_ms": round((perf_counter() - t0) * 1000, 1)}
 
     # 4. ตรวจสอบความถูกต้องและสร้างคำเตือน
-    flip = flip_guard(rgb_img, digits, meta, h, w)
-    align_vals = [d["center_x"] / w if meta and meta["angle"] in (90, 270) else d["center_y"] / h for d in digits]
-    align_spread = float(np.std(align_vals))
-    align = {"ok": align_spread <= ALIGN_MAX_SPREAD, "y_spread": round(align_spread, 4)}
-    cross = cross_check_digits(rgb_img, digits, h, w, meta["angle"] if meta else 0)
+    flip = flip_guard(rgb_img, digits, meta)
+    align_vals = [(d["bbox"][0] + d["bbox"][2]) / (2 * w) if meta and meta["angle"] in (90, 270) else (d["bbox"][1] + d["bbox"][3]) / (2 * h) for d in digits]
+    align_ok = float(np.std(align_vals)) <= ALIGN_MAX_SPREAD
+    mismatches = cross_check_digits(rgb_img, digits, h, w, meta["angle"] if meta else 0)
 
     warns = [msg for cond, msg in [
         (not (EXPECTED_MIN_DIGITS <= len(digits) <= EXPECTED_MAX_DIGITS), f"จำนวนหลัก {len(digits)} นอกช่วง {EXPECTED_MIN_DIGITS}-{EXPECTED_MAX_DIGITS}"),
         (digits[0]["digit"] == 0, "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"),
         (mean_conf < CONF_RELIABLE, f"mean conf ต่ำ {mean_conf:.2f} — ภาพอาจเบลอ/เอียง"),
         (flip["warned"], f"อาจกลับหัว! หมุน 180° ได้ {flip['anti_reading']} ({flip['anti_confidence']:.2f}) — ตรวจภาพก่อนบันทึก"),
-        (not align["ok"], f"กล่องไม่เรียงแนว y_spread={align['y_spread']:.3f} — อาจเป็นป้าย/วันที่"),
+        (not align_ok, "กล่องไม่เรียงแนว — อาจเป็นป้าย/วันที่"),
     ] if cond]
     warns += [f"หลักที่ {d['position']} ({d['digit']}) conf ต่ำ {d['confidence']:.2f} — ควรตรวจด้วยตา" for d in digits if not d["reliable"]]
-    warns += [f"หลักที่ {m['position']}: YOLO {m['yolo_digit']} vs SigLIP {m['siglip_digit']} ({m['siglip_confidence']:.2f})" for m in cross["mismatches"]]
+    warns += [f"หลักที่ {m['position']}: YOLO {m['yolo_digit']} vs SigLIP {m['siglip_digit']} ({m['siglip_confidence']:.2f})" for m in mismatches]
 
-    return _build_result("".join(str(d["digit"]) for d in digits), digits, mean_conf, meter, meta, margin, warns, t0, w, h, flip, align, cross)
+    return {
+        "reading": "".join(str(d["digit"]) for d in digits),
+        "digits": digits,
+        "mean_confidence": round(mean_conf, 4),
+        "meter_check": meter,
+        "processing": {"best": meta},
+        "warnings": warns,
+        "elapsed_ms": round((perf_counter() - t0) * 1000, 1),
+    }
 
 # ================================================================
 # 7) FastAPI Web Service
 # ================================================================
-app = FastAPI(title="Meter Reader API", version="1.1", description="API อ่านเลขมิเตอร์น้ำอัตโนมัติ (Clear & Functional Pipeline)")
+app = FastAPI(title="Meter Reader API", version="1.1", description="API อ่านเลขมิเตอร์น้ำอัตโนมัติ (Intuitive Functional Pipeline)")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp", "image/bmp"}
 
