@@ -225,7 +225,6 @@ results = model.train(
 > **ทำไมต้องทำ (WHY)?:** เพื่อเตรียมโฟลเดอร์และติดตั้งไลบรารีให้พร้อม ก่อนเริ่มทดลองระบบจริง
 
 #### 1.3.1 โครงสร้างไฟล์ของระบบ (Project Structure)
-โครงสร้างปัจจุบันของ `meter-reader/` (แบบเรียบง่ายสำหรับการเรียนรู้):
 
 ```text
 meter-reader/
@@ -238,33 +237,7 @@ meter-reader/
     └── MeterOCR.pt    # ไฟล์โมเดล YOLO สำหรับตรวจจับตัวเลข (พร้อมใช้งาน)
 ```
 
-โครงสร้างอ้างอิงแบบแยกเลเยอร์ตาม `Guidebook/docs/Water_Meter_OCR_Guidebook-Draft.md` (ภาคผนวก — โครงสร้างระบบไฟล์อ้างอิง) สำหรับระบบที่ต้องการแยกหน้าที่ชัดเจน:
-
-```text
-/
-├── main.py               <- จุดเริ่มต้นเซิร์ฟเวอร์ FastAPI
-├── requirements.txt      <- รายการ Dependencies
-├── gradio/
-│   └── app.py            <- Gradio UI Frontend
-├── image/                <- โฟลเดอร์เก็บไฟล์ภาพชั่วคราว (Storage.save)
-├── weights/
-│   └── Water-Meter-Digit.pt  <- ไฟล์โมเดล YOLO (ดาวน์โหลดจาก Colab/Hugging Face → วางเป็น weights/MeterOCR.pt ในโปรเจกต์นี้)
-├── src/
-│   ├── __init__.py
-│   ├── utils/
-│   │   ├── __init__.py
-│   │   └── storage.py          <- จัดการบันทึก/ลบไฟล์ชั่วคราว
-│   └── meter/
-│       ├── __init__.py
-│       ├── ocr.py              <- OCR Engine (YOLO + Computer Vision)
-│       ├── validator.py        <- Image Validator (SigLIP2)
-│       ├── service.py          <- Business Logic Orchestrator
-│       ├── controller.py       <- Security & Request Handler
-│       ├── dependencies.py     <- FastAPI Dependency Injection
-│       └── router.py           <- API Route Definitions
-```
-
-&emsp;&emsp;ในการศึกษาเบื้องต้นใช้โครงสร้างเรียบง่ายด้านบนก็เพียงพอ ส่วนโครงสร้างแยกเลเยอร์ด้านล่างเป็นแนวทางเมื่อต้องการขยายระบบให้ดูแลรักษาง่ายและทดสอบแยกส่วนได้
+&emsp;&emsp;โครงสร้างข้างต้นเป็นแบบเรียบง่ายสำหรับการเรียนรู้ สำหรับโครงสร้างแบบแยกเลเยอร์ที่เหมาะกับการขยายระบบ โปรดดู **ภาคผนวก ค. โครงสร้างระบบไฟล์อ้างอิง**
 
 #### 1.3.2 การสร้างสภาพแวดล้อมและติดตั้ง Dependencies
 
@@ -1269,3 +1242,33 @@ if __name__ == "__main__":
 | ความเสถียร | กู้คืน | สำรอง `best.pt` → Drive/Hugging Face |
 
 &emsp;&emsp;การดำเนินการตามมาตรการข้างต้นอย่างครบถ้วนจะช่วยให้ระบบสามารถให้บริการได้อย่างปลอดภัย มีเสถียรภาพ และตรวจสอบได้ในสภาพแวดล้อมการใช้งานจริง
+
+### ค. โครงสร้างระบบไฟล์อ้างอิง (Project Structure Reference)
+
+&emsp;&emsp;โครงสร้างอ้างอิงแบบแยกเลเยอร์ตาม `Guidebook/docs/Water_Meter_OCR_Guidebook-Draft.md` (ภาคผนวก — โครงสร้างระบบไฟล์อ้างอิง) สำหรับระบบที่ต้องการแยกหน้าที่ชัดเจนและทดสอบแยกส่วนได้:
+
+```text
+/
+├── main.py               <- จุดเริ่มต้นเซิร์ฟเวอร์ FastAPI
+├── requirements.txt      <- รายการ Dependencies
+├── gradio/
+│   └── app.py            <- Gradio UI Frontend
+├── image/                <- โฟลเดอร์เก็บไฟล์ภาพชั่วคราว (Storage.save)
+├── weights/
+│   └── Water-Meter-Digit.pt  <- ไฟล์โมเดล YOLO (ดาวน์โหลดจาก Colab/Hugging Face → วางเป็น weights/MeterOCR.pt ในโปรเจกต์นี้)
+├── src/
+│   ├── __init__.py
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   └── storage.py          <- จัดการบันทึก/ลบไฟล์ชั่วคราว
+│   └── meter/
+│       ├── __init__.py
+│       ├── ocr.py              <- OCR Engine (YOLO + Computer Vision)
+│       ├── validator.py        <- Image Validator (SigLIP2)
+│       ├── service.py          <- Business Logic Orchestrator
+│       ├── controller.py       <- Security & Request Handler
+│       ├── dependencies.py     <- FastAPI Dependency Injection
+│       └── router.py           <- API Route Definitions
+```
+
+&emsp;&emsp;ในการศึกษาเบื้องต้นใช้โครงสร้างเรียบง่ายในหัวข้อ 1.3.1 ก็เพียงพอ ส่วนโครงสร้างแยกเลเยอร์ข้างต้นเป็นแนวทางเมื่อต้องการขยายระบบให้ดูแลรักษาง่ายและทดสอบแยกส่วนได้
