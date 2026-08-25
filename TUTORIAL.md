@@ -1241,8 +1241,6 @@ if __name__ == "__main__":
 
 Liang, Y., Liao, Y., Li, S., Wu, W., Qiu, T., & Zhang, W. (2022). Research on water meter reading recognition based on deep learning. *Scientific Reports*, *12*, Article 12861. https://doi.org/10.1038/s41598-022-17255-3
 
-Li, X., et al. (2020). Water meter reading recognition based on computer vision and deep learning. *IEEE Access*. (ไม่พบข้อมูลฉบับเต็มใน Google Scholar—โปรดตรวจสอบชื่อผู้แต่ง/ปี/Volume กับต้นฉบับ เนื่องจากไม่พบรายการที่ตรงกันแบบสมบูรณ์)
-
 Nguyen Van, B., Nguyen, A., Tran-Trung, K., Ho Huong, T., Duong Thi Hong, H., Nguyen Trung, H., & Truong Hoang, V. (2025). Water meter reading based on text recognition techniques and deep learning. *IEEE Access*, *13*, 41422–41434. https://doi.org/10.1109/ACCESS.2025.3547225
 
 Salomon, G., Laroca, R., & Menotti, D. (2022). Image-based automatic dial meter reading in unconstrained scenarios. *Measurement*, *204*, 112025. https://doi.org/10.1016/j.measurement.2022.112025
