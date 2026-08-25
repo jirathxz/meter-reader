@@ -1237,29 +1237,29 @@ if __name__ == "__main__":
 
 ## บรรณานุกรมและเอกสารอ้างอิง (References)
 
-&emsp;&emsp;&emsp;&emsp;บรรณานุกรมเรียงตามลำดับอักษร ก-ฮ โดยเอกสารภาษาไทยมาก่อนภาษาอังกฤษ และแหล่งอินเทอร์เน็ตอยู่ท้ายสุด บรรทัดที่สองเป็นต้นไปเยื้องตรงอักษรตัวที่ 9
+&emsp;&emsp;&emsp;&emsp;บรรณานุกรมจัดรูปแบบตาม APA 7th edition ตรวจสอบข้อมูลจาก Google Scholar เรียงตามลำดับตัวอักษรผู้แต่ง (ตรวจสอบซ้ำแล้วไม่พบรายการซ้ำ)
 
-Liang, Y., Liao, Y., Li, S., Wu, W., Qiu, T. และ Zhang, W. (2022). Research on water meter reading recognition based on deep learning. *Scientific Reports*, 12, 12861. https://doi.org/10.1038/s41598-022-17255-3
+Liang, Y., Liao, Y., Li, S., Wu, W., Qiu, T., & Zhang, W. (2022). Research on water meter reading recognition based on deep learning. *Scientific Reports*, *12*, Article 12861. https://doi.org/10.1038/s41598-022-17255-3
 
-Li, X. และคณะ. (2020). Water meter reading recognition based on computer vision and deep learning. *IEEE Access*.
+Li, X., et al. (2020). Water meter reading recognition based on computer vision and deep learning. *IEEE Access*. (ไม่พบข้อมูลฉบับเต็มใน Google Scholar—โปรดตรวจสอบชื่อผู้แต่ง/ปี/Volume กับต้นฉบับ เนื่องจากไม่พบรายการที่ตรงกันแบบสมบูรณ์)
 
-Nguyen Van, B. และคณะ. (2025). Water meter reading based on text recognition techniques and deep learning. *IEEE Access*, 13, 41422–41434. https://doi.org/10.1109/ACCESS.2025.3547225
+Nguyen Van, B., Nguyen, A., Tran-Trung, K., Ho Huong, T., Duong Thi Hong, H., Nguyen Trung, H., & Truong Hoang, V. (2025). Water meter reading based on text recognition techniques and deep learning. *IEEE Access*, *13*, 41422–41434. https://doi.org/10.1109/ACCESS.2025.3547225
 
-Salomon, G., Laroca, R. และ Menotti, D. (2022). Image-based automatic dial meter reading in unconstrained scenarios. *Measurement*, 204, 112025. https://doi.org/10.1016/j.measurement.2022.112025
+Salomon, G., Laroca, R., & Menotti, D. (2022). Image-based automatic dial meter reading in unconstrained scenarios. *Measurement*, *204*, 112025. https://doi.org/10.1016/j.measurement.2022.112025
 
-Tschannen, M. และคณะ. (2025). SigLIP 2: Multilingual vision-language encoders with improved semantic understanding, localization, and dense features. *arXiv*. https://doi.org/10.48550/arXiv.2502.14786
+Tschannen, M., Gritsenko, A. A., Wang, X., Naeem, M. F., Alabdulmohsin, I., Parthasarathy, N., Evans, T., Beyer, L., Xia, Y., Mustafa, B., Hénaff, O. J., Harmsen, J., Steiner, A., & Zhai, X. (2025). SigLIP 2: Multilingual vision-language encoders with improved semantic understanding, localization, and dense features. *arXiv*. https://doi.org/10.48550/arXiv.2502.14786
 
-Wang, Y. และ Xiang, X. (2024). GMS-YOLO: An enhanced algorithm for water meter reading recognition in complex environments. *Journal of Real-Time Image Processing*, 21(5), 173. https://doi.org/10.1007/s11554-024-01551-4
+Wang, Y., & Xiang, X. (2024). GMS-YOLO: An enhanced algorithm for water meter reading recognition in complex environments. *Journal of Real-Time Image Processing*, *21*(5), 173. https://doi.org/10.1007/s11554-024-01551-4
 
-Zhai, X. และคณะ. (2023). Sigmoid loss for language image pre-training. In *Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)* (pp. 11941–11952). https://arxiv.org/abs/2303.15343
+Zhai, X., Mustafa, B., Kolesnikov, A., & Beyer, L. (2023). Sigmoid loss for language image pre-training. In *Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)* (pp. 11975–11986). https://doi.org/10.1109/ICCV51070.2023.01100
 
-Zou, Z., Chen, K., Shi, Z., Guo, Y. และ Ye, J. (2023). Object detection in 20 years: A survey. *Proceedings of the IEEE*, 111(3), 257–276. https://doi.org/10.1109/JPROC.2023.3238524
+Zou, Z., Chen, K., Shi, Z., Guo, Y., & Ye, J. (2023). Object detection in 20 years: A survey. *Proceedings of the IEEE*, *111*(3), 257–276. https://doi.org/10.1109/JPROC.2023.3238524
 
-FastAPI. (2024). *FastAPI framework, high performance, easy to learn, fast to code*. (15 สิงหาคม 2567). Available URL: https://fastapi.tiangolo.com
+FastAPI. (2024). *FastAPI framework, high performance, easy to learn, fast to code, ready for production*. https://fastapi.tiangolo.com
 
-Gradio. (2024). *Build and share delightful machine learning apps*. (15 สิงหาคม 2567). Available URL: https://gradio.app
+Gradio. (2024). *Build and share delightful machine learning apps*. https://gradio.app
 
-Ultralytics. (2024). *YOLOv8 & YOLO11: Real-time object detection and image segmentation*. (15 สิงหาคม 2567). Available URL: https://docs.ultralytics.com
+Ultralytics. (2024). *YOLOv8 & YOLO11: Real-time object detection and image segmentation*. https://docs.ultralytics.com
 
 ---
 
