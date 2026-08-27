@@ -1031,7 +1031,6 @@ def predict(image):
 
 ## บรรณานุกรมและเอกสารอ้างอิง (References)
 
-&emsp;&emsp;&emsp;&emsp;บรรณานุกรมจัดรูปแบบตาม APA 7th edition ตรวจสอบข้อมูลจาก Google Scholar เรียงตามลำดับตัวอักษรผู้แต่ง (ตรวจสอบซ้ำแล้วไม่พบรายการซ้ำ)
 
 Liang, Y., Liao, Y., Li, S., Wu, W., Qiu, T., & Zhang, W. (2022). Research on water meter reading recognition based on deep learning. *Scientific Reports*, *12*, Article 12861. https://doi.org/10.1038/s41598-022-17255-3
 
@@ -1139,48 +1138,3 @@ from pythainlp.tokenize import word_tokenize
 word_tokenize("ฉันกินข้าว", engine="newmm")  # ["ฉัน", "กิน", "ข้าว"]
 ```
 
-#### ง.3 การทำ Unicode normalization (NFC)
-
-&emsp;&emsp;&emsp;&emsp;อักขระไทยหนึ่งรูปอาจประกอบจาก 3 รหัส ได้แก่ พยัญชนะต้น สระบน และวรรณยุกต์ คำว่า "แสง" จึงเข้ารหัสได้หลายแบบ ระบบต้องทำ NFC ก่อนเก็บหรือเทียบสตริงเสมอ
-
-```python
-import unicodedata
-a = "แสง"
-b = unicodedata.normalize("NFD", a)
-print(a == b)  # False
-print(unicodedata.normalize("NFC", a) == unicodedata.normalize("NFC", b))  # True
-```
-
-&emsp;&emsp;&emsp;&emsp;ระบบนับความยาวที่ผู้ใช้เห็นต้องนับ grapheme cluster ไม่ใช่นับรหัส ระบบใช้ `regex` `\X` ใน Python หรือ `Intl.Segmenter("th", {granularity: "grapheme"})` ใน JavaScript
-
-#### ง.4 การทับศัพท์ (Romanization)
-
-&emsp;&emsp;&emsp;&emsp;ระบบใช้ RTGS สำหรับ slug และชื่อที่อ่านเป็นอังกฤษได้ ระบบใช้ PyThaiNLP `romanize(text, engine="royin")` แล้วลบอักขระที่ไม่ใช่ `[a-z0-9-]` หลังทับศัพท์ สำหรับงานวิชาการใช้ ISO 11940
-
-#### ง.5 การเรียงลำดับ (Collation)
-
-&emsp;&emsp;&emsp;&emsp;ภาษาไทยไม่เรียงตามรหัสอักขระ ระบบต้องเรียงตามพยัญชนะต้นก่อน แล้วจึงสระและวรรณยุกต์ การใช้ `ORDER BY name` แบบ codepoint จึงวางสระนำ `เ`, `แ` ผิดตำแหน่ง
-
-| ที่ | วิธี |
-|---|---|
-| PostgreSQL (ICU) | `name TEXT COLLATE "th-TH-x-icu"` |
-| MySQL 8 | `COLLATE utf8mb4_thai_520_w2` |
-| Python | `pyicu` Collator `Locale("th_TH")` |
-| JavaScript | `Intl.Collator("th", {sensitivity: "base"})` |
-
-#### ง.6 การตัดข้อความอย่างปลอดภัย
-
-&emsp;&emsp;&emsp;&emsp;ระบบตัดข้อความที่ขอบ grapheme cluster เสมอ ระบบใช้ `regex` `\X` ใน Python หรือ `Intl.Segmenter` ใน JavaScript ระบบไม่ตัดกลางพยางค์เพราะจะเหลือสระลอยเป็น `◌` สำหรับ UI ที่แสดง `...` ระบบตัดคำด้วย PyThaiNLP ก่อนแล้วจึงนับ grapheme
-
-#### ง.7 การทำดัชนีค้นหา
-
-&emsp;&emsp;&emsp;&emsp;ระบบตั้งค่า Elasticsearch ด้วย `analyzer: "thai"` ระบบไม่ใช้ `ILIKE '%term%'` เพราะเป็นการค้นหาแบบ substring ที่ไม่จัดอันดับ สำหรับ PostgreSQL ระบบตัดคำในแอปแล้วเก็บโทเคนคั่นวรรคในคอลัมน์ `tsvector` แบบ `simple`
-
-```json
-{ "mappings": { "properties": { "title": { "type": "text", "analyzer": "thai" } } } }
-```
-
-#### ง.8 ข้อผิดพลาดที่พบบ่อย
-
-&emsp;&emsp;&emsp;&emsp;ระบบห้ามใช้ `.split(" ")` นับคำไทย ระบบห้ามใช้ `ORDER BY` โดยไม่มี collation ระบบห้ามเก็บข้อความที่ยังไม่ทำ NFC ระบบห้ามใช้ `LEFT(text,20)` นับไบต์ ระบบห้ามส่งโทเคนที่ตัดฝั่งไคลเอนต์ไป Elasticsearch ระบบต้องจัดการ `ๆ` และ `\u200B` (zero-width space) ให้ถูกต้อง
-``
