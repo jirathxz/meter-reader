@@ -89,6 +89,7 @@
 	&emsp;[ก. มาตรการด้านความปลอดภัยของระบบ ... 18](#ก-มาตรการด้านความปลอดภัยของระบบ)  
 	&emsp;[ข. มาตรการด้านความเสถียรและความน่าเชื่อถือ ... 18](#ข-มาตรการด้านความเสถียรและความน่าเชื่อถือ)  
 	&emsp;[ค. โครงสร้างระบบไฟล์ของโครงงานปัจจุบัน ... 18](#ค-โครงสร้างระบบไฟล์ของโครงงานปัจจุบัน)  
+	&emsp;[ง. การประมวลผลข้อความภาษาไทยในโค้ด ... 18](#ง-การประมวลผลข้อความภาษาไทยในโค้ด)  
 ---
 
 ## ข้อแนะนำเบื้องต้นสำหรับการศึกษา
@@ -1106,4 +1107,80 @@ meter-reader/
 │ └── MeterOCR.pt # ไฟล์โมเดล YOLO สำหรับตรวจจับตัวเลข (พร้อมใช้งาน)
 └── training/
  └── yolo_train.py # สคริปต์เทรน YOLO26 (ตาม Guidebook 1.2.3)
+`
+
+### ง. การประมวลผลข้อความภาษาไทยในโค้ด
+
+&emsp;&emsp;&emsp;&emsp;ระบบอ่านค่ามาตรวัดน้ำต้องจัดการข้อความภาษาไทยในหลายจุด ได้แก่ ชื่อลูกค้า ที่อยู่ (`ตำบล/อำเภอ/จังหวัด`) และข้อความแจ้งเตือน ภาษาไทยเขียนโดยไม่มีวรรคระหว่างคำ ใช้สระลอยและวรรณยุกต์แบบประสม และไม่เรียงลำดับตามรหัสอักขระ โค้ดที่เขียนสำหรับภาษาอังกฤษจึงทำลายข้อความไทยได้โดยไม่รู้ตัว ภาคผนวกนี้สรุปสิ่งที่ต้องแก้ไขตาม checklist ของ skill `thai-text-processing`
+
+#### ง.1 ปัญหาหลัก: ภาษาไทยไม่มีวรรคระหว่างคำ
+
+&emsp;&emsp;&emsp;&emsp;ประโยค `"ฉันกินข้าว"` เมื่อใช้ `"ฉันกินข้าว".split(" ")` ระบบได้ `["ฉันกินข้าว"]` เพียงหนึ่งโทเคน ระบบจึงค้นหาคำว่า `ข้าว` ไม่เจอ นับจำนวนคำผิด และตัดข้อความผิดตำแหน่ง ระบบต้องเรียกตัวตัดคำก่อนการค้นหา การนับคำ หรือการสร้าง n-gram
+
+#### ง.2 ชุดเครื่องมือตัดคำ
+
+&emsp;&emsp;&emsp;&emsp;ระบบเลือกเครื่องมือตัดคำตามภาษาและสภาพแวดล้อม ตารางที่ ง.1 สรุปตัวเลือก
+
+&emsp;&emsp;&emsp;&emsp;**ตารางที่ ง.1 ชุดเครื่องมือตัดคำภาษาไทย**
+
+| เครื่องมือ | ภาษา | หมายเหตุ |
+|---|---|---|
+| **PyThaiNLP `word_tokenize`** | Python | ค่าเริ่มต้น `newmm` (dict-based), `attacut` (CNN), `deepcut` (LSTM) |
+| **nlpO3** | Python via Rust | เร็ว แบบ newmm, license ผ่อนปรน |
+| **ICU `BreakIterator`** | C/Java/Python | ติดมากับหลายแพลตฟอร์ม |
+| **thai-segmenter** | TypeScript | ใช้บนเบราว์เซอร์ |
+| **Lucene Thai analyzer** | Java | ใช้สำหรับ Elasticsearch |
+
+&emsp;&emsp;&emsp;&emsp;ระบบเซิร์ฟเวอร์ Python เลือก `PyThaiNLP newmm` เป็นค่าเริ่มต้น ระบบต้องการความแม่นยำสูงกับคำใหม่เลือก `attacut` หรือ `deepcut` ส่วนหน้าเว็บใช้ `thai-segmenter` และระบบค้นหาใช้ Thai analyzer ของ Elasticsearch โดยตรง
+
+```python
+# ตัวอย่างการตัดคำด้วย PyThaiNLP
+from pythainlp.tokenize import word_tokenize
+word_tokenize("ฉันกินข้าว", engine="newmm")  # ["ฉัน", "กิน", "ข้าว"]
 ```
+
+#### ง.3 การทำ Unicode normalization (NFC)
+
+&emsp;&emsp;&emsp;&emsp;อักขระไทยหนึ่งรูปอาจประกอบจาก 3 รหัส ได้แก่ พยัญชนะต้น สระบน และวรรณยุกต์ คำว่า "แสง" จึงเข้ารหัสได้หลายแบบ ระบบต้องทำ NFC ก่อนเก็บหรือเทียบสตริงเสมอ
+
+```python
+import unicodedata
+a = "แสง"
+b = unicodedata.normalize("NFD", a)
+print(a == b)  # False
+print(unicodedata.normalize("NFC", a) == unicodedata.normalize("NFC", b))  # True
+```
+
+&emsp;&emsp;&emsp;&emsp;ระบบนับความยาวที่ผู้ใช้เห็นต้องนับ grapheme cluster ไม่ใช่นับรหัส ระบบใช้ `regex` `\X` ใน Python หรือ `Intl.Segmenter("th", {granularity: "grapheme"})` ใน JavaScript
+
+#### ง.4 การทับศัพท์ (Romanization)
+
+&emsp;&emsp;&emsp;&emsp;ระบบใช้ RTGS สำหรับ slug และชื่อที่อ่านเป็นอังกฤษได้ ระบบใช้ PyThaiNLP `romanize(text, engine="royin")` แล้วลบอักขระที่ไม่ใช่ `[a-z0-9-]` หลังทับศัพท์ สำหรับงานวิชาการใช้ ISO 11940
+
+#### ง.5 การเรียงลำดับ (Collation)
+
+&emsp;&emsp;&emsp;&emsp;ภาษาไทยไม่เรียงตามรหัสอักขระ ระบบต้องเรียงตามพยัญชนะต้นก่อน แล้วจึงสระและวรรณยุกต์ การใช้ `ORDER BY name` แบบ codepoint จึงวางสระนำ `เ`, `แ` ผิดตำแหน่ง
+
+| ที่ | วิธี |
+|---|---|
+| PostgreSQL (ICU) | `name TEXT COLLATE "th-TH-x-icu"` |
+| MySQL 8 | `COLLATE utf8mb4_thai_520_w2` |
+| Python | `pyicu` Collator `Locale("th_TH")` |
+| JavaScript | `Intl.Collator("th", {sensitivity: "base"})` |
+
+#### ง.6 การตัดข้อความอย่างปลอดภัย
+
+&emsp;&emsp;&emsp;&emsp;ระบบตัดข้อความที่ขอบ grapheme cluster เสมอ ระบบใช้ `regex` `\X` ใน Python หรือ `Intl.Segmenter` ใน JavaScript ระบบไม่ตัดกลางพยางค์เพราะจะเหลือสระลอยเป็น `◌` สำหรับ UI ที่แสดง `...` ระบบตัดคำด้วย PyThaiNLP ก่อนแล้วจึงนับ grapheme
+
+#### ง.7 การทำดัชนีค้นหา
+
+&emsp;&emsp;&emsp;&emsp;ระบบตั้งค่า Elasticsearch ด้วย `analyzer: "thai"` ระบบไม่ใช้ `ILIKE '%term%'` เพราะเป็นการค้นหาแบบ substring ที่ไม่จัดอันดับ สำหรับ PostgreSQL ระบบตัดคำในแอปแล้วเก็บโทเคนคั่นวรรคในคอลัมน์ `tsvector` แบบ `simple`
+
+```json
+{ "mappings": { "properties": { "title": { "type": "text", "analyzer": "thai" } } } }
+```
+
+#### ง.8 ข้อผิดพลาดที่พบบ่อย
+
+&emsp;&emsp;&emsp;&emsp;ระบบห้ามใช้ `.split(" ")` นับคำไทย ระบบห้ามใช้ `ORDER BY` โดยไม่มี collation ระบบห้ามเก็บข้อความที่ยังไม่ทำ NFC ระบบห้ามใช้ `LEFT(text,20)` นับไบต์ ระบบห้ามส่งโทเคนที่ตัดฝั่งไคลเอนต์ไป Elasticsearch ระบบต้องจัดการ `ๆ` และ `\u200B` (zero-width space) ให้ถูกต้อง
+``
