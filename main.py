@@ -6,6 +6,7 @@ Functional Pipeline ล้วน — จัดระเบียบบรรท�
 from __future__ import annotations
 
 import io
+from pathlib import Path
 from time import perf_counter
 from typing import Any
 
@@ -26,7 +27,8 @@ import uvicorn
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # โมเดล YOLO และการตรวจจับตัวเลข
-YOLO_MODEL = "weights/MeterOCR.pt"
+# ใช้ Path(__file__) เพื่อไม่พึ่งพา CWD (รันจาก repo root ก็ได้)
+YOLO_MODEL = str(Path(__file__).parent / "weights" / "MeterOCR.pt")
 YOLO_IMGSZ = 960
 YOLO_CONF = 0.35
 CONF_RELIABLE = 0.60
@@ -47,6 +49,8 @@ ALIGN_MAX_SPREAD = 0.10
 RED_THRESH = 0.08
 RED_DOMINANCE = 2.0
 MIN_CROP_PX = 4
+# หมายเหตุ: CONF_RELIABLE (=0.60) ถูกใช้ร่วมกัน 3 จุดโดยตั้งใจ — (1) เกณฑ์เตือน flip_guard,
+# (2) trigger cross_check_digits, (3) warning รายหลัก — หากต้องการจูนอิสระให้แยกเป็น 3 ค่าคงที่
 
 # โมเดล SigLIP2 สำหรับคัดแยกประเภทมิเตอร์
 SIGLIP_MODEL = "google/siglip2-base-patch16-224"
@@ -584,4 +588,4 @@ async def read_meter_endpoint(file: UploadFile = File(...)) -> dict[str, Any]:
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=False)

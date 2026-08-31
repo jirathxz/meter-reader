@@ -26,7 +26,9 @@ def fetch_health() -> str:
         return f"API ไม่พร้อม ({exc}) - รัน `python main.py` ก่อน"
 
 
-# --- ฟิลเตอร์พรีวิวให้ตรงกับฝั่ง API ---
+# --- ฟิลเตอร์พรีวิวให้ตรงกับฝั่ง API (mirror main.py) ---
+# หมายเหตุ: พารามิเตอร์ CLAHE (clip 2.0, grid 8x8) และสูตร remap ต้องตรงกับ main.py
+# หากแก้ main.py ให้แก้ที่นี่ด้วย หรือย้ายไป utils.py เพื่อแชร์โค้ด (DRY)
 def _rotate_gradio(img_bgr, angle):
     if angle == 90: return cv2.rotate(img_bgr, cv2.ROTATE_90_CLOCKWISE)
     if angle == 180: return cv2.rotate(img_bgr, cv2.ROTATE_180)
@@ -36,7 +38,7 @@ def _rotate_gradio(img_bgr, angle):
 def _clahe_gradio(img_bgr):
     lab = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2LAB)
     l, a, b = cv2.split(lab)
-    l = cv2.createCLAHE(2.0, (8, 8)).apply(l)
+    l = cv2.createCLAHE(2.0, (8, 8)).apply(l)  # ตรงกับ main.py: CLAHE_CLIP/GIRD
     return cv2.cvtColor(cv2.merge([l, a, b]), cv2.COLOR_LAB2BGR)
 
 def _histeq_gradio(img_bgr):
@@ -46,6 +48,7 @@ def _histeq_gradio(img_bgr):
     return cv2.cvtColor(cv2.merge([y, cr, cb]), cv2.COLOR_YCrCb2BGR)
 
 def _inverse_remap_bbox(bbox, angle, img_w, img_h):
+    # สูตรย้อนกลับของ main.remap_bbox — ต้องคงความสอดคล้องกัน
     x1, y1, x2, y2 = bbox
     if angle == 0: return bbox
     if angle == 90: return [img_h - y2, x1, img_h - y1, x2]

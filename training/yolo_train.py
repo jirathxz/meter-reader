@@ -7,11 +7,19 @@ Usage:
     python training/yolo_train.py
 """
 
+import os
+
 from roboflow import Roboflow
 from ultralytics import YOLO
 
 # 1.2.1 — ดาวน์โหลดชุดข้อมูลจาก Roboflow (yolo26)
-rf = Roboflow(api_key="YOUR_API_KEY")
+# แนะนำ: เก็บ API Key ใน env var หรือ Colab Secrets (ROBOFLOW_API_KEY) แทนการ hardcode
+#   Colab: from google.colab import userdata; api_key = userdata.get('ROBOFLOW_API_KEY')
+#   Local: export ROBOFLOW_API_KEY="..."  หรือ  set ROBOFLOW_API_KEY=...
+api_key = os.getenv("ROBOFLOW_API_KEY", "YOUR_API_KEY")
+if api_key == "YOUR_API_KEY":
+    print("[warn] ใช้ YOUR_API_KEY placeholder — ตั้ง ROBOFLOW_API_KEY env var ก่อนรันจริง")
+rf = Roboflow(api_key=api_key)
 project = rf.workspace("watermeter-jvlgr").project("utility-meter-reading-dataset-for-automatic-reading-yolo")
 version = project.version(1)
 dataset = version.download("yolo26")
@@ -31,6 +39,8 @@ results = model.train(
     mixup=0.15,                # ซ้อนทับภาพป้องกัน Overfitting
     degrees=15.0,              # หมุนภาพชดเชยมุมเอียง
     hsv_v=0.4,                 # ปรับความสว่างจำลองสภาพแสงน้อย
+    seed=0,                    # ตรึง seed เพื่อทำซ้ำได้
+    deterministic=True,        # ลด non-determinism ของ augmentation
 )
 
 # ประเมินบนชุด validation (ตรงกับ TUTORIAL.md)
