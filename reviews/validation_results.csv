@@ -1,0 +1,8 @@
+﻿file,reading,num_digits,mean_confidence,verified,predicted_class,confidence,angle,prep,elapsed_ms_reported,elapsed_ms_measured,warnings
+bangkok-thailand-december-water-meters-measure-volume-used-residential-commercial-building-units-supplied-212500741.jpg,33858,5,0.8165,True,water meter,0.9769028425216675,90,orig,26758.1,26758.1,อาจกลับหัว! หมุน 180° ได้ 85833 (0.83) — ตรวจภาพก่อนบันทึก
+detail-dirty-old-water-meter-clock-shows-water-consumption-old-water-meter-100126239.jpg,01628,5,0.891,True,water meter,0.9380943775177002,0,histeq,4907.7,4907.7,หลักแรกเป็น 0 — อาจเกินมา 1 หลัก | อาจกลับหัว! หมุน 180° ได้ 82610 (0.90) — ตรวจภาพก่อนบันทึก
+images (5).jpg,43920,5,0.8216,True,water meter,0.8345730900764465,0,histeq,5391.0,5391.0,อาจกลับหัว! หมุน 180° ได้ 12934 (0.75) — ตรวจภาพก่อนบันทึก
+IMG_7163.jpeg,023814,6,0.8848,True,water meter,0.7554731965065002,270,orig,5575.4,5575.4,หลักแรกเป็น 0 — อาจเกินมา 1 หลัก | อาจกลับหัว! หมุน 180° ได้ 418320 (0.85) — ตรวจภาพก่อนบันทึก
+old-water-meter-2PGM332.jpg,01882,5,0.89,True,water meter,0.6901292204856873,270,histeq,5454.3,5454.3,หลักแรกเป็น 0 — อาจเกินมา 1 หลัก | อาจกลับหัว! หมุน 180° ได้ 28810 (0.88) — ตรวจภาพก่อนบันทึก
+old-water-meter-show-detail-dirty-old-water-meter-clock-bangkok-thailand-december-water-meters-measure-volume-water-used-212500777.jpg,33858,5,0.8512,True,water meter,0.9424484968185425,0,clahe,4909.8,4909.8,อาจกลับหัว! หมุน 180° ได้ 85833 (0.84) — ตรวจภาพก่อนบันทึก
+Water+meter.jpg,05715,5,0.8735,True,water meter,0.9058375358581543,0,orig,5320.7,5320.7,หลักแรกเป็น 0 — อาจเกินมา 1 หลัก | อาจกลับหัว! หมุน 180° ได้ 51750 (0.86) — ตรวจภาพก่อนบันทึก

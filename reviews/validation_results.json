@@ -1,0 +1,634 @@
+[
+  {
+    "file": "bangkok-thailand-december-water-meters-measure-volume-used-residential-commercial-building-units-supplied-212500741.jpg",
+    "path": "meter_img\\bangkok-thailand-december-water-meters-measure-volume-used-residential-commercial-building-units-supplied-212500741.jpg",
+    "reading": "33858",
+    "num_digits": 5,
+    "digits": [
+      {
+        "position": 1,
+        "digit": 3,
+        "confidence": 0.84,
+        "bbox": [
+          427.6258544921875,
+          265.7561340332031,
+          440.4331359863281,
+          275.1516418457031
+        ],
+        "reliable": true
+      },
+      {
+        "position": 2,
+        "digit": 3,
+        "confidence": 0.8306,
+        "bbox": [
+          426.23126220703125,
+          249.43402099609375,
+          438.65252685546875,
+          258.8361511230469
+        ],
+        "reliable": true
+      },
+      {
+        "position": 3,
+        "digit": 8,
+        "confidence": 0.7645,
+        "bbox": [
+          425.6884460449219,
+          233.41818237304688,
+          437.55810546875,
+          242.39816284179688
+        ],
+        "reliable": true
+      },
+      {
+        "position": 4,
+        "digit": 5,
+        "confidence": 0.8561,
+        "bbox": [
+          424.9571533203125,
+          216.86300659179688,
+          437.19659423828125,
+          226.0233154296875
+        ],
+        "reliable": true
+      },
+      {
+        "position": 5,
+        "digit": 8,
+        "confidence": 0.7912,
+        "bbox": [
+          425.97991943359375,
+          199.753173828125,
+          437.86981201171875,
+          208.70431518554688
+        ],
+        "reliable": true
+      }
+    ],
+    "mean_confidence": 0.8165,
+    "meter_check": {
+      "verified": true,
+      "predicted_class": "water meter",
+      "confidence": 0.9769028425216675
+    },
+    "processing": {
+      "best": {
+        "angle": 90,
+        "prep": "orig",
+        "clahe": false
+      }
+    },
+    "warnings": [
+      "อาจกลับหัว! หมุน 180° ได้ 85833 (0.83) — ตรวจภาพก่อนบันทึก"
+    ],
+    "elapsed_ms_reported": 26758.1,
+    "elapsed_ms_measured": 26758.1,
+    "success": true,
+    "verified": true
+  },
+  {
+    "file": "detail-dirty-old-water-meter-clock-shows-water-consumption-old-water-meter-100126239.jpg",
+    "path": "meter_img\\detail-dirty-old-water-meter-clock-shows-water-consumption-old-water-meter-100126239.jpg",
+    "reading": "01628",
+    "num_digits": 5,
+    "digits": [
+      {
+        "position": 1,
+        "digit": 0,
+        "confidence": 0.8989,
+        "bbox": [
+          219.162841796875,
+          184.89443969726562,
+          236.00331115722656,
+          209.74066162109375
+        ],
+        "reliable": true
+      },
+      {
+        "position": 2,
+        "digit": 1,
+        "confidence": 0.8747,
+        "bbox": [
+          252.89453125,
+          185.0665283203125,
+          268.7980651855469,
+          209.9255828857422
+        ],
+        "reliable": true
+      },
+      {
+        "position": 3,
+        "digit": 6,
+        "confidence": 0.8705,
+        "bbox": [
+          288.30963134765625,
+          187.3214569091797,
+          307.0838928222656,
+          212.49212646484375
+        ],
+        "reliable": true
+      },
+      {
+        "position": 4,
+        "digit": 2,
+        "confidence": 0.8939,
+        "bbox": [
+          322.48931884765625,
+          186.53903198242188,
+          340.2622985839844,
+          211.0482177734375
+        ],
+        "reliable": true
+      },
+      {
+        "position": 5,
+        "digit": 8,
+        "confidence": 0.917,
+        "bbox": [
+          357.5378112792969,
+          192.59417724609375,
+          376.3390197753906,
+          217.34861755371094
+        ],
+        "reliable": true
+      }
+    ],
+    "mean_confidence": 0.891,
+    "meter_check": {
+      "verified": true,
+      "predicted_class": "water meter",
+      "confidence": 0.9380943775177002
+    },
+    "processing": {
+      "best": {
+        "angle": 0,
+        "prep": "histeq",
+        "clahe": false
+      }
+    },
+    "warnings": [
+      "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
+      "อาจกลับหัว! หมุน 180° ได้ 82610 (0.90) — ตรวจภาพก่อนบันทึก"
+    ],
+    "elapsed_ms_reported": 4907.7,
+    "elapsed_ms_measured": 4907.7,
+    "success": true,
+    "verified": true
+  },
+  {
+    "file": "images (5).jpg",
+    "path": "meter_img\\images (5).jpg",
+    "reading": "43920",
+    "num_digits": 5,
+    "digits": [
+      {
+        "position": 1,
+        "digit": 4,
+        "confidence": 0.8769,
+        "bbox": [
+          113.0724868774414,
+          253.12754821777344,
+          129.0738983154297,
+          271.4837341308594
+        ],
+        "reliable": true
+      },
+      {
+        "position": 2,
+        "digit": 3,
+        "confidence": 0.8304,
+        "bbox": [
+          138.79730224609375,
+          251.91827392578125,
+          154.12103271484375,
+          270.96435546875
+        ],
+        "reliable": true
+      },
+      {
+        "position": 3,
+        "digit": 9,
+        "confidence": 0.8411,
+        "bbox": [
+          166.14735412597656,
+          252.1070556640625,
+          180.70574951171875,
+          270.2768249511719
+        ],
+        "reliable": true
+      },
+      {
+        "position": 4,
+        "digit": 2,
+        "confidence": 0.7926,
+        "bbox": [
+          192.65689086914062,
+          251.0469512939453,
+          208.80799865722656,
+          270.94476318359375
+        ],
+        "reliable": true
+      },
+      {
+        "position": 5,
+        "digit": 0,
+        "confidence": 0.7669,
+        "bbox": [
+          221.0898895263672,
+          249.74095153808594,
+          236.34188842773438,
+          267.6891784667969
+        ],
+        "reliable": true
+      }
+    ],
+    "mean_confidence": 0.8216,
+    "meter_check": {
+      "verified": true,
+      "predicted_class": "water meter",
+      "confidence": 0.8345730900764465
+    },
+    "processing": {
+      "best": {
+        "angle": 0,
+        "prep": "histeq",
+        "clahe": false
+      }
+    },
+    "warnings": [
+      "อาจกลับหัว! หมุน 180° ได้ 12934 (0.75) — ตรวจภาพก่อนบันทึก"
+    ],
+    "elapsed_ms_reported": 5391.0,
+    "elapsed_ms_measured": 5391.0,
+    "success": true,
+    "verified": true
+  },
+  {
+    "file": "IMG_7163.jpeg",
+    "path": "meter_img\\IMG_7163.jpeg",
+    "reading": "023814",
+    "num_digits": 6,
+    "digits": [
+      {
+        "position": 1,
+        "digit": 0,
+        "confidence": 0.8973,
+        "bbox": [
+          436.098876953125,
+          934.0922241210938,
+          496.39068603515625,
+          974.148681640625
+        ],
+        "reliable": true
+      },
+      {
+        "position": 2,
+        "digit": 2,
+        "confidence": 0.8563,
+        "bbox": [
+          415.3358154296875,
+          992.698974609375,
+          479.84417724609375,
+          1035.7403564453125
+        ],
+        "reliable": true
+      },
+      {
+        "position": 3,
+        "digit": 3,
+        "confidence": 0.8907,
+        "bbox": [
+          394.478271484375,
+          1053.2489013671875,
+          458.14019775390625,
+          1095.701416015625
+        ],
+        "reliable": true
+      },
+      {
+        "position": 4,
+        "digit": 8,
+        "confidence": 0.8996,
+        "bbox": [
+          375.3724365234375,
+          1113.416259765625,
+          435.43121337890625,
+          1156.2769775390625
+        ],
+        "reliable": true
+      },
+      {
+        "position": 5,
+        "digit": 1,
+        "confidence": 0.9058,
+        "bbox": [
+          352.2958984375,
+          1182.4710693359375,
+          417.1561279296875,
+          1216.45849609375
+        ],
+        "reliable": true
+      },
+      {
+        "position": 6,
+        "digit": 4,
+        "confidence": 0.859,
+        "bbox": [
+          321.0714111328125,
+          1235.399169921875,
+          386.2103271484375,
+          1280.0040283203125
+        ],
+        "reliable": true
+      }
+    ],
+    "mean_confidence": 0.8848,
+    "meter_check": {
+      "verified": true,
+      "predicted_class": "water meter",
+      "confidence": 0.7554731965065002
+    },
+    "processing": {
+      "best": {
+        "angle": 270,
+        "prep": "orig",
+        "clahe": false
+      }
+    },
+    "warnings": [
+      "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
+      "อาจกลับหัว! หมุน 180° ได้ 418320 (0.85) — ตรวจภาพก่อนบันทึก"
+    ],
+    "elapsed_ms_reported": 5575.4,
+    "elapsed_ms_measured": 5575.4,
+    "success": true,
+    "verified": true
+  },
+  {
+    "file": "old-water-meter-2PGM332.jpg",
+    "path": "meter_img\\old-water-meter-2PGM332.jpg",
+    "reading": "01882",
+    "num_digits": 5,
+    "digits": [
+      {
+        "position": 1,
+        "digit": 0,
+        "confidence": 0.8935,
+        "bbox": [
+          632.843994140625,
+          290.4893798828125,
+          667.0341796875,
+          313.5579833984375
+        ],
+        "reliable": true
+      },
+      {
+        "position": 2,
+        "digit": 1,
+        "confidence": 0.8784,
+        "bbox": [
+          632.8838500976562,
+          334.1998291015625,
+          670.6187133789062,
+          352.446044921875
+        ],
+        "reliable": true
+      },
+      {
+        "position": 3,
+        "digit": 8,
+        "confidence": 0.8718,
+        "bbox": [
+          631.7794189453125,
+          371.9386901855469,
+          669.590087890625,
+          398.413330078125
+        ],
+        "reliable": true
+      },
+      {
+        "position": 4,
+        "digit": 8,
+        "confidence": 0.9056,
+        "bbox": [
+          631.0318603515625,
+          414.9013977050781,
+          667.8734741210938,
+          440.4505615234375
+        ],
+        "reliable": true
+      },
+      {
+        "position": 5,
+        "digit": 2,
+        "confidence": 0.9007,
+        "bbox": [
+          634.186767578125,
+          458.2370910644531,
+          670.7240600585938,
+          482.2725830078125
+        ],
+        "reliable": true
+      }
+    ],
+    "mean_confidence": 0.89,
+    "meter_check": {
+      "verified": true,
+      "predicted_class": "water meter",
+      "confidence": 0.6901292204856873
+    },
+    "processing": {
+      "best": {
+        "angle": 270,
+        "prep": "histeq",
+        "clahe": false
+      }
+    },
+    "warnings": [
+      "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
+      "อาจกลับหัว! หมุน 180° ได้ 28810 (0.88) — ตรวจภาพก่อนบันทึก"
+    ],
+    "elapsed_ms_reported": 5454.3,
+    "elapsed_ms_measured": 5454.3,
+    "success": true,
+    "verified": true
+  },
+  {
+    "file": "old-water-meter-show-detail-dirty-old-water-meter-clock-bangkok-thailand-december-water-meters-measure-volume-water-used-212500777.jpg",
+    "path": "meter_img\\old-water-meter-show-detail-dirty-old-water-meter-clock-bangkok-thailand-december-water-meters-measure-volume-water-used-212500777.jpg",
+    "reading": "33858",
+    "num_digits": 5,
+    "digits": [
+      {
+        "position": 1,
+        "digit": 3,
+        "confidence": 0.8476,
+        "bbox": [
+          374.4390563964844,
+          240.3636016845703,
+          385.7912902832031,
+          255.62596130371094
+        ],
+        "reliable": true
+      },
+      {
+        "position": 2,
+        "digit": 3,
+        "confidence": 0.866,
+        "bbox": [
+          394.5849609375,
+          239.0303955078125,
+          406.249755859375,
+          255.38153076171875
+        ],
+        "reliable": true
+      },
+      {
+        "position": 3,
+        "digit": 8,
+        "confidence": 0.8986,
+        "bbox": [
+          414.59027099609375,
+          240.25498962402344,
+          426.385009765625,
+          255.26742553710938
+        ],
+        "reliable": true
+      },
+      {
+        "position": 4,
+        "digit": 5,
+        "confidence": 0.8379,
+        "bbox": [
+          435.72772216796875,
+          240.23886108398438,
+          448.01654052734375,
+          256.2676696777344
+        ],
+        "reliable": true
+      },
+      {
+        "position": 5,
+        "digit": 8,
+        "confidence": 0.806,
+        "bbox": [
+          457.0323486328125,
+          243.08908081054688,
+          468.481689453125,
+          258.3914489746094
+        ],
+        "reliable": true
+      }
+    ],
+    "mean_confidence": 0.8512,
+    "meter_check": {
+      "verified": true,
+      "predicted_class": "water meter",
+      "confidence": 0.9424484968185425
+    },
+    "processing": {
+      "best": {
+        "angle": 0,
+        "prep": "clahe",
+        "clahe": true
+      }
+    },
+    "warnings": [
+      "อาจกลับหัว! หมุน 180° ได้ 85833 (0.84) — ตรวจภาพก่อนบันทึก"
+    ],
+    "elapsed_ms_reported": 4909.8,
+    "elapsed_ms_measured": 4909.8,
+    "success": true,
+    "verified": true
+  },
+  {
+    "file": "Water+meter.jpg",
+    "path": "meter_img\\Water+meter.jpg",
+    "reading": "05715",
+    "num_digits": 5,
+    "digits": [
+      {
+        "position": 1,
+        "digit": 0,
+        "confidence": 0.8891,
+        "bbox": [
+          317.6465148925781,
+          327.4676818847656,
+          345.0445251464844,
+          362.8584289550781
+        ],
+        "reliable": true
+      },
+      {
+        "position": 2,
+        "digit": 5,
+        "confidence": 0.8824,
+        "bbox": [
+          364.6871032714844,
+          329.3662109375,
+          392.6038513183594,
+          366.28436279296875
+        ],
+        "reliable": true
+      },
+      {
+        "position": 3,
+        "digit": 7,
+        "confidence": 0.8912,
+        "bbox": [
+          409.6036071777344,
+          330.9563903808594,
+          436.5765380859375,
+          367.15008544921875
+        ],
+        "reliable": true
+      },
+      {
+        "position": 4,
+        "digit": 1,
+        "confidence": 0.8415,
+        "bbox": [
+          461.1358337402344,
+          333.51849365234375,
+          481.94342041015625,
+          371.0453796386719
+        ],
+        "reliable": true
+      },
+      {
+        "position": 5,
+        "digit": 5,
+        "confidence": 0.8633,
+        "bbox": [
+          503.9090270996094,
+          334.3189392089844,
+          529.3009643554688,
+          369.8775329589844
+        ],
+        "reliable": true
+      }
+    ],
+    "mean_confidence": 0.8735,
+    "meter_check": {
+      "verified": true,
+      "predicted_class": "water meter",
+      "confidence": 0.9058375358581543
+    },
+    "processing": {
+      "best": {
+        "angle": 0,
+        "prep": "orig",
+        "clahe": false
+      }
+    },
+    "warnings": [
+      "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
+      "อาจกลับหัว! หมุน 180° ได้ 51750 (0.86) — ตรวจภาพก่อนบันทึก"
+    ],
+    "elapsed_ms_reported": 5320.7,
+    "elapsed_ms_measured": 5320.7,
+    "success": true,
+    "verified": true
+  }
+]

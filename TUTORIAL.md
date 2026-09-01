@@ -1346,7 +1346,22 @@ if __name__ == "__main__":
 
 &emsp;&emsp;&emsp;&emsp;หัวข้อนี้กำหนดระเบียบวิธีที่ต้องใช้เพื่อประเมินระบบอย่าง defensible และระบุสถานะหลักฐานปัจจุบันของโปรเจกต์นี้
 
-**สถานะปัจจุบัน:** โปรเจกต์นี้ยังไม่มีชุดทดสอบ (test set) ที่มีการเปิดเผยนิยามการแบ่งข้อมูล (train/val/test split) และยังไม่มีรายงานผลการวัดแบบควบคุมที่สามารถตรวจสอบซ้ำได้ ค่าที่รายงานได้ในปัจจุบันมาจากการเรียก `model.val()` ใน `training/yolo_train.py:47-48` ซึ่งพิมพ์ `mAP@50` / `mAP@50-95` บนชุด validation ที่กำหนดโดย `dataset.location/data.yaml` จาก Roboflow — ไม่ใช่การประเมินแบบ end-to-end บนชุดทดสอบอิสระของงานอ่านมิเตอร์ทั้งระบบ ระบบบันทึก `elapsed_ms` ต่อภาพจาก `perf_counter()` ใน `main.py:read_meter()` เท่านั้น ยังไม่มีการวัดแบบแยกส่วน (preprocessing / inference / postprocessing) และยังไม่มีการทดลองแบบ ablation ที่เปรียบเทียบ `YOLO only` vs `YOLO+SigLIP2` หรือ `single-pass` vs `12-hypothesis`
+**สถานะปัจจุบัน:** โปรเจกต์นี้ยังไม่มีชุดทดสอบ (test set) ขนาดใหญ่ที่มีการเปิดเผยนิยามการแบ่งข้อมูล (train/val/test split) และยังไม่มีรายงานผลการวัดแบบควบคุมที่สามารถตรวจสอบซ้ำได้ ค่าที่รายงานได้ในปัจจุบันมาจากการเรียก `model.val()` ใน `training/yolo_train.py:47-48` ซึ่งพิมพ์ `mAP@50` / `mAP@50-95` บนชุด validation ที่กำหนดโดย `dataset.location/data.yaml` จาก Roboflow — ไม่ใช่การประเมินแบบ end-to-end บนชุดทดสอบอิสระของงานอ่านมิเตอร์ทั้งระบบ ระบบบันทึก `elapsed_ms` ต่อภาพจาก `perf_counter()` ใน `main.py:read_meter()` เท่านั้น ยังไม่มีการวัดแบบแยกส่วน (preprocessing / inference / postprocessing) และยังไม่มีการทดลองแบบ ablation ที่เปรียบเทียบ `YOLO only` vs `YOLO+SigLIP2` หรือ `single-pass` vs `12-hypothesis`
+
+**ผลการวัดเบื้องต้นบนชุดสาธิต (Demo Set, n=7, `meter_img/`) — รันด้วย `validate.bat --limit 20` บนเครื่อง local (CPU, `YOLO_IMGSZ=960`, 12 hypotheses):**
+
+> ผลนี้มาจากภาพตัวอย่าง 7 ภาพใน `meter_img/` (ไม่ใช่ test set มาตรฐาน) — ใช้เพื่อแสดงว่า pipeline ทำงานได้จริงและให้ baseline เชิงสังเกตเท่านั้น
+
+| ตัวชี้วัด | ผลวัดเบื้องต้น | หมายเหตุ |
+|---|---|---|
+| **Successful readings** (อ่านได้ไม่ว่าง) | **7/7 (100%)** | ทุกภาพอ่านได้ 5–6 หลัก |
+| **Meter verified (SigLIP2)** | **7/7 (100%)** | `meter_check.verified=true` ทั้งหมด |
+| **Avg mean_confidence** | **0.861** (min 0.816, max 0.891) | ค่าเฉลี่ยรายภาพจาก `mean_confidence` |
+| **Latency (CPU, 12 hyp)** | **min 4.9s / avg 8.3s / max 26.7s** (`8.34s/img` average) | วัด `elapsed_ms_measured` รอบสอง (ไม่รวมดาวน์โหลดโมเดลครั้งแรก); `Hardware: cpu \| YOLO_IMGSZ=960 \| 12 hypotheses (4×3)` |
+| **อ่านครั้งแรก (รวมดาวน์โหลด SigLIP2 1.5GB)** | avg 513s / max 3562s | ไม่ใช่เวลาจริง — ทิ้งเมื่อ cache แล้ว |
+| **รายภาพ** | ดู `reviews/validation_results.json` | เช่น `Water+meter.jpg → 05715 (0.873, 0°/orig, 5.3s)`, `IMG_7163.jpeg → 023814 (0.884, 270°/orig, 5.5s)`, `bangkok-... → 33858 (0.816, 90°/orig, 26.7s)` — ครบ 7 ภาพใน JSON |
+
+> **ข้อจำกัดของผลเบื้องต้น:** `n=7` เล็กมาก, ไม่มี ground truth `Exact Reading Accuracy` จึงยังอ้าง `แม่นกว่า/เร็วกว่า` ไม่ได้ — ต้องมี test set 50–100 ภาพพร้อม `ground_truth.csv` และ ablation ตามตารางด้านล่างจึงจะสรุปเชิงเปรียบเทียบได้
 
 **คำนิยามตัวชี้วัดที่ควรใช้ (ต้องนิยามก่อนอ้างตัวเลข):**
 
@@ -1371,7 +1386,7 @@ if __name__ == "__main__":
 | SigLIP2 ช่วยให้แม่นขึ้น | Ablation: `YOLO only` vs `YOLO+SigLIP2` (filtering + cross-check) | ยังไม่มี |
 | Safety Guards ลดการอ่านผิด | Ablation: เปิด/ปิด `flip_guard` / `is_vertical` / `cross_check` แล้ววัด failure/false-positive | ยังไม่มี |
 | ทนต่อมุมเอียง/แสงน้อย | ทดสอบแบ่งกลุ่มตามมุม (0°/90°/180°/270°) และสภาพแสง แล้วรายงานต่อกลุ่ม | ยังไม่มี |
-| เร็วกว่า/real-time | Benchmark ที่ระบุฮาร์ดแวร์ รุ่น GPU ความละเอียด `imgsz` เวลาแยกส่วน (pre/infer/post) จำนวน hypotheses และ batch size (Ultralytics รายงานแบบนี้) | ยังไม่มี — มีเพียง `elapsed_ms` เชิงสังเกต |
+| เร็วกว่า/real-time | Benchmark ที่ระบุฮาร์ดแวร์ รุ่น GPU ความละเอียด `imgsz` เวลาแยกส่วน (pre/infer/post) จำนวน hypotheses และ batch size (Ultralytics รายงานแบบนี้) | มีผลเบื้องต้นบน CPU demo set (n=7): `avg 8.3s/img (4.9–26.7s, 12 hyp, 960)` — ยังไม่มี benchmark บน GPU แบบแยกส่วน |
 
 > **แนวทางชั่วคราวจนกว่าจะมีผลการทดลอง:** ใช้ถ้อยคำเชิงออกแบบ เช่น “ระบบได้รับการออกแบบให้ประมวลผล 12 สมมติฐาน (4 มุม × 3 ฟิลเตอร์) โดยมีวัตถุประสงค์เพื่อเพิ่มโอกาสในการตรวจจับภายใต้มุม/แสงที่หลากหลาย” แทน “12 สมมติฐานช่วยเพิ่มความแม่นยำ 18.3%”
 
@@ -1390,9 +1405,10 @@ if __name__ == "__main__":
 | SigLIP2 ช่วยให้แม่นขึ้น / ช่วยลดเวลาจริง | Empirical | ไม่มี `YOLO only vs YOLO+SigLIP2` แบบควบคุม | Not established |
 | Safety Guards ลดการอ่านผิด (flip/is_vertical/cross-check/red_ratio) | Empirical | ยังไม่มี ablation เปิด/ปิด guard | Not established (design intent) |
 | ระบบทนต่อภาพเอียง/แสงน้อย/ภาพเบลอ | Empirical | ยังไม่มีการทดสอบแบ่งกลุ่มตามมุม/แสงแบบควบคุม | Not established |
-| ระบบเร็วกว่า/real-time (40–60ms GPU, 1.42s CPU, 68.4ms) | Empirical | ยังไม่มี benchmark แบบควบคุม — มีเพียง `elapsed_ms` เชิงสังเกต | Not established |
+| ระบบเร็วกว่า/real-time (40–60ms GPU, 1.42s CPU, 68.4ms) | Empirical | มีผลเบื้องต้นบน CPU demo set (n=7): `avg 8.3s/img` (4.9–26.7s, 12 hyp, `YOLO_IMGSZ=960`) — ยังไม่มี benchmark บน GPU แบบแยกส่วน `pre/infer/post` | Partially established (demo) — need GPU benchmark |
 | ระบบดีกว่า Liang/Wang/Salomon/Nguyen | Empirical (comparison) | ไม่มีการเปรียบเทียบด้วย dataset/metric/hardware เดียวกัน | Not established — เขียนเป็นความต่างเชิงสถาปัตยกรรมแทน |
 | YOLO mAP = accuracy | Terminology | Ultralytics กำหนด `mAP` แยกจาก `accuracy` | Corrected — ใช้คำนิยามตามหัวข้อ 3.4.3 |
+| ผลเบื้องต้นบน demo set (n=7, `meter_img/`, CPU, 12 hyp) | Empirical (demo) | `validate.py` → 7/7 success (100%), 7/7 verified (100%), avg mean_conf 0.861, latency avg 8.3s (4.9–26.7s) — `reviews/validation_results.json` | Partially established — n=7 เล็ก, ไม่มี ground truth `Exact Accuracy` |
 
 ---
 
