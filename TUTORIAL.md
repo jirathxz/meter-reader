@@ -1357,8 +1357,8 @@ if __name__ == "__main__":
 | **Successful readings** (อ่านได้ไม่ว่าง) | **7/7 (100%)** | ทุกภาพอ่านได้ 5–6 หลัก |
 | **Meter verified (SigLIP2)** | **7/7 (100%)** | `meter_check.verified=true` ทั้งหมด |
 | **Avg mean_confidence** | **0.861** (min 0.816, max 0.891) | ค่าเฉลี่ยรายภาพจาก `mean_confidence` |
-| **Latency (CPU, 12 hyp)** | **min 4.9s / avg 8.3s / max 26.7s** (`8.34s/img` average) | วัด `elapsed_ms_measured` รอบสอง (ไม่รวมดาวน์โหลดโมเดลครั้งแรก); `Hardware: cpu \| YOLO_IMGSZ=960 \| 12 hypotheses (4×3)` |
-| **อ่านครั้งแรก (รวมดาวน์โหลด SigLIP2 1.5GB)** | avg 513s / max 3562s | ไม่ใช่เวลาจริง — ทิ้งเมื่อ cache แล้ว |
+| **Latency (CPU, 12 hyp)** | **min 4.9s / avg 8.3s / max 26.7s** (`8.34s/img` average) | วัด `elapsed_ms_measured` หลัง `warmup (get_yolo/get_siglip)` แล้ว — **ไม่นับการดาวน์โหลด SigLIP 1.5GB จากเน็ต** และไม่นับเวลาโหลดโมเดลครั้งแรก; `Hardware: cpu \| YOLO_IMGSZ=960 \| 12 hypotheses (4×3)` |
+| **รอบแรก (รวมดาวน์โหลด SigLIP2 1.5GB จากเน็ต)** | avg 513s / max 3562s | ไม่ใช่เวลาจริง — เป็นเวลารวมดาวน์โหลดครั้งแรก ทิ้งเมื่อ cache แล้ว (ครั้งต่อไปไม่นับ) |
 | **รายภาพ** | ดู `reviews/validation_results.json` | เช่น `Water+meter.jpg → 05715 (0.873, 0°/orig, 5.3s)`, `IMG_7163.jpeg → 023814 (0.884, 270°/orig, 5.5s)`, `bangkok-... → 33858 (0.816, 90°/orig, 26.7s)` — ครบ 7 ภาพใน JSON |
 
 > **ข้อจำกัดของผลเบื้องต้น:** `n=7` เล็กมาก, ไม่มี ground truth `Exact Reading Accuracy` จึงยังอ้าง `แม่นกว่า/เร็วกว่า` ไม่ได้ — ต้องมี test set 50–100 ภาพพร้อม `ground_truth.csv` และ ablation ตามตารางด้านล่างจึงจะสรุปเชิงเปรียบเทียบได้
