@@ -1363,6 +1363,20 @@ if __name__ == "__main__":
 
 > **ข้อจำกัดของผลเบื้องต้น:** `n=7` เล็กมาก, ไม่มี ground truth `Exact Reading Accuracy` จึงยังอ้าง `แม่นกว่า/เร็วกว่า` ไม่ได้ — ต้องมี test set 50–100 ภาพพร้อม `ground_truth.csv` และ ablation ตามตารางด้านล่างจึงจะสรุปเชิงเปรียบเทียบได้
 
+**ผลการทดสอบแบบ Ablation บน OpenCV (n=7, `validate_ablation.py`):**
+
+> รัน 5 โหมดบนภาพชุดเดียวกัน (`meter_img/`, CPU, `YOLO_IMGSZ=960`) — วัด `success_rate` (อ่านได้ไม่ว่าง) แทน `Exact Reading Accuracy` เนื่องจากไม่มี ground truth
+
+| โหมด (Mode) | `success_rate` | `avg_mean_conf` | `avg_latency` | หมายเหตุ |
+|---|---|---|---|---|
+| `single-orig` (0°+orig เดียว) | **57.1% (4/7)** | 0.856 | 1.18s | ไม่หมุน/ไม่ปรับแสง — พลาด 3 ภาพที่เอียง (`bangkok-...`, `IMG_7163`, `old-water-2PGM332` ถูก `is_vertical` ตัด) |
+| `rotate-4` (4มุม+orig) | **100% (7/7)** | 0.846 | 2.95s | เพิ่มการหมุน — ช่วยจาก 57% → 100% |
+| `full-12` (4มุม×3ฟิลเตอร์, ปัจจุบัน) | **100% (7/7)** | **0.861** | 6.39s | เพิ่ม CLAHE/HistEq — `mean_conf` สูงสุด แต่ช้ากว่า `rotate-4` ~2.1× |
+| `no-is-vertical` (ปิด `is_vertical`) | 100% (7/7) | 0.859 | 6.60s | บนชุดนี้ `is_vertical` ไม่เปลี่ยน `success` (แต่ `old-water-2PGM332` อ่านเป็น `08812` แทน `01882` ในโหมดนี้ — อาจเพิ่ม false-positive ในชุดใหญ่) |
+| `no-red-bonus` (ปิด `red_ratio` bonus) | 100% (7/7) | 0.863 | 6.20s | บนชุดนี้ `red_bonus` ไม่เปลี่ยน `success` (แต่ `bangkok-...` อ่านกลับหัวเป็น `85833` ที่ 270° แทน `33858` ที่ 90° — ชี้ว่า `red_ratio` มีผลต่อการเลือกมุม) |
+
+> **สรุปเบื้องต้น:** `rotate-4` เพิ่ม `success` จาก 57.1% → 100% อย่างมีนัยสำคัญบนชุดสาธิต — ยืนยันว่าการหมุนภาพมีประโยชน์จริง ส่วน `full-12` (เพิ่ม CLAHE/HistEq) ไม่เพิ่ม `success` บนชุดเล็กนี้แต่ให้ `mean_conf` สูงสุด (0.861) — ต้องมี test set ใหญ่กว่านี้เพื่อสรุป `Exact Reading Accuracy`
+
 **คำนิยามตัวชี้วัดที่ควรใช้ (ต้องนิยามก่อนอ้างตัวเลข):**
 
 | ระดับ | ตัวชี้วัด | คำนิยาม |
@@ -1382,7 +1396,7 @@ if __name__ == "__main__":
 |---|---|---|
 | YOLO ตรวจจับได้แม่น | รายงาน Precision/Recall/mAP@50/mAP@50-95 บนชุดทดสอบอิสระ พร้อมระบุ split | ยังไม่มี — มีเพียง `model.val()` บน validation |
 | อ่านค่ามิเตอร์ถูกครบทุกหลัก | วัด Exact Reading Accuracy / Digit-level Accuracy บน test set ที่มี ground-truth reading | ยังไม่มี test set ที่เปิดเผย |
-| 12 hypotheses ช่วยให้แม่นขึ้น | Ablation: `single-pass` vs `12-hypothesis` วัด Exact Reading Accuracy เดียวกัน | ยังไม่มี |
+| 12 hypotheses ช่วยให้แม่นขึ้น | Ablation: `single-pass` vs `12-hypothesis` วัด Exact Reading Accuracy เดียวกัน | มีผลเบื้องต้นบน demo set (n=7): `single-orig 57.1% → rotate-4 100% (full-12 100%, 0.861)` — ยังไม่มี `Exact Accuracy` บน test set ใหญ่ |
 | SigLIP2 ช่วยให้แม่นขึ้น | Ablation: `YOLO only` vs `YOLO+SigLIP2` (filtering + cross-check) | ยังไม่มี |
 | Safety Guards ลดการอ่านผิด | Ablation: เปิด/ปิด `flip_guard` / `is_vertical` / `cross_check` แล้ววัด failure/false-positive | ยังไม่มี |
 | ทนต่อมุมเอียง/แสงน้อย | ทดสอบแบ่งกลุ่มตามมุม (0°/90°/180°/270°) และสภาพแสง แล้วรายงานต่อกลุ่ม | ยังไม่มี |
@@ -1401,7 +1415,7 @@ if __name__ == "__main__":
 | ระบบใช้ SigLIP2 `google/siglip2-base-patch16-224` คัดกรอง 4 คลาส | Implementation | `main.py:SIGLIP_MODEL` `METER_LABELS` `check_water_meter()` `METER_VERIFY_CONF=0.50` | Supported |
 | YOLO เป็น Single-stage/Anchor-free ตามเอกสาร | External | Ultralytics (2024) | Supported (external doc) |
 | SigLIP2 ใช้ Pairwise Sigmoid Loss | External | Zhai et al. (2023); Tschannen et al. (2025) | Supported (external papers) |
-| 12 hypotheses ช่วยให้แม่นขึ้น 18.3% | Empirical | ไม่มี ablation แบบควบคุม | Not established |
+| 12 hypotheses ช่วยให้แม่นขึ้น 18.3% | Empirical | มี ablation เบื้องต้นบน demo set (n=7): `single-orig 57.1% → rotate-4/full-12 100%` (ดู 3.4.3) — ค่า 18.3% เดิมไม่มีหลักฐาน | Partially established (demo, success_rate) — need Exact Accuracy on larger set |
 | SigLIP2 ช่วยให้แม่นขึ้น / ช่วยลดเวลาจริง | Empirical | ไม่มี `YOLO only vs YOLO+SigLIP2` แบบควบคุม | Not established |
 | Safety Guards ลดการอ่านผิด (flip/is_vertical/cross-check/red_ratio) | Empirical | ยังไม่มี ablation เปิด/ปิด guard | Not established (design intent) |
 | ระบบทนต่อภาพเอียง/แสงน้อย/ภาพเบลอ | Empirical | ยังไม่มีการทดสอบแบ่งกลุ่มตามมุม/แสงแบบควบคุม | Not established |
