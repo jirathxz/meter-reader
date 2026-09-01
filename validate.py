@@ -1,8 +1,10 @@
 """
 validate.py — Auto-validate Water Meter OCR with dataset images
 Usage:
-  Local:  uv run python validate.py                          # uses meter_img/
-          uv run python validate.py --dir meter_img --out reviews/validation_results.json
+  Local:  uv run python validate.py                          # uses meter_img/ (all)
+          uv run python validate.py --limit 3                # only 3 images (for quick test)
+          uv run python validate.py --dir meter_img --limit 5 --out reviews/validation_results.json
+          uv run python validate.py --no-progress            # disable tqdm
   HF Space will import this as batch validation tab.
 
 Metrics (per spec TUTORIAL.md 3.4.3):
@@ -17,17 +19,31 @@ from pathlib import Path
 from PIL import Image
 import numpy as np
 
-def run_validation(image_dir: Path, output_json: Path, output_csv: Path | None = None):
+def run_validation(image_dir: Path, output_json: Path, output_csv: Path | None = None, limit: int | None = None, show_progress: bool = True):
     from main import read_meter, DEVICE, YOLO_IMGSZ
     print(f"DEVICE={DEVICE} YOLO_IMGSZ={YOLO_IMGSZ} image_dir={image_dir}")
     image_dir = Path(image_dir)
     images = sorted([p for p in image_dir.iterdir() if p.suffix.lower() in {".jpg",".jpeg",".png",".bmp",".webp"}])
+    if limit is not None and limit > 0:
+        images = images[:limit]
+        print(f"Limit: {limit} images (from {len(list(image_dir.iterdir()))} total)")
     if not images:
         print(f"No images found in {image_dir}")
         return []
-    print(f"Found {len(images)} images")
+    print(f"Found {len(images)} images to validate")
+    # progress helper
+    try:
+        from tqdm import tqdm
+        has_tqdm = True
+    except ImportError:
+        has_tqdm = False
     results = []
-    for p in images:
+    iterator = tqdm(images, desc="Validating", unit="img", ncols=80) if (show_progress and has_tqdm) else images
+    for idx, p in enumerate(iterator, 1):
+        if not has_tqdm and show_progress:
+            print(f"[{idx}/{len(images)}] Processing {p.name} ...")
+        elif has_tqdm and show_progress:
+            iterator.set_postfix_str(p.name[:20])
         try:
             img = Image.open(p)
             img.load()
@@ -55,7 +71,10 @@ def run_validation(image_dir: Path, output_json: Path, output_csv: Path | None =
         }
         results.append(row)
         best = (out.get("processing") or {}).get("best") or {}
-        print(f"{p.name}: reading='{row['reading']}' digits={row['num_digits']} mean_conf={row['mean_confidence']} verified={row['verified']} best={best} elapsed={row['elapsed_ms_measured']}ms warnings={len(row['warnings'])}")
+        if not (show_progress and has_tqdm):
+            print(f"  -> reading='{row['reading']}' digits={row['num_digits']} mean_conf={row['mean_confidence']} verified={row['verified']} best={best} elapsed={row['elapsed_ms_measured']}ms warnings={len(row['warnings'])}")
+        elif has_tqdm:
+            iterator.set_postfix_str(f"{p.name[:12]} -> {row['reading'] or '—'}")
 
     # Save JSON
     output_json.parent.mkdir(parents=True, exist_ok=True)
@@ -110,5 +129,7 @@ if __name__ == "__main__":
     ap.add_argument("--dir", type=str, default="meter_img", help="image folder")
     ap.add_argument("--out", type=str, default="reviews/validation_results.json", help="output JSON")
     ap.add_argument("--csv", type=str, default="reviews/validation_results.csv", help="output CSV (empty to skip)")
+    ap.add_argument("--limit", type=int, default=None, help="limit number of images to validate (e.g., 5, 20)")
+    ap.add_argument("--no-progress", action="store_true", help="disable progress bar")
     args = ap.parse_args()
-    run_validation(Path(args.dir), Path(args.out), Path(args.csv) if args.csv else None)
+    run_validation(Path(args.dir), Path(args.out), Path(args.csv) if args.csv else None, limit=args.limit, show_progress=not args.no_progress)
