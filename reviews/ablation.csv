@@ -1,6 +1,6 @@
 ﻿mode,total,success_rate,verified_rate,avg_mean_conf,avg_latency_ms,exact_reading_accuracy,exact_n
-single-orig,7,57.1,100.0,0.856,1186.4,,
-rotate-4,7,100.0,100.0,0.846,2957.8,,
-full-12,7,100.0,100.0,0.861,6396.1,,
-no-is-vertical,7,100.0,100.0,0.859,6602.7,,
-no-red-bonus,7,100.0,100.0,0.863,6206.9,,
+single-orig,7,57.1,100.0,0.856,902.7,42.9,3/7
+rotate-4,7,100.0,100.0,0.846,2446.5,85.7,6/7
+full-12,7,100.0,100.0,0.861,5400.6,100.0,7/7
+no-is-vertical,7,100.0,100.0,0.859,6706.3,85.7,6/7
+no-red-bonus,7,100.0,100.0,0.863,5499.6,85.7,6/7
