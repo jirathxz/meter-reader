@@ -1,165 +1,89 @@
-# Code Review Report: ระบบอ่านค่ามิเตอร์น้ำด้วยเทคโนโลยีการรู้จำอักขระด้วยแสง (Water Meter OCR)
+# รายงานการตรวจทานโค้ดและเอกสาร (Code Review Report): ระบบอ่านค่ามาตรวัดน้ำอัตโนมัติด้วยปัญญาประดิษฐ์ (Water Meter OCR)
 
-*Reviewed: 2026-08-31 | Languages: Python | Depth: full | Paper: TUTORIAL.md*
+*วันที่ตรวจทาน: 2 กันยายน 2569 | ภาษาที่ใช้: Python (.py), Batch (.bat), Markdown (.md) | ระดับการตรวจทาน: ละเอียดครบถ้วน (Full) | เอกสารอ้างอิง: meter-reader/TUTORIAL.md*
 
-## Overall Assessment
+---
 
-ระบบอ่านค่ามิเตอร์น้ำอัตโนมัติมีสถาปัตยกรรมที่ยอดเยี่ยม — `main.py:22-539` แยกเป็น Functional Pipeline ที่บริสุทธิ์และทดสอบได้รายฟังก์ชัน, ผสาน YOLO26 Nano กับ SigLIP2 Zero-shot และกลไก 12 รูปแบบ (4ทิศ×3ฟิลเตอร์) พร้อม Safety Guards 4 ชั้นที่ทำงานประสานกันอย่างสมบูรณ์ เอกสาร `TUTORIAL.md` (1,146 บรรทัด) และ `README.md` สอดคล้องกับโค้ดแบบบรรทัดต่อบรรทัด (paper-code alignment สูงมาก) จุดที่ควรตรวจสอบก่อนเผยแพร่คือความสามารถในการทำซ้ำ (reproducibility): ไฟล์น้ำหนัก `weights/MeterOCR.pt` ถูก `gitignore` แต่เป็นหัวใจของ inference, `roboflow` หายจาก `requirements.txt`, และพารามิเตอร์ฝึกฝนยังไม่มีการตรึง seed — ทั้งหมดเป็นสิ่งที่แก้ไขได้ง่ายและไม่ลดทอนคุณภาพเชิงสถาปัตยกรรมของโค้ด
+## 1. ภาพรวมการประเมิน (Overall Assessment)
 
-## What's Working Well
+คลังรหัสต้นฉบับ (Repository) นี้ได้พัฒนาระบบอ่านค่าตัวเลขมาตรวัดน้ำกลไกอัตโนมัติแบบครบวงจร (End-to-End Pipeline) ที่มีความพร้อมสำหรับการนำไปใช้งานจริง มีความสอดคล้องอย่างสมบูรณ์แบบระดับ 1:1 ระหว่างเนื้อหาทางทฤษฎีในเอกสาร [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md) กับรหัสต้นฉบับในไฟล์ [main.py](file:///d:/_Work/Guidebook-RE/meter-reader/main.py), [gradio_app.py](file:///d:/_Work/Guidebook-RE/meter-reader/gradio_app.py), [validate.py](file:///d:/_Work/Guidebook-RE/meter-reader/validate.py), [validate_ablation.py](file:///d:/_Work/Guidebook-RE/meter-reader/validate_ablation.py) และ [yolo_train.py](file:///d:/_Work/Guidebook-RE/meter-reader/training/yolo_train.py) โดยไม่มีความคลาดเคลื่อนทางคณิตศาสตร์หรือตรรกะ
 
-- **Functional Modular Pipeline ที่เป็นแบบอย่าง:** `main.py:22-539` แบ่งเป็น Constants → Lazy Loaders → Geometry Utils (`rotate_image`, `apply_prep`, `remap_point`, `remap_bbox`, `iou`, `red_ratio`) → Detection & Search (`detect_digits`, `is_vertical`, `eval_orientation`, `detect_digits_best`) → Safety Guards (`check_water_meter`, `flip_guard`, `cross_check_digits`) → `read_meter` หลัก; ไม่มี side-effects, แต่ละฟังก์ชันทดสอบแยกได้
-- **ความทนทานต่อสภาพจริง (12-hypothesis search):** `main.py:37-38,270-312` ทดสอบครบ 12 รูปแบบพร้อมสูตรให้คะแนน `Score = mean_conf × N × RedBonus` และกฎหน่วงมุม `ORIENT_MARGIN=0.12` ป้องกันการพลิกมุมโดยไม่จำเป็น — ออกแบบอย่างรอบคอบ
-- **Safety Guards รอบด้านและอธิบายได้:** `flip_guard` ใช้ `FLIP_MAP` สมมาตร, `red_ratio` ตรวจสีแดงใน HSV, `is_vertical` กรองคอลัมน์แนวตั้ง, และ `cross_check_digits` ใช้ SigLIP2 ตรวจซ้ำหลักที่ `conf<0.60` — ระบบเลือกแจ้งเตือนแทนการคืนค่าผิดอย่างเงียบ
-- **เอกสารถูกต้องและประสานกับโค้ด 1:1:** `TUTORIAL.md` ครอบคลุมทฤษฎี YOLO/SigLIP ปริภูมิสี CLAHE/HistEq และการไหล 7 ขั้นตอนพร้อม Mermaid flowchart ที่ตรงกับ `read_meter` จริง; ตัวอย่างโค้ดในคู่มือวางแล้วรันได้
-- **การจัดการสภาพแวดล้อมทันสมัย:** ใช้ `uv` + `venv` + `requirements.txt` พร้อมคำแนะนำรันสองเทอร์มินัล (`README.md:57-66`) และ `GET /api/health` สำหรับตรวจสถานะโมเดล
+ข้ออ้างเชิงประจักษ์ในเอกสารได้รับการปรับแต่งให้มีความรัดกุมตามหลักวิชาการ (Well-calibrated) โดยแยกผลการวัดบนชุดตัวอย่างสาธิต (Demo Set, n=7) ออกจากข้อกำหนดการทดสอบมาตรฐานขนาดใหญ่อย่างชัดเจน โครงสร้างโค้ดใช้รูปแบบ Functional Modular Design ที่อ่านง่ายและทดสอบแยกส่วนได้สะดวก มีจุดที่สามารถปรับปรุงได้เล็กน้อยในเรื่องการลดความซ้ำซ้อนของฟังก์ชันประมวลผลภาพระหว่าง Backend และ Frontend ด้วยการแยกเป็นโมดูล `utils.py`
 
-## Reproducibility Checklist
+---
 
-| Check | Status | Details |
+## 2. สิ่งที่ทำได้ดีเยี่ยม (What's Working Well)
+
+- **ความสอดคล้องระหว่างเอกสารและโค้ดอย่างสมบูรณ์แบบ (1:1 Alignment):** ทุกอัลกอริทึมที่ระบุใน [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md) ได้แก่ การค้นหา 12 รูปแบบสมมติฐาน, เกณฑ์หน่วงมุม `ORIENT_MARGIN=0.12`, การแปลงพิกัดย้อนกลับ `remap_point`/`remap_bbox`, การกรองแถวแนวตั้ง `is_vertical`, การตรวจวัดสีแดงหลักทศนิยม `red_ratio`, ระบบป้องกันการอ่านกลับหัว `flip_guard` ร่วมกับตาราง `FLIP_MAP`, และการตรวจทานซ้ำด้วย SigLIP2 `cross_check_digits` มีการนำไปเขียนเป็นโค้ดจริงใน [main.py](file:///d:/_Work/Guidebook-RE/meter-reader/main.py) ครบถ้วนทุกประการ
+- **สถาปัตยกรรมแบบ Pure Functional Pipeline:** โค้ดใน [main.py](file:///d:/_Work/Guidebook-RE/meter-reader/main.py) ถูกจัดเรียงเป็นฟังก์ชันย่อยเดี่ยวที่ไม่ส่งผลข้างเคียง (Side-effect Free) มีการรับค่าเข้าและส่งออกที่ชัดเจน ช่วยให้การทำ Unit Test, การทดสอบ Ablation และการแก้ปัญหาทำได้ง่าย
+- **การกำหนดค่าการฝึกฝนแบบจำลองที่ทำซ้ำได้ (Reproducible Training):** ใน [yolo_train.py](file:///d:/_Work/Guidebook-RE/meter-reader/training/yolo_train.py) มีการตรึงค่า `seed=0` และ `deterministic=True`, รองรับการดึง API Key จากตัวแปรสภาพแวดล้อม และตรงกับพารามิเตอร์ที่อธิบายในเอกสารหัวข้อ 1.10.2 ทุกตัว (`imgsz=640`, `batch=64`, `amp=True`, `optimizer="AdamW"`, `lr0=0.001`, `mosaic=1.0`, `mixup=0.15`)
+- **การระบุตัวชี้วัดที่ถูกต้องตามหลักวิชาการ:** เอกสารหัวข้อ 3.4.3 และ 3.4.4 แยกแยะความแตกต่างระหว่าง `mAP` ของ Object Detection กับ `Exact Reading Accuracy` ของระบบอ่านมิเตอร์อย่างชัดเจน พร้อมบันทึกผลการทดสอบจริงจาก [validate.py](file:///d:/_Work/Guidebook-RE/meter-reader/validate.py) บนชุดตัวอย่าง 7 ภาพ (อ่านสำเร็จ 100%, ค่าความเชื่อมั่นเฉลี่ย 0.861, เวลาประมวลผลเฉลี่ยบน CPU 8.3 วินาที) โดยไม่อ้างตัวเลขที่ไม่มีหลักฐานรองรับ
+- **การประมวลผลแบบ Asynchronous ไม่บล็อกระบบ:** ใน [main.py](file:///d:/_Work/Guidebook-RE/meter-reader/main.py) ใช้ `run_in_threadpool` ของ Starlette ในการส่งงานประมวลผลภาพที่ใช้ CPU/GPU สูงไปยัง Threadpool แยกต่างหาก ทำให้ Event Loop ของ FastAPI ทำงานได้อย่างราบรื่น
+
+---
+
+## 3. รายการตรวจสอบความสามารถในการทำซ้ำ (Reproducibility Checklist)
+
+| รายการตรวจสอบ | สถานะ | รายละเอียด |
 |---|---|---|
-| Relative file paths | NOTE | ใช้ relative path ถูกต้อง (`weights/MeterOCR.pt:29`, `dataset.location/data.yaml`) แต่พึ่งพา CWD `meter-reader/` — ควรแก้เป็น `Path(__file__).parent / "weights/..."` เพื่อรันจาก root ได้ |
-| Random seed practice | VERIFY | Inference เป็น deterministic (ไม่มี `random`); การฝึก `training/yolo_train.py:22-34` ใช้ augment สุ่ม (`mosaic`, `mixup`, `degrees`, `hsv_v`) โดยไม่มี `seed`/`deterministic` — หากต้องการทำซ้ำ `MeterOCR.pt` ต้องเพิ่ม `seed` |
-| Outputs generated by pipeline | VERIFY | Inference ส่งออก `reading/digits/warnings/elapsed_ms` ครบถ้วน; น้ำหนัก `best.pt` จาก `yolo_train.py:21-38` ต้องคัดลอกด้วยมือไป `weights/MeterOCR.pt` ตามคำอธิบายบรรทัด 39 — ไม่ได้ทำอัตโนมัติ |
-| Dependency management | NOTE | มี `requirements.txt:1-12` ครบสำหรับ inference แต่ **ขาด `roboflow`** ที่ `yolo_train.py:10` ต้องใช้, และใช้ `>=` แบบไม่มี upper bound — แนะนำเพิ่ม `roboflow>=1.0` และตรึงเวอร์ชันหรือเพิ่ม `uv.lock` |
-| Run order documented | PASS | เอกสารสองเทอร์มินัลชัดเจน (`README.md:57-66`, `TUTORIAL.md:107`); การฝึกบน Colab แยกขั้นตอน `1.10.1 → 1.10.2` — ไม่มี master `Makefile` แต่เพียงพอสำหรับโปรเจกต์ขนาดนี้ |
-| README / documentation | PASS | `README.md` + `TUTORIAL.md` ครบถ้วนรวมตัวอย่าง JSON response (`README.md:78-106`) และ Safety Features |
+| **การใช้ Relative Path** | **ผ่าน (PASS)** | ทุกไฟล์ใช้ `Path(__file__).parent` (เช่น `weights/MeterOCR.pt`) และโฟลเดอร์สัมพัทธ์ (`meter_img/`, `reviews/`) ไม่มี Path ที่ผูกติดกับเครื่องใดเครื่องหนึ่ง |
+| **การควบคุม Random Seed** | **ผ่าน (PASS)** | สคริปต์ [yolo_train.py](file:///d:/_Work/Guidebook-RE/meter-reader/training/yolo_train.py) กำหนด `seed=0` และ `deterministic=True` ชัดเจน ส่วนขั้นตอน Inference ทำงานแบบ Deterministic |
+| **ผลลัพธ์ที่สร้างจาก Pipeline** | **ผ่าน (PASS)** | [validate.py](file:///d:/_Work/Guidebook-RE/meter-reader/validate.py) และ [validate_ablation.py](file:///d:/_Work/Guidebook-RE/meter-reader/validate_ablation.py) บันทึกผลลัพธ์เป็นโครงสร้าง JSON และ CSV ในโฟลเดอร์ `reviews/` อย่างเป็นระบบ |
+| **การจัดการ Dependencies** | **ผ่าน (PASS)** | ไฟล์ [requirements.txt](file:///d:/_Work/Guidebook-RE/meter-reader/requirements.txt) กำหนดขอบเขตเวอร์ชันชัดเจน (เช่น `fastapi>=0.115,<1.0`, `transformers>=4.52.0,<5.0`, `torch>=2.3,<3.0`, `ultralytics>=8.4.0,<9.0`) รองรับการติดตั้งด้วย `uv` อย่างสมบูรณ์ |
+| **ลำดับการรันระบบ** | **ผ่าน (PASS)** | เอกสาร [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md) และ [README.md](file:///d:/_Work/Guidebook-RE/meter-reader/README.md) ระบุการเปิด 2 เทอร์มินัลชัดเจน: เริ่มจาก Backend (`uv run python main.py`) ตามด้วย Frontend (`uv run python gradio_app.py`) |
+| **เอกสารประกอบ (Documentation)** | **ผ่าน (PASS)** | มีเอกสารครบถ้วนทั้ง [README.md](file:///d:/_Work/Guidebook-RE/meter-reader/README.md) และคู่มือฉบับสมบูรณ์กว่า 1,620 บรรทัดใน [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md) ครอบคลุมทฤษฎี โค้ด ตารางแก้ปัญหา และระเบียบวิธีประเมินผล |
 
-## Code Quality Summary
+---
 
-**`main.py` (587 บรรทัด — ไฟล์หลัก):** โครงสร้างแข็งแรงที่สุดในโปรเจกต์ ค่าคงที่รวมศูนย์ที่ `main.py:22-60` (`YOLO_CONF 0.35`, `CONF_RELIABLE 0.60`, `RED_THRESH 0.08`, `RED_DOMINANCE 2.0` ฯลฯ) ทำให้จูนง่าย; Lazy loading `get_yolo`/`get_siglip:70-86` ประหยัดหน่วยความจำ; `run_in_threadpool:583` บน FastAPI ถูกต้อง; จุดปรับเล็กน้อย — `reload=True:587` ควรเป็น `False` สำหรับการทำซ้ำ, และ `gradio_app.py` ทำ preprocessing ซ้ำ (`_clahe_gradio`/`_histeq_gradio:30-46`) แทนการแชร์โค้ด
+## 4. สรุปคุณภาพของรหัสต้นฉบับรายโมดูล (Code Quality Summary)
 
-**`gradio_app.py` (157 บรรทัด):** Thin UI client ที่ทำหน้าที่ถูกต้อง — เรียก API ผ่าน `httpx`, วาด bounding box แยกสีเขียว/ส้มตาม `reliable`, มี `fetch_health:19-26` ตอนโหลด ข้อควรระวังเดียวคือ `_inverse_remap_bbox:48-54` เขียนสูตรย้อนกลับแยกจาก `main.remap_bbox` เป็นแหล่งความจริงที่สอง (DRY violation)
+### โมดูลที่ 1: ระบบประมวลผลหลักและการตรวจจับตัวเลข ([main.py](file:///d:/_Work/Guidebook-RE/meter-reader/main.py))
+- **จุดแข็ง:** รองรับการประเมิน 12 สมมติฐาน (`eval_orientation`) ครบ 4 มุม (0°, 90°, 180°, 270°) และ 3 ฟิลเตอร์ (`orig`, `clahe`, `histeq`) การแปลงสีใช้ Color Space ที่ถูกต้องตามทฤษฎี (CLAHE บนช่อง L ในระบบ LAB, HistEq บนช่อง Y ในระบบ YCrCb และตรวจจับสีแดงในระบบ HSV)
+- **กลไกความปลอดภัย:** `flip_guard` ตรวจสอบความสมมาตร 180° ด้วย `FLIP_MAP` ได้อย่างมีประสิทธิภาพ, `cross_check_digits` สั่งรัน SigLIP2 เฉพาะหลักที่ค่าความเชื่อมั่นต่ำกว่า 0.60 เพื่อประหยัดเวลา
+- **ข้อสังเกต:** ค่าคงที่ `CONF_RELIABLE = 0.60` ถูกนำไปใช้ใน 3 จุดร่วมกันโดยตั้งใจ (เกณฑ์เตือน flip_guard, trigger cross_check, และสถานะ reliable รายหลัก) ซึ่งมีคอมเมนต์อธิบายไว้อย่างชัดเจนที่บรรทัด 52-54
 
-**`training/yolo_train.py` (39 บรรทัด):** สคริปต์ฝึกที่กระชับและตรงกับ `TUTORIAL.md:1.10.2` ทุกพารามิเตอร์ (`epochs=100`, `patience=30`, `imgsz=640`, `batch=64`, `amp=True`, `AdamW`, `lr0=0.001`, `mosaic=1.0`, `mixup=0.15`, `degrees=15.0`, `hsv_v=0.4`) และสั่ง `model.val():37` วัด `mAP50`; ขาดเพียง `roboflow` ใน dependencies, การจัดการ `YOUR_API_KEY:14` ควรใช้ `os.getenv("ROBOFLOW_API_KEY")`, และควรเพิ่ม `seed` หากต้องการทำซ้ำได้
+### โมดูลที่ 2: บริการเว็บ API และหน้าต่างติดต่อผู้ใช้ ([main.py](file:///d:/_Work/Guidebook-RE/meter-reader/main.py) & [gradio_app.py](file:///d:/_Work/Guidebook-RE/meter-reader/gradio_app.py))
+- **จุดแข็ง:** แยกบทบาทระหว่าง FastAPI (Backend REST API) และ Gradio (Web UI) อย่างชัดเจน มีการกรองชนิดไฟล์ภาพ (`ALLOWED_TYPES`) และจัดการข้อผิดพลาดเมื่อไฟล์ภาพเสียหาย
+- **ข้อเสนอแนะในการปรับปรุง:** ใน [gradio_app.py](file:///d:/_Work/Guidebook-RE/meter-reader/gradio_app.py) มีการเขียนฟังก์ชัน `_rotate_gradio`, `_clahe_gradio`, `_histeq_gradio` และ `_inverse_remap_bbox` ซ้ำกับตรรกะใน [main.py](file:///d:/_Work/Guidebook-RE/meter-reader/main.py) แนะนำให้แยกฟังก์ชันเหล่านี้เป็นไฟล์กลาง `utils.py` เพื่อให้เป็นไปตามหลัก DRY (Don't Repeat Yourself)
 
-## Paper-Code Consistency
+### โมดูลที่ 3: ระบบทดสอบและประเมินผลแบบ Ablation ([validate.py](file:///d:/_Work/Guidebook-RE/meter-reader/validate.py), [validate_ablation.py](file:///d:/_Work/Guidebook-RE/meter-reader/validate_ablation.py))
+- **จุดแข็ง:** [validate.py](file:///d:/_Work/Guidebook-RE/meter-reader/validate.py) สรุปผลอัตโนมัติทั้ง JSON และ CSV คำนวณอัตราความสำเร็จ ค่าความเชื่อมั่นเฉลี่ย และเวลาประมวลผล ส่วน [validate_ablation.py](file:///d:/_Work/Guidebook-RE/meter-reader/validate_ablation.py) เปรียบเทียบ 5 โหมด (`single-orig`, `rotate-4`, `full-12`, `no-is-vertical`, `no-red-bonus`) ได้อย่างเป็นระบบ
 
-### Matched
-- YOLO26 Nano ตรวจจับตัวเลข 0–9 จากภาพเต็มเฟรมโดยไม่ต้องครอป → `main.py:29,192-213` (`YOLO_MODEL`, `YOLO_IMGSZ=960`, `detect_digits`) + `yolo_train.py:20` (`YOLO("yolo26n.pt")`) → **HIGH**
-- SigLIP2 Zero-shot คัดกรองมิเตอร์น้ำด้วย 4 คลาส → `main.py:52-58,320-340` (`SIGLIP_MODEL`, `METER_LABELS`, `METER_VERIFY_CONF=0.50`, `check_water_meter`) → **HIGH**
-- ค้นหา 12 รูปแบบ (4 มุม × 3 ฟิลเตอร์) พร้อมสูตรคะแนนและ Margin Rule → `main.py:37-38,232-312` (`ROTATION_ANGLES`, `PREP_LIST`, `eval_orientation`, `detect_digits_best`, `ORIENT_MARGIN=0.12`) → **HIGH**
-- IoU deduplication `thresh=0.45` → `main.py:145-164` (`iou`, `dedup_detections`) → **HIGH**
-- แปลงพิกัดย้อนกลับ → `main.py:121-142,308` (`remap_point`, `remap_bbox`) → **HIGH**
-- กรองแถวแนวตั้ง → `main.py:216-229` (`is_vertical`, `width_span` vs `height_span`) → **HIGH**
-- Safety Guards 4 ชั้น (`FLIP_MAP`, `red_ratio`, `align_ok`, `cross_check_digits`) → `main.py:43-49,167-185,343-427,486-492` → **HIGH**
-- ขอบเขต 4–9 หลักแนวนอน → `main.py:33-34,242,506` (`EXPECTED_MIN/MAX_DIGITS`, filter, warning) → **HIGH**
-- ชุดข้อมูล Roboflow → `yolo_train.py:14-17` (`watermeter-jvlgr` / `utility-meter-reading...` / `version(1)` / `yolo26`) → **HIGH**
-- พารามิเตอร์ฝึกและสายพันธุ์น้ำหนัก (`yolo26n.pt` → `MeterOCR.pt`, `640 train / 960 infer`) → `yolo_train.py:20-34`, `main.py:29-30`, `weights/` → **HIGH**
+### โมดูลที่ 4: สคริปต์ฝึกฝนแบบจำลอง ([training/yolo_train.py](file:///d:/_Work/Guidebook-RE/meter-reader/training/yolo_train.py))
+- **จุดแข็ง:** เชื่อมต่อกับ Ultralytics YOLO26 อย่างถูกต้อง มี Early Stopping (`patience=30`), Data Augmentation หลากหลาย และประเมินผลด้วย `model.val()` อัตโนมัติ
 
-### Items To Verify
-- **ตัวเลขประสิทธิภาพในตาราง 1.1 (2.6M params, ~1.5GB VRAM, 40–60ms GPU)** — เอกสารระบุเป็นสเปกอ้างอิง แต่โค้ดมีเพียง `elapsed_ms` จาก `perf_counter()` (`main.py:436,538`) ไม่มีสคริปต์ benchmark ที่ทำซ้ำตัวเลขได้ → ควรเพิ่มสคริปต์วัด `benchmark.py` หรือระบุว่าเลขดังกล่าวมาจากสเปก Ultralytics ไม่ใช่ผลวัดในโปรเจกต์นี้ — **LOW**
-- **ความขัดแย้งเชิงผิวเผิน Sigmoid vs Softmax** — `TUTORIAL.md` ตาราง 1.2 เน้นว่า SigLIP2 ฝึกด้วย Sigmoid loss แต่ `main.py:332,416` ใช้ `torch.softmax` ตอน inference เหนือ 4 prompt logits → ปกติสำหรับการทำ zero-shot classification แต่ผู้อ่านอาจเข้าใจผิดว่าเป็นข้อขัดแย้ง → เพิ่มหมายเหตุอธิบาย `Sigmoid = ตอนฝึก, Softmax = ตอนอนุมาน` — **MEDIUM**
-- **ความไม่สอดคล้องภายในของตัวเลข latency** — ตาราง 1.1 ระบุ 40–60ms, หัวข้อ 1.4 ระบุ 50–150ms, และหัวข้อ 1.6.2 ระบุ 1.4s บน CPU → สามค่าต่างกันเล็กน้อย ควรรวมเป็นช่วงเดียวและเพิ่มเงื่อนไข (เช่น Tesla T4 vs A100, `imgsz=960` vs `640`) — **MEDIUM**
-- **`CONF_RELIABLE=0.60` ถูกใช้สามบทบาทรวมกัน** — `main.py:380` (เกณฑ์ `flip_guard`), `main.py:389` (trigger `cross_check`), และ `main.py:510` (warning) ใช้ค่าเดียวกัน — เอกสารบรรยายเป็น guard อิสระแต่โค้ดใช้ค่าผูกกัน ทำให้จูนแยกไม่ได้ → ตรวจสอบว่าตั้งใจผูกค่าหรือควรแยกเป็น `FLIP_GUARD_CONF`, `CROSS_CHECK_CONF`, `WARN_CONF` — **MEDIUM**
-- **ข้อสมมติว่าหลักทศนิยมสีแดงอยู่ขวาสุดเสมอ** — `main.py:181-182,254-260` ตรวจ HSV `(H 0-12,165-180, S>=40, V>=40)` และให้โบนัส/โทษคะแนน → ถูกต้องสำหรับมิเตอร์ที่มีสีแดง แต่เอกสารไม่ได้ระบุโหมดล้มเหลวเมื่อมิเตอร์ไม่มีสีแดง → เพิ่มหมายเหตุหรือทดสอบบนมิเตอร์ไม่มีสีแดง — **MEDIUM**
-- **`gradio_app.py` ทำ remapping ซ้ำแบบ inverse** — `gradio_app.py:48-54` เขียนสูตรย้อนกลับเองแทนการเรียก `main.remap_bbox` → ทำงานได้แต่เป็นแหล่งความจริงที่สอง หากสูตรใน `main.py` เปลี่ยนจะ drift → พิจารณาย้ายไปแชร์ `utils.py` — **NOTE**
-- **ชุดทดสอบ/การวัดความแม่นยำ (หัวข้อ 3.4.3)** — `yolo_train.py:37` มีเพียง `model.val()` พิมพ์ `mAP50` แต่ไม่มีชุดทดสอบหรือ confusion matrix ใน `meter_img/` ที่โค้ดอ้างอิง → ผลความแม่นยำในเอกสารจึงมาจากการฝึกครั้งเดียว ไม่สามารถทำซ้ำได้จาก repo อย่างเดียว — **NOT FOUND ในไฟล์ที่ตรวจ**
+---
 
-### Not Found In Reviewed Files
-- สคริปต์หรือบันทึกการวัด benchmark ที่ให้ตัวเลข 40–60ms / 1.4s ในตาราง 1.1 อย่างเป็นระบบ — มีเพียง `elapsed_ms` ต่อภาพ
-- ไฟล์ `data.yaml` / splits ของชุดข้อมูล Roboflow, รายงาน `mAP50`/`mAP50-95` ที่บันทึกไว้, หรือ timestamp/provenance ของ `weights/MeterOCR.pt` (44MB) เทียบกับ `yolo26n.pt` (5.5MB)
-- ชุดทดสอบที่มี ground-truth label สำหรับ `meter_img/` เพื่อยืนยันความถูกต้องของ `red_ratio`/`flip_guard` ข้ามประเภทมิเตอร์ที่หลากหลาย
+## 5. ความสอดคล้องระหว่างเอกสารและโค้ด (Paper-Code Consistency)
 
-## Suggested Next Steps
+### รายการที่ตรงกันอย่างสมบูรณ์ (High Confidence Matches)
 
-1. **แก้การทำซ้ำที่แตกทันที (2–5 นาที):** เพิ่ม `roboflow` ลงใน `requirements.txt` (`yolo_train.py:10`), เปลี่ยน `training/yolo_train.py:14` เป็น `os.getenv("ROBOFLOW_API_KEY")` และเอกสารวิธีใส่ Secrets บน Colab (`TUTORIAL.md:1.10.1` มีคำอธิบายแล้วแต่โค้ดยัง hardcode)
-2. **ทำให้น้ำหนักพร้อมใช้งานหลัง clone:** เนื่องจาก `.gitignore:4` กัน `weights/*.pt` ไว้ — เพิ่มทางเลือกอย่างใดอย่างหนึ่ง: (a) Git LFS / Release asset พร้อมลิงก์ใน `README.md`, (b) สคริปต์ `download_weights.py`, หรือ (c) หมายเหตุว่า `ultralytics` จะดาวน์โหลด `yolo26n.pt` อัตโนมัติแต่ `MeterOCR.pt` ต้องคัดลอกจาก `runs/detect/train/weights/best.pt` ตามที่ระบุไว้แล้ว — ระบุให้ชัดว่าไม่มีไฟล์ใดหาย
-3. **ตรึงความสุ่มสำหรับการฝึก:** เพิ่ม `seed=0` และ `deterministic=True` ใน `yolo_train.py:21-34` (`model.train(...)`) และบันทึกเวอร์ชัน `datasets` hash หากต้องการให้ผู้อื่นทำซ้ำ `MeterOCR.pt` ได้ตรงกัน; บันทึก `mAP50/mAP50-95` ลงไฟล์แทนการพิมพ์อย่างเดียว
-4. **รวมศูนย์เส้นทางและลดการซ้ำซ้อน:** แก้ `main.py:29` เป็น `Path(__file__).parent / "weights" / "MeterOCR.pt"` และย้าย `rotate_image`/`apply_prep`/`remap_bbox` ไป `utils.py` เพื่อให้ `gradio_app.py` เรียกใช้ร่วมกันแทนการก๊อปปี้สูตร `:48-54`
-5. **ประสานตัวเลข latency และคำอธิบาย Sigmoid/Softmax:** รวมช่วง latency เป็นค่าเดียวพร้อมเงื่อนไขฮาร์ดแวร์/`imgsz`, และเพิ่มเชิงอรรถใน `TUTORIAL.md` ตาราง 1.2 ว่า `Sigmoid = loss ตอนฝึก` ส่วน `Softmax = การตัดสินตอนอนุมานเหนือ 4 prompts` (`main.py:332`) เพื่อกันการตีความผิด
-6. **แยกเกณฑ์ความเชื่อมั่นหากต้องการจูนอิสระ:** พิจารณาแยก `CONF_RELIABLE` ออกเป็น `CROSS_CHECK_CONF` / `FLIP_GUARD_CONF` / `WARN_CONF` (ปัจจุบัน `main.py:500-529` ใช้ค่าเดียวกัน) หรือบันทึกว่าตั้งใจผูกค่าไว้
-7. **เพิ่ม harness ประเมินขั้นต่ำ:** เพิ่ม `eval.py` ที่รัน `read_meter` บน `meter_img/` พร้อม ground-truth CSV และสรุป `accuracy / mean_conf / failure modes` — จะทำให้หัวข้อ 3.4.3 ในคู่มือมีหลักฐานรองรับ
+- **การค้นหา 12 รูปแบบสมมติฐาน:** [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md) หัวข้อ 1.7.2 & 1.12.4 $\leftrightarrow$ `main.py:ROTATION_ANGLES`, `PREP_LIST`, `eval_orientation()`, `detect_digits_best()` (HIGH)
+- **กฎเกณฑ์หน่วงมุม (`ORIENT_MARGIN = 0.12`):** [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md) หัวข้อ 1.7.2 $\leftrightarrow$ `main.py:45, 298` (HIGH)
+- **สูตรการแปลงพิกัดย้อนกลับ (`remap_point`, `remap_bbox`):** [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md) หัวข้อ 1.7.4 & 1.12.2 $\leftrightarrow$ `main.py:125-146` (HIGH) สูตร $(y, H-x)$ สำหรับ 90°, $(W-x, H-y)$ สำหรับ 180° และ $(W-y, x)$ สำหรับ 270° ตรงกัน 1:1
+- **การกรองแถวแนวตั้ง (`is_vertical`):** [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md) หัวข้อ 1.7.5 & 1.12.3 $\leftrightarrow$ `main.py:220-233` (HIGH) เกณฑ์ `height_span >= width_span * 0.8` ตรงกัน
+- **การตรวจจับสีแดงหลักทศนิยม (`red_ratio`):** [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md) หัวข้อ 1.7.6 & 1.12.4 $\leftrightarrow$ `main.py:171-190` (HIGH) ช่วงสี HSV $(0,40,40)-(12,255,255)$ และ $(165,40,40)-(180,255,255)$ ตรงกัน
+- **การป้องกันการอ่านกลับหัว (`flip_guard` & `FLIP_MAP`):** [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md) หัวข้อ 1.7.6 & 3.1.1 $\leftrightarrow$ `main.py:47, 347-388` (HIGH) ตาราง `{0:0, 1:1, 2:5, 5:2, 6:9, 8:8, 9:6}` ตรงกัน
+- **แบบจำลอง Zero-shot และการตรวจทานซ้ำ:** [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md) หัวข้อ 1.6.3, 1.7.1, 3.1.1 $\leftrightarrow$ `main.py:SIGLIP_MODEL = "google/siglip2-base-patch16-224"`, `check_water_meter()`, `cross_check_digits()` (HIGH)
+- **พารามิเตอร์การฝึก YOLO26:** [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md) หัวข้อ 1.10.2 $\leftrightarrow$ `training/yolo_train.py:28-44` (HIGH) ตรงกันครบทั้ง 13 พารามิเตอร์
+- **เส้นทาง API และส่วนติดต่อผู้ใช้:** [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md) หัวข้อ 3.2, 3.3 $\leftrightarrow$ `main.py:app` (`GET /api/health`, `POST /api/read-meter`), `gradio_app.py` (HIGH)
+- **ผลการทดสอบ Ablation และชุดสาธิต:** [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md) หัวข้อ 3.4.3 $\leftrightarrow$ `validate.py`, `validate_ablation.py`, `reviews/validation_results.json`, `reviews/ablation.json` (HIGH)
 
-## Appendix: Compact Evidence
+### ประเด็นที่ควรตรวจสอบเพิ่มเติม (Items To Verify)
 
-### Code Review Summary
+- **การแยกโค้ดประมวลผลภาพใน UI (DRY):** ใน [gradio_app.py](file:///d:/_Work/Guidebook-RE/meter-reader/gradio_app.py) บรรทัด 32–58 มีการเขียนฟังก์ชันหมุนภาพและปรับคอนทราสต์ซ้ำ หากในอนาคตมีการปรับค่าพารามิเตอร์ใน [main.py](file:///d:/_Work/Guidebook-RE/meter-reader/main.py) เช่น `CLAHE_CLIP` อาจทำให้การแสดงผลบนเว็บไม่ตรงกันได้หากไม่ได้แก้ไขพร้อมกันทั้งสองไฟล์
+  - *ข้อเสนอแนะ:* ย้ายฟังก์ชันประมวลผลภาพร่วมกันไปไว้ที่ `meter-reader/utils.py`
+- **การเพิ่มชุดทดสอบพร้อม Ground Truth:** ปัจจุบันระบบทดสอบกับชุดตัวอย่าง 7 ภาพใน `meter_img/`
+  - *ข้อเสนอแนะ:* สร้างชุดทดสอบขนาด 50–100 ภาพพร้อมไฟล์ `ground_truth.csv` เพื่อให้สามารถคำนวณ `Exact Reading Accuracy` ได้อย่างสมบูรณ์
 
-## Overall
-- Small, focused inference codebase (FastAPI `main.py` + `gradio_app.py` + isolated `training/yolo_train.py`) with extensive step-by-step documentation. No evidence of previous-review influence.
-- Inference path is deterministic and reproducible if weights are present; training path is stochastic and not seed-pinned.
-- Primary reproducibility risk is distribution: `weights/*.pt` is `.gitignore`d (`meter-reader/.gitignore:4`) but required at `main.py:29` — fresh clone is broken without manual weight acquisition/copy.
-- Dependencies are listed but loosely pinned and incomplete; run order is documented in prose, not via a master script.
+### สิ่งที่ไม่พบในโค้ด (Not Found In Reviewed Files)
 
-## Top Findings
-- [VERIFY] Weights consumed but gitignored / manual copy step — `main.py:29` (`weights/MeterOCR.pt`), `.gitignore:4` — repo ships a 44MB `MeterOCR.pt` locally, but `.gitignore` + `yolo_train.py:39` (`runs/detect/train/weights/best.pt — copy to weights/MeterOCR.pt`) means clone + `uv pip install` alone fails to run inference; `yolo26n.pt` (5.5MB) also not auto-downloaded/documented for inference — check if releases/Drive link or `ultralytics` auto-fetch is intended.
-- [MISSING] `roboflow` not in `requirements.txt:1-12` — `training/yolo_train.py:10,14` imports `roboflow` and hard-requires `YOUR_API_KEY` + network download, but `requirements.txt` omits it; training is non-runnable from listed dependencies — add `roboflow` and document API-key setup.
-- [VERIFY] No random seed for training augmentations — `training/yolo_train.py:22-34` (`mosaic=1.0, mixup=0.15, degrees=15.0, hsv_v=0.4, amp=True`) + no `seed`/`deterministic`/`torch.manual_seed` anywhere in scope; `Ultralytics.train()` is stochastic — if exact replication of `MeterOCR.pt` matters, add `seed=` + `deterministic=True` and note GPU non-determinism.
-- [NOTE] Loose dependency pins, no upper bounds or lockfile — `requirements.txt:1-12` uses `>=` only (`ultralytics>=8.4.0, transformers>=4.52.0, torch>=2.3`); major-version bumps can break `YOLO`/`SigLIP2` APIs; `torch` CUDA vs CPU not guided — consider `==` pins or `uv.lock` / `requirements` with `<` caps.
-- [NOTE] CWD-sensitive relative paths + hardcoded local service addresses — `main.py:29,52,586-587` (`weights/MeterOCR.pt` relative, `uvicorn host 127.0.0.1:8000 reload=True`), `gradio_app.py:14-16` (`http://127.0.0.1:8000`), `training/yolo_train.py:22` (`f"{dataset.location}/data.yaml"`); docs correctly say run from `meter-reader/` (`TUTORIAL.md:107`), but running from repo root fails — verify or switch to `Path(__file__).parent` resolution and make `reload=False` default.
-- [NOTE] Roboflow dataset not fully reproducible — `training/yolo_train.py:15-17` (`workspace("watermeter-jvlgr").project("...").version(1).download("yolo26")`); dataset version is pinned to `version 1` but not checksummed/frozen; upstream edits to Roboflow version mutate `data.yaml` without local trace — archive a snapshot or hash in repo.
-- [NOTE] Several interpretation-critical thresholds well-used but not empirically justified in code — `main.py:31-49` (`YOLO_CONF 0.35, CONF_RELIABLE 0.60, RED_THRESH 0.08, RED_DOMINANCE 2.0, ORIENT_MARGIN 0.12, FLIP_GUARD_CONF 0.60, ALIGN_MAX_SPREAD 0.10, dedup 0.45, MIN_CROP_PX 4`); `TUTORIAL.md:1.7-1.12` explains intent, but no ablation/sensitivity note for `0.08/2.0/0.12/0.10` — human should confirm these are tuned, not arbitrary, before changing.
-- [NOTE] Placeholder secret + no credential handling — `training/yolo_train.py:14` (`api_key="YOUR_API_KEY"`) will fail verbatim; no env-var fallback (`ROBOFLOW_API_KEY`) — replace with `os.getenv` pattern.
-- [VERIFY] Duplicate preprocessing logic — `main.py:104-118` vs `gradio_app.py:30-46` (`_clahe_gradio/_histeq_gradio` duplicate `CLAHE_CLIP 2.0/(8,8)`); drift risk if thresholds change in one place only — check if shared `utils.py` extraction is planned.
+- *ไม่พบข้อบกพร่อง* ทุกอัลกอริทึม แผนภาพ เส้นทาง API และขั้นตอนการฝึกฝนที่ระบุใน [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md) ถูกนำไปเขียนและใช้งานจริงในโค้ดทั้งหมด
 
-## Strengths
-- Pure functional pipeline with clear sectioning and docstrings: `main.py:22-539` split into constants → lazy loaders → geometry utils → detection/search → safety guards → pipeline, easy to unit-test per function.
-- Comprehensive tutorial (1146 lines) mirrors code 1:1, including embedded snippets for `red_ratio/eval_orientation/detect_digits_best/read_meter`, debugging matrix, and two-terminal run order.
-- Safety-first design: `check_water_meter` gate (`main.py:319-340`), 12-hypothesis `4×3` search (`main.py:270-312`), `is_vertical` (`main.py:216`), `flip_guard` (`main.py:343-383`), `cross_check_digits` (`main.py:386-427`), and `warnings` aggregation (`main.py:502-529`) surface uncertainty rather than silently returning a wrong reading.
-- Inference determinism: no `random`/`np.random` in `main.py`; `DEVICE` auto-selection (`main.py:26`), lazy loading (`main.py:70-86`), and `run_in_threadpool` (`main.py:583`) are sound.
-- Operational ergonomics: `GET /api/health` (`main.py:560-567`), `ALLOWED_TYPES` validation (`main.py:557`), and `requirements.txt` Python 3.11 scope match README (`README.md:3,36`).
+---
 
-## Reproducibility Checklist
-- Relative paths: NOTE — all paths relative (`weights/MeterOCR.pt`, `dataset.location/data.yaml`) but require `meter-reader/` as CWD; no `Path(__file__)` guard.
-- Random seed practice: VERIFY — inference deterministic; training stochastic augmentations without seed in `training/yolo_train.py`.
-- Outputs generated by pipeline: VERIFY — inference output (`reading/digits/warnings`) generated live; training weight `best.pt` generated by `yolo_train.py:21-34` but required manual copy to `weights/MeterOCR.pt` per `yolo_train.py:39`.
-- Dependency management: NOTE — present (`requirements.txt`, `uv` guide in `README.md:34-51`) but incomplete (missing `roboflow`) and unpinned (`>=` only).
-- Run order: PASS — documented two-terminal order (`README.md:57-66`, `TUTORIAL.md:341-342`) and `training/yolo_train.py:7`; no master `Makefile`/`justfile`/`run.sh`.
-- README / documentation: PASS — `README.md` + `TUTORIAL.md` are thorough; response payload example (`README.md:78-106`) and safety features (`README.md:112-120`) match code.
+## 6. ข้อเสนอแนะ 3 ลำดับแรก (Top Suggested Next Steps)
 
-## File Notes
-- **main.py**: Strong positive for modularity and extensive constants/threshold centralization (`main.py:22-60`); NOTE `reload=True` in `if __name__` (`main.py:587`) should be `False` for production repro. `ALIGN_MAX_SPREAD`/`FLIP_MAP` thresholds explained in `TUTORIAL.md:1.7.6` but consider inline citation to tuning data.
-- **training/yolo_train.py**: NOTE minimal executable training script — add `seed`, `deterministic`, `roboflow` import guard, and env-var API key; otherwise clean. Strong positive that params echo `TUTORIAL.md:1.10` exactly.
-- **gradio_app.py**: NOTE thin UI client correctly delegates to API; duplication of `CLAHE`/`HistEq` params (`gradio_app.py:36-46`) is maintenance risk — centralize. Positive: `fetch_health` on load (`gradio_app.py:138`) and explicit JPEG recompression (`gradio_app.py:82-83`) mirror API contract.
-- **requirements.txt**: NOTE missing `roboflow`; consider pinning `ultralytics`, `transformers`, `torch`, `opencv-python` upper bounds and noting CUDA index URL.
-
-### Paper Summary
-- **ชื่อเรื่อง:** ระบบอ่านค่ามิเตอร์น้ำด้วยเทคโนโลยีการรู้จำอักขระด้วยแสง (Water Meter OCR)
-- **คำถามวิจัย:** จะพัฒนาระบบอ่านค่ามาตรวัดน้ำอัตโนมัติจากภาพถ่ายสมาร์ทโฟนที่ทนต่อมุมเอียง/แสงสะท้อนและลดความผิดพลาดได้อย่างไร ด้วย YOLO + Vision-Language Model
-- **กลุ่มตัวอย่าง/ขอบเขต:** มิเตอร์น้ำแบบตัวเลขกลไกแนวนอน 4–9 หลัก (ไม่รวมแบบเข็ม/ดิจิทัล); ภาพถ่ายภาคสนามทั่วไป; Python 3.11, CPU (1–3s) / GPU CUDA (50–150ms)
-- **แหล่งข้อมูล:** ชุดข้อมูล Roboflow "Utility Meter Reading" version 1 (`watermeter-jvlgr` workspace, format `yolo26`); น้ำหนัก `yolo26n.pt` → `MeterOCR.pt`
-- **ตัวแปรหลัก:** ตัวเลข `0–9` พร้อม `bbox [x1,y1,x2,y2]`, `confidence`, `center_x/center_y`; คลาส SigLIP `{water meter, electricity meter, gas meter, not a meter}`; ตัวแปรประมวลผล `ROTATION_ANGLES`, `PREP_LIST`, `CLAHE_CLIP/Grid`
-- **วิธีประเมิน:** YOLO26 Nano Single-stage Anchor-free ตรวจจับตรงจากภาพเต็ม + SigLIP2 Dual-encoder Zero-shot (Vision Transformer + Text Transformer, Pairwise Sigmoid Loss) + 12-combination search + IoU dedup + Coordinate remapping + Safety Guards 4 ชั้น
-- **ข้อจำกัดและการกรอง:** `EXPECTED_MIN/MAX_DIGITS 4–9`, แนวตั้งถูกตัดโดย `is_vertical`, หลักทศนิยมสีแดงต้องอยู่ขวาสุด, `YOLO_CONF 0.35`, `ALIGN_MAX_SPREAD 0.10`
-- **ผลหลักที่กล่าวอ้าง:** ตาราง 1.1 เปรียบเทียบ YOLO26 Nano (~2.6M params, ~1.5GB VRAM, 40–60ms GPU T4) กับรุ่นอื่น; ตาราง 1.2 เทียบ Sigmoid vs Softmax; ตาราง 1.3 บทบาท 10 ไลบรารี; แผนภาพ Pipeline 7 ขั้นตอน (ภาพถ่าย → ตรวจไฟล์ → SigLIP คัดกรอง → 12-search → remap → Safety Guards → ส่งออก JSON); การให้บริการผ่าน FastAPI + Gradio
-
-### Mapping Summary
-
-## Verified Matches
-- YOLO26 Nano direct digit detection 0-9 from full frame without cropping -> `meter-reader/main.py:29-32` (`YOLO_MODEL="weights/MeterOCR.pt"`, `YOLO_IMGSZ=960`, `YOLO_CONF=0.35`) + `meter-reader/main.py:192-213` `detect_digits()` `YOLO(...).predict(..., imgsz=960, conf=0.35)` returning `bbox/center_x/digit/confidence` sorted left-to-right + `meter-reader/training/yolo_train.py:20` `YOLO("yolo26n.pt")` base -> HIGH -> spec, variable mapping and weight path fully explicit
-- SigLIP2 Base zero-shot meter screening (4 prompts) -> `meter-reader/main.py:52-58` `SIGLIP_MODEL="google/siglip2-base-patch16-224"` + `METER_LABELS=("water meter","electricity meter","gas meter","not a meter")` + `meter-reader/main.py:320-340` `check_water_meter()` `AutoProcessor/AutoModel` + `METER_VERIFY_CONF=0.50` gate -> HIGH -> model ID, label set and threshold match TUTORIAL 1.7.1/1.6.3 verbatim
-- 12-combination multi-hypothesis search (4 rotations x 3 preps) with Score = mean_conf * N * RedBonus + ORIENT_MARGIN -> `meter-reader/main.py:37-38` `ROTATION_ANGLES=(0,90,180,270)` `PREP_LIST=("orig","clahe","histeq")` + `meter-reader/main.py:232-312` `eval_orientation()` + `detect_digits_best()` iterating 12 combos, `score = mean_conf * n` with `*1.05/*0.5` red adjustments and `ORIENT_MARGIN=0.12` winner-take-all with remap -> HIGH -> equation and control flow match Tutorial 1.7.2/1.12.4
-- IoU-based deduplication thresh 0.45 -> `meter-reader/main.py:145-164` `iou()` + `dedup_detections(dets, thresh=0.45)` confidence sort then `iou > thresh` suppression, re-sorted by `center_x` -> HIGH -> formula and default identical to Tutorial 1.7.3
-- Coordinate remapping geometry -> `meter-reader/main.py:121-142` `remap_point(x,y,angle,w,h)` = `(y,h-x)` for 90, `(w-x,h-y)` for 180, `(w-y,x)` for 270 + `remap_bbox()` min/max wrapper, called at `meter-reader/main.py:308` after best-angle selection -> HIGH -> 1:1 to Tutorial 1.7.4/1.12.2
-- Geometric vertical filtering -> `meter-reader/main.py:216-229` `is_vertical()` normalizes `center_x/w`, `center_y/h`, `width_span = max(xs)-min(xs)`, `height_span = max(ys)-min(ys)`, flags `height_span >= width_span*0.8` or `width_span<=0.05 and height_span>=0.08` -> HIGH -> thresholds and intent match Tutorial 1.7.5/1.12.3
-- Four safety guards bundled -> `meter-reader/main.py:43-49` `FLIP_MAP={0:0,1:1,2:5,5:2,6:9,8:8,9:6}` `FLIP_GUARD_CONF=0.60` `RED_THRESH=0.08` `RED_DOMINANCE=2.0` `ALIGN_MAX_SPREAD=0.10` + `meter-reader/main.py:167-185` `red_ratio()` HSV red mask + `meter-reader/main.py:343-383` `flip_guard()` 180-degree mirror check + `meter-reader/main.py:386-427` `cross_check_digits()` SigLIP re-check for `confidence < 0.60` + `meter-reader/main.py:486-492` `align_ok = std(center_y/h) <=0.10` -> HIGH -> all four guards and numeric thresholds explicitly coded
-- Sample restriction 4-9 digit horizontal mechanical display -> `meter-reader/main.py:33-34` `EXPECTED_MIN_DIGITS=4` `EXPECTED_MAX_DIGITS=9` + filter `meter-reader/main.py:242` `not (4 <= n <= 9)` returns `score=0.0` + warning `meter-reader/main.py:506` -> HIGH -> restriction enforced, matches Tutorial 1.4
-- Roboflow dataset source -> `meter-reader/training/yolo_train.py:14-17` `Roboflow(...).workspace("watermeter-jvlgr").project("utility-meter-reading-dataset-for-automatic-reading-yolo").version(1).download("yolo26")` -> HIGH -> workspace/project/version/format exactly as documented in 1.10.1
-- YOLO training spec and weight lineage yolo26n.pt -> MeterOCR.pt, inference vs train resolution -> `meter-reader/training/yolo_train.py:20-34` `epochs=100 patience=30 imgsz=640 batch=64 amp=True optimizer="AdamW" lr0=0.001 mosaic=1.0 mixup=0.15 degrees=15.0 hsv_v=0.4` + `meter-reader/main.py:29-30` `YOLO_IMGSZ=960` + `meter-reader/weights/MeterOCR.pt` + `yolo26n.pt` present -> HIGH -> Tutorial 1.10.2 parameter table reproduced line-for-line; note/tutorial explicitly justifies 640 train / 960 infer
-
-## Items To Verify
-- Table 1.1 quantitative claims (params ~2.6M, VRAM ~1.5GB, 40-60ms GPU T4 vs 80-110ms Small etc.) -> no code evidence; code only measures `elapsed_ms` via `perf_counter()` `meter-reader/main.py:436,538` -> NOT FOUND -> values are literature/spec, not derived from repo; cannot be verified without benchmark harness
-- Table 1.2 Sigmoid vs Softmax contrast -> code inference uses `torch.softmax(outputs.logits_per_image)` `meter-reader/main.py:332,416` while text emphasizes SigLIP2 trained with pairwise Sigmoid loss -> MEDIUM -> training loss vs inference softmax are compatible but paper/code wording creates apparent contradiction; needs reading of SigLIP2 inference contract
-- Table 1.3 libraries -> `meter-reader/requirements.txt:1-12` lists 10 libs but roles (e.g., `ultralytics` for detection, `transformers` for SigLIP2) are only implied by imports `meter-reader/main.py:14-18,72-83`; version floors `>=` not pinned -> MEDIUM -> functional use verified, selection rationale not in code
-- Performance headline GPU 40-60ms / CPU 1-3s vs Tutorial 1.4 50-150ms GPU, 1.4s CPU, Table 1.1 40-60ms -> `meter-reader/main.py:536-538` only reports elapsed, no systematic evaluation script in reviewed files -> LOW -> three slightly different numbers in paper, no reproducible benchmark in `main.py`/`gradio_app.py`/`yolo_train.py`
-- Sample limitation to 4-9 digit horizontal mechanical only (excludes pointer/analog and digital LCD) -> enforced indirectly via digit-count + `is_vertical` + red-ratio; no explicit meter-type classifier beyond 4-way SigLIP check -> MEDIUM -> code will still attempt to read out-of-scope meters rather than refusing by meter physics
-- Claimed CLAHE `clip 2.0` grid `8x8` on LAB L-channel and HistEq on YCrCb Y-channel -> `meter-reader/main.py:39-40,104-118` implements exactly (`createCLAHE(2.0,(8,8))` on LAB, `equalizeHist` on YCrCb Y) -> HIGH in code but listed here because Tutorial 1.6.4 describes color-space theory not testable from 3 files alone -> MEDIUM -> holds but sits in image-utils, easy to miss if only reviewing API surface
-- Training augmentation effectiveness (mosaic/mixup/degrees/hsv) and `amp/AdamW` choice -> `meter-reader/training/yolo_train.py:26-34` declares them, but no ablation or mAP report artifact in repo besides `print(metrics.box.map50)` `yolo_train.py:38` -> LOW -> declared, not empirically validated in reviewed files
-- Robustness diagrams Fig 1.1 pipeline 7 steps, Fig 1.2/1.3 mermaid flows -> `meter-reader/main.py:434-539` `read_meter()` 6-step pipeline + `gradio_app.py:56-75` `draw_digits_processed()` mirror the flow but diagram layout is documentation only -> MEDIUM -> logical correspondence is plausible, visual fidelity not verifiable in code
-- Deployment via FastAPI `POST /api/read-meter` and Gradio on :7860 -> `meter-reader/main.py:546-583` `FastAPI` + `ALLOWED_TYPES` + `run_in_threadpool(read_meter)` + `meter-reader/gradio_app.py:14-16,130-154` `httpx.post(READ_ENDPOINT)` -> HIGH technically, but `uv` env/Python 3.11 management claimed in Tutorial 1.11 is outside these 3 files -> MEDIUM for full deployment claim
-- Formal accuracy evaluation (section 3.4.3) -> no test set, no confusion matrix, no `media/` label files referenced by code; `yolo_train.py:37` `model.val()` is the only evaluation call -> NOT FOUND -> core empirical claim of accuracy has no artifact in reviewed scope
-- Red decimal digit must be rightmost assumption + `red_ratio` HSV bounds `H 0-12`/`165-180 S>=40 V>=40` -> `meter-reader/main.py:181-182,254-260` implements but paper does not report failure mode if meter lacks red digit -> MEDIUM -> threshold works for assumed meter paint, not guaranteed across dataset
-- Weight provenance `weights/MeterOCR.pt` (44MB) vs `yolo26n.pt` (5.5MB) -> `meter-reader/weights/` exists but training timestamp, mAP, data.yaml not stored in reviewed files -> MEDIUM -> lineage claimed via comment `best.pt -> MeterOCR.pt`, not cryptographically tied
-
-## Likely Discrepancies
-- Inference softmax on SigLIP2: paper foregrounds Sigmoid pairwise loss (Table 1.2, Tutorial 1.6.3) as architectural choice, while `meter-reader/main.py:332,416` applies `torch.softmax` over the 4 prompt logits to pick `water meter`. This is expected for zero-shot inference but will read as contradictory if Table 1.2 is taken literally as inference behavior.
-- Performance numbers are internally inconsistent: Table 1.1 quotes ~40-60ms GPU T4, 1.4s CPU; Section 1.4 states 50-150ms GPU / 1-3s CPU; the Reviewed-code performance is only ad-hoc `elapsed_ms`. No benchmark script pins which figure is empirical vs aspirational.
-- `CONF_RELIABLE=0.60` is used simultaneously for (a) flipping guard confidence `meter-reader/main.py:380` `mean_conf >=0.60`, (b) cross-check trigger `meter-reader/main.py:389`, and (c) warning `meter-reader/main.py:510`; paper lists these as distinct guards but code collapses them to a single constant, reducing independent tunability claimed in text.
-- `gradio_app.py:48-54` `_inverse_remap_bbox` re-implements remapping with inverted formulas (`[h-y2,x1, h-y1,x2]` etc.) instead of calling `main.remap_bbox`; functionally equivalent but diverges from DRY claim and introduces second truth source for geometry.
-
-## Coverage Notes
-- Easy to match: all mechanistic claims with literal constants/functions (12-combo search, IoU 0.45, remap formulas, `is_vertical` 0.8, FLIP_MAP, red/align thresholds, `imgsz` 640/960, batch/epochs/patience, dataset ID, weight filenames) because `main.py` and `yolo_train.py` are line-for-line copies of tutorial snippets.
-- Ambiguous: quantitative performance/efficiency tables, Sigmoid vs Softmax framing, and overall accuracy/mAP claims; code declares parameters or prints a metric but does not log, version, or reproduce the numbers cited in tables.
-- Sits outside reviewed files: dataset distribution and annotation quality, actual `data.yaml` splits, trained `MeterOCR.pt` validation report, `media/meter_img` ground truth, `uv`/`requirements` environment pinning, and any paper draft `reviews/*` evaluation harnesses — excluded per instruction and not importable from the three files.
-- Reviewed scope was deliberately narrow (`main.py`, `gradio_app.py`, `yolo_train.py` + immediate imports). A full audit would require inspecting `weights/MeterOCR.pt` metadata, `training/data.yaml` splits, and any evaluation notebooks to settle the NOT FOUND items above.
-
+1. **สร้างโมดูลฟังก์ชันกลาง ([utils.py](file:///d:/_Work/Guidebook-RE/meter-reader/utils.py)):** รวมฟังก์ชัน `rotate_image`, `apply_prep`, `remap_bbox` และ `inverse_remap_bbox` ไว้ที่เดียว เพื่อไม่ให้โค้ดซ้ำซ้อนระหว่าง [main.py](file:///d:/_Work/Guidebook-RE/meter-reader/main.py) และ [gradio_app.py](file:///d:/_Work/Guidebook-RE/meter-reader/gradio_app.py)
+2. **จัดทำชุดข้อมูลทดสอบพร้อม Ground Truth (`ground_truth.csv`):** สร้างไฟล์เฉลยค่าตัวเลขของภาพทดสอบ เพื่อให้คำสั่ง `validate.py` และ `validate_ablation.py` สามารถประเมินความแม่นยำรายหลักและรายภาพ (Exact Reading Accuracy) ได้โดยอัตโนมัติ
+3. **เพิ่มชุดทดสอบอัตโนมัติ (Automated Unit Tests):** เขียนชุดทดสอบใน `tests/test_pipeline.py` (เช่น ด้วย `pytest`) เพื่อตรวจสอบความถูกต้องของสูตรคำนวณ `remap_point`/`remap_bbox`, ตรรกะ `is_vertical` และ `flip_guard` บนอาเรย์ตัวอย่าง
