@@ -44,7 +44,7 @@ CLAHE_GRID = (8, 8)
 # ตัวช่วยความปลอดภัย (Safety Guards)
 ORIENT_MARGIN = 0.12
 FLIP_GUARD_CONF = 0.60
-FLIP_MAP = {0: 0, 1: 1, 2: 5, 5: 2, 6: 9, 8: 8, 9: 6}
+FLIP_MAP = {0: 0, 1: 1, 2: 5, 5: 2, 6: 9, 8: 8, 9: 6, 3: 3, 4: 4, 7: 7}
 ALIGN_MAX_SPREAD = 0.10
 RED_THRESH = 0.08
 RED_DOMINANCE = 2.0
@@ -76,7 +76,7 @@ def get_yolo() -> Any:
     if _yolo is None:
         from ultralytics import YOLO
         _yolo = YOLO(YOLO_MODEL)
-        _yolo.predict(np.zeros((640, 640, 3), dtype=np.uint8), verbose=False)
+        _yolo.predict(np.zeros((YOLO_IMGSZ, YOLO_IMGSZ, 3), dtype=np.uint8), verbose=False)
     return _yolo
 
 
@@ -337,10 +337,13 @@ def check_water_meter(rgb_img: np.ndarray) -> dict[str, Any]:
     pred_idx = int(np.argmax(probs))
     pred_label = METER_LABELS[pred_idx]
 
+    water_conf = float(probs[0])
+    pred_conf = float(probs[pred_idx])
     return {
-        "verified": pred_label == "water meter" and float(probs[0]) >= METER_VERIFY_CONF,
+        "verified": pred_label == "water meter" and water_conf >= METER_VERIFY_CONF,
         "predicted_class": pred_label,
-        "confidence": float(probs[0]),
+        "confidence": water_conf,
+        "predicted_confidence": pred_conf,
     }
 
 
@@ -581,8 +584,8 @@ async def read_meter_endpoint(file: UploadFile = File(...)) -> dict[str, Any]:
         img = Image.open(io.BytesIO(data))
         img.load()
         arr = np.asarray(img.convert("RGB"))
-    except Exception:
-        raise HTTPException(status_code=422, detail="อ่านไฟล์ภาพไม่ได้")
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail=f"อ่านไฟล์ภาพไม่ได้: {type(exc).__name__}: {str(exc)[:200]}")
 
     return await run_in_threadpool(read_meter, arr)
 

@@ -189,8 +189,8 @@ class TestSafetyGuards(unittest.TestCase):
     """Test safety guard heuristics and 180 degree flip detection."""
 
     def test_flip_map_symmetry_pairs(self):
-        """Verify FLIP_MAP pairs are mathematically symmetric."""
-        expected_pairs = {0: 0, 1: 1, 2: 5, 5: 2, 6: 9, 8: 8, 9: 6}
+        """Verify FLIP_MAP pairs are mathematically symmetric (including identity 3,4,7)."""
+        expected_pairs = {0: 0, 1: 1, 2: 5, 5: 2, 6: 9, 8: 8, 9: 6, 3: 3, 4: 4, 7: 7}
         self.assertEqual(FLIP_MAP, expected_pairs)
 
     def test_alignment_spread(self):
