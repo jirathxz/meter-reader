@@ -86,8 +86,8 @@
     "warnings": [
       "อาจกลับหัว! หมุน 180° ได้ 85833 (0.83) — ตรวจภาพก่อนบันทึก"
     ],
-    "elapsed_ms_reported": 39002.0,
-    "elapsed_ms_measured": 39002.0,
+    "elapsed_ms_reported": 42514.1,
+    "elapsed_ms_measured": 42514.1,
     "success": true,
     "verified": true
   },
@@ -179,8 +179,8 @@
       "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
       "อาจกลับหัว! หมุน 180° ได้ 82610 (0.90) — ตรวจภาพก่อนบันทึก"
     ],
-    "elapsed_ms_reported": 12294.8,
-    "elapsed_ms_measured": 12294.8,
+    "elapsed_ms_reported": 26160.3,
+    "elapsed_ms_measured": 26160.3,
     "success": true,
     "verified": true
   },
@@ -271,8 +271,8 @@
     "warnings": [
       "อาจกลับหัว! หมุน 180° ได้ 12934 (0.75) — ตรวจภาพก่อนบันทึก"
     ],
-    "elapsed_ms_reported": 13507.5,
-    "elapsed_ms_measured": 13507.5,
+    "elapsed_ms_reported": 33836.9,
+    "elapsed_ms_measured": 33836.9,
     "success": true,
     "verified": true
   },
@@ -376,8 +376,8 @@
       "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
       "อาจกลับหัว! หมุน 180° ได้ 418320 (0.85) — ตรวจภาพก่อนบันทึก"
     ],
-    "elapsed_ms_reported": 21516.0,
-    "elapsed_ms_measured": 21516.0,
+    "elapsed_ms_reported": 50892.6,
+    "elapsed_ms_measured": 50892.7,
     "success": true,
     "verified": true
   },
@@ -469,8 +469,8 @@
       "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
       "อาจกลับหัว! หมุน 180° ได้ 28810 (0.88) — ตรวจภาพก่อนบันทึก"
     ],
-    "elapsed_ms_reported": 28117.0,
-    "elapsed_ms_measured": 28117.0,
+    "elapsed_ms_reported": 54204.3,
+    "elapsed_ms_measured": 54204.3,
     "success": true,
     "verified": true
   },
@@ -561,8 +561,8 @@
     "warnings": [
       "อาจกลับหัว! หมุน 180° ได้ 85833 (0.84) — ตรวจภาพก่อนบันทึก"
     ],
-    "elapsed_ms_reported": 33710.0,
-    "elapsed_ms_measured": 33710.0,
+    "elapsed_ms_reported": 62917.8,
+    "elapsed_ms_measured": 62917.8,
     "success": true,
     "verified": true
   },
@@ -654,8 +654,8 @@
       "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
       "อาจกลับหัว! หมุน 180° ได้ 51750 (0.86) — ตรวจภาพก่อนบันทึก"
     ],
-    "elapsed_ms_reported": 50872.6,
-    "elapsed_ms_measured": 50872.6,
+    "elapsed_ms_reported": 75176.0,
+    "elapsed_ms_measured": 75176.0,
     "success": true,
     "verified": true
   }
