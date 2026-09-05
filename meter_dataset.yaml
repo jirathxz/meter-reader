@@ -1,0 +1,7 @@
+path: ../utility-meter-reading-dataset-for-automatic-reading-yolo.v1i.yolo26
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 14
+names: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'Reading Digit', 'black', 'red', 'white']

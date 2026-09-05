@@ -41,6 +41,20 @@ def compute_digit_accuracy(pred: str, gt: str) -> float:
     return matches / max(len(pred), len(gt))
 
 
+def wilson_score_interval(k: int, n: int, z: float = 1.95996) -> tuple[float, float]:
+    """Computes Wilson Score Interval (default 95% confidence, z=1.96).
+
+    Handles boundary cases (k=0, k=n) correctly without degenerating.
+    """
+    if n <= 0:
+        return (0.0, 0.0)
+    p = k / n
+    denom = 1.0 + (z**2) / n
+    center = (p + (z**2) / (2 * n)) / denom
+    margin = (z * ((p * (1.0 - p) / n + (z**2) / (4 * (n**2))) ** 0.5)) / denom
+    return (max(0.0, center - margin), min(1.0, center + margin))
+
+
 def run_validation(
     image_dir: Path,
     output_json: Path,
@@ -180,7 +194,9 @@ def run_validation(
     verified = sum(1 for r in results if r["verified"])
     print("\n=== Summary ===")
     print(f"Total images: {total}")
-    print(f"Successful readings (non-empty): {success}/{total} ({success/total*100:.1f}%)" if total else "0")
+    
+    succ_ci = wilson_score_interval(success, total) if total else (0.0, 0.0)
+    print(f"Successful readings (non-empty): {success}/{total} ({success/total*100:.1f}%) [95% CI: {succ_ci[0]*100:.1f}%–{succ_ci[1]*100:.1f}%]" if total else "0")
     print(f"Meter verified (SigLIP2): {verified}/{total} ({verified/total*100:.1f}%)" if total else "0")
 
     if gt:
@@ -188,7 +204,8 @@ def run_validation(
         exact_count = sum(1 for r in results if r["exact"] is True)
         digit_accs = [r["digit_accuracy"] for r in results if r["digit_accuracy"] is not None]
         avg_digit_acc = sum(digit_accs) / len(digit_accs) if digit_accs else 0.0
-        print(f"Exact Reading Accuracy: {exact_count}/{gt_count} ({exact_count/gt_count*100:.1f}%)" if gt_count else "0")
+        exact_ci = wilson_score_interval(exact_count, gt_count) if gt_count else (0.0, 0.0)
+        print(f"Exact Reading Accuracy: {exact_count}/{gt_count} ({exact_count/gt_count*100:.1f}%) [95% Wilson CI: {exact_ci[0]*100:.1f}%–{exact_ci[1]*100:.1f}%]" if gt_count else "0")
         print(f"Digit-level Accuracy: {avg_digit_acc*100:.1f}%")
 
     if success:

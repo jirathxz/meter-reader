@@ -1,75 +1,171 @@
 {
   "summaries": [
     {
-      "mode": "single-orig",
+      "mode": "M0_baseline",
       "total": 7,
-      "success_rate": 57.1,
+      "success_rate": 100.0,
+      "success_ci95": [
+        64.6,
+        100.0
+      ],
       "verified_rate": 100.0,
-      "avg_mean_conf": 0.856,
-      "avg_latency_ms": 902.7,
+      "avg_mean_conf": 0.846,
+      "avg_latency_ms": 421.1,
       "exact_reading_accuracy": 42.9,
+      "exact_ci95": [
+        15.8,
+        75.0
+      ],
       "exact_n": "3/7"
     },
     {
-      "mode": "rotate-4",
+      "mode": "M1_rotate",
       "total": 7,
       "success_rate": 100.0,
+      "success_ci95": [
+        64.6,
+        100.0
+      ],
       "verified_rate": 100.0,
-      "avg_mean_conf": 0.846,
-      "avg_latency_ms": 2446.5,
+      "avg_mean_conf": 0.858,
+      "avg_latency_ms": 1710.3,
+      "exact_reading_accuracy": 57.1,
+      "exact_ci95": [
+        25.0,
+        84.2
+      ],
+      "exact_n": "4/7"
+    },
+    {
+      "mode": "M2_prep",
+      "total": 7,
+      "success_rate": 100.0,
+      "success_ci95": [
+        64.6,
+        100.0
+      ],
+      "verified_rate": 100.0,
+      "avg_mean_conf": 0.861,
+      "avg_latency_ms": 5492.6,
+      "exact_reading_accuracy": 71.4,
+      "exact_ci95": [
+        35.9,
+        91.8
+      ],
+      "exact_n": "5/7"
+    },
+    {
+      "mode": "M3_is_vertical",
+      "total": 7,
+      "success_rate": 100.0,
+      "success_ci95": [
+        64.6,
+        100.0
+      ],
+      "verified_rate": 100.0,
+      "avg_mean_conf": 0.863,
+      "avg_latency_ms": 5561.3,
       "exact_reading_accuracy": 85.7,
+      "exact_ci95": [
+        48.7,
+        97.4
+      ],
       "exact_n": "6/7"
     },
     {
-      "mode": "full-12",
+      "mode": "M4_red_ratio",
       "total": 7,
       "success_rate": 100.0,
+      "success_ci95": [
+        64.6,
+        100.0
+      ],
       "verified_rate": 100.0,
       "avg_mean_conf": 0.861,
-      "avg_latency_ms": 5400.6,
+      "avg_latency_ms": 4952.6,
       "exact_reading_accuracy": 100.0,
+      "exact_ci95": [
+        64.6,
+        100.0
+      ],
       "exact_n": "7/7"
     },
     {
-      "mode": "no-is-vertical",
+      "mode": "M5_flip_guard",
       "total": 7,
       "success_rate": 100.0,
+      "success_ci95": [
+        64.6,
+        100.0
+      ],
       "verified_rate": 100.0,
-      "avg_mean_conf": 0.859,
-      "avg_latency_ms": 6706.3,
-      "exact_reading_accuracy": 85.7,
-      "exact_n": "6/7"
+      "avg_mean_conf": 0.861,
+      "avg_latency_ms": 5578.6,
+      "exact_reading_accuracy": 100.0,
+      "exact_ci95": [
+        64.6,
+        100.0
+      ],
+      "exact_n": "7/7"
     },
     {
-      "mode": "no-red-bonus",
+      "mode": "M6_cross_check",
       "total": 7,
       "success_rate": 100.0,
+      "success_ci95": [
+        64.6,
+        100.0
+      ],
       "verified_rate": 100.0,
-      "avg_mean_conf": 0.863,
-      "avg_latency_ms": 5499.6,
-      "exact_reading_accuracy": 85.7,
-      "exact_n": "6/7"
+      "avg_mean_conf": 0.861,
+      "avg_latency_ms": 5664.7,
+      "exact_reading_accuracy": 100.0,
+      "exact_ci95": [
+        64.6,
+        100.0
+      ],
+      "exact_n": "7/7"
+    },
+    {
+      "mode": "M7_full_pipeline",
+      "total": 7,
+      "success_rate": 100.0,
+      "success_ci95": [
+        64.6,
+        100.0
+      ],
+      "verified_rate": 100.0,
+      "avg_mean_conf": 0.861,
+      "avg_latency_ms": 5828.8,
+      "exact_reading_accuracy": 100.0,
+      "exact_ci95": [
+        64.6,
+        100.0
+      ],
+      "exact_n": "7/7"
     }
   ],
   "details": {
-    "single-orig": [
+    "M0_baseline": [
       {
         "file": "bangkok-thailand-december-water-meters-measure-volume-used-residential-commercial-building-units-supplied-212500741.jpg",
-        "reading": "",
+        "reading": "58833",
         "gt": "33858",
         "exact": false,
-        "num_digits": 0,
-        "mean_confidence": null,
+        "num_digits": 5,
+        "mean_confidence": 0.7387,
         "verified": true,
         "processing": {
-          "angle": 0,
-          "prep": "orig",
-          "clahe": false
+          "best": {
+            "angle": 0,
+            "prep": "orig",
+            "clahe": false
+          }
         },
         "warnings": [
-          "กล่องเรียงแนวตั้ง — ไม่ใช่ค่ามิเตอร์"
+          "หลักที่ 1 (5) conf ต่ำ 0.44 — ควรตรวจด้วยตา"
         ],
-        "elapsed_ms": 701.7
+        "elapsed_ms": 411.1
       },
       {
         "file": "detail-dirty-old-water-meter-clock-shows-water-consumption-old-water-meter-100126239.jpg",
@@ -87,10 +183,9 @@
           }
         },
         "warnings": [
-          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
-          "อาจกลับหัว! หมุน 180° ได้ 82610 (0.90) — ตรวจภาพก่อนบันทึก"
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
         ],
-        "elapsed_ms": 956.7
+        "elapsed_ms": 373.3
       },
       {
         "file": "images (5).jpg",
@@ -107,46 +202,46 @@
             "clahe": false
           }
         },
-        "warnings": [
-          "อาจกลับหัว! หมุน 180° ได้ 12934 (0.72) — ตรวจภาพก่อนบันทึก"
-        ],
-        "elapsed_ms": 1107.8
+        "warnings": [],
+        "elapsed_ms": 423.4
       },
       {
         "file": "IMG_7163.jpeg",
-        "reading": "",
+        "reading": "18320",
         "gt": "023814",
         "exact": false,
-        "num_digits": 0,
-        "mean_confidence": null,
+        "num_digits": 5,
+        "mean_confidence": 0.8969,
         "verified": true,
         "processing": {
-          "angle": 0,
-          "prep": "orig",
-          "clahe": false
+          "best": {
+            "angle": 0,
+            "prep": "orig",
+            "clahe": false
+          }
         },
-        "warnings": [
-          "กล่องเรียงแนวตั้ง — ไม่ใช่ค่ามิเตอร์"
-        ],
-        "elapsed_ms": 712.0
+        "warnings": [],
+        "elapsed_ms": 399.4
       },
       {
         "file": "old-water-meter-2PGM332.jpg",
-        "reading": "",
+        "reading": "08812",
         "gt": "01882",
         "exact": false,
-        "num_digits": 0,
-        "mean_confidence": null,
+        "num_digits": 5,
+        "mean_confidence": 0.8668,
         "verified": true,
         "processing": {
-          "angle": 0,
-          "prep": "orig",
-          "clahe": false
+          "best": {
+            "angle": 0,
+            "prep": "orig",
+            "clahe": false
+          }
         },
         "warnings": [
-          "กล่องเรียงแนวตั้ง — ไม่ใช่ค่ามิเตอร์"
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
         ],
-        "elapsed_ms": 674.3
+        "elapsed_ms": 504.1
       },
       {
         "file": "old-water-meter-show-detail-dirty-old-water-meter-clock-bangkok-thailand-december-water-meters-measure-volume-water-used-212500777.jpg",
@@ -163,10 +258,8 @@
             "clahe": false
           }
         },
-        "warnings": [
-          "อาจกลับหัว! หมุน 180° ได้ 85833 (0.84) — ตรวจภาพก่อนบันทึก"
-        ],
-        "elapsed_ms": 1042.5
+        "warnings": [],
+        "elapsed_ms": 408.7
       },
       {
         "file": "Water+meter.jpg",
@@ -184,32 +277,29 @@
           }
         },
         "warnings": [
-          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
-          "อาจกลับหัว! หมุน 180° ได้ 51750 (0.86) — ตรวจภาพก่อนบันทึก"
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
         ],
-        "elapsed_ms": 1123.6
+        "elapsed_ms": 427.4
       }
     ],
-    "rotate-4": [
+    "M1_rotate": [
       {
         "file": "bangkok-thailand-december-water-meters-measure-volume-used-residential-commercial-building-units-supplied-212500741.jpg",
-        "reading": "33858",
+        "reading": "85833",
         "gt": "33858",
-        "exact": true,
+        "exact": false,
         "num_digits": 5,
-        "mean_confidence": 0.8165,
+        "mean_confidence": 0.8311,
         "verified": true,
         "processing": {
           "best": {
-            "angle": 90,
+            "angle": 270,
             "prep": "orig",
             "clahe": false
           }
         },
-        "warnings": [
-          "อาจกลับหัว! หมุน 180° ได้ 85833 (0.83) — ตรวจภาพก่อนบันทึก"
-        ],
-        "elapsed_ms": 2191.9
+        "warnings": [],
+        "elapsed_ms": 1838.1
       },
       {
         "file": "detail-dirty-old-water-meter-clock-shows-water-consumption-old-water-meter-100126239.jpg",
@@ -227,32 +317,27 @@
           }
         },
         "warnings": [
-          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
-          "อาจกลับหัว! หมุน 180° ได้ 82610 (0.90) — ตรวจภาพก่อนบันทึก"
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
         ],
-        "elapsed_ms": 2324.9
+        "elapsed_ms": 1522.4
       },
       {
         "file": "images (5).jpg",
-        "reading": "12934",
+        "reading": "43921",
         "gt": "43920",
         "exact": false,
         "num_digits": 5,
-        "mean_confidence": 0.7234,
+        "mean_confidence": 0.8175,
         "verified": true,
         "processing": {
           "best": {
-            "angle": 180,
+            "angle": 0,
             "prep": "orig",
             "clahe": false
           }
         },
-        "warnings": [
-          "อาจกลับหัว! หมุน 180° ได้ 43921 (0.82) — ตรวจภาพก่อนบันทึก",
-          "หลักที่ 1 (1) conf ต่ำ 0.38 — ควรตรวจด้วยตา",
-          "หลักที่ 1: YOLO 1 vs SigLIP 2 (0.13)"
-        ],
-        "elapsed_ms": 3002.2
+        "warnings": [],
+        "elapsed_ms": 1754.0
       },
       {
         "file": "IMG_7163.jpeg",
@@ -270,31 +355,29 @@
           }
         },
         "warnings": [
-          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
-          "อาจกลับหัว! หมุน 180° ได้ 418320 (0.85) — ตรวจภาพก่อนบันทึก"
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
         ],
-        "elapsed_ms": 2456.9
+        "elapsed_ms": 1738.9
       },
       {
         "file": "old-water-meter-2PGM332.jpg",
-        "reading": "01882",
+        "reading": "08812",
         "gt": "01882",
-        "exact": true,
+        "exact": false,
         "num_digits": 5,
-        "mean_confidence": 0.889,
+        "mean_confidence": 0.8668,
         "verified": true,
         "processing": {
           "best": {
-            "angle": 270,
+            "angle": 0,
             "prep": "orig",
             "clahe": false
           }
         },
         "warnings": [
-          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
-          "อาจกลับหัว! หมุน 180° ได้ 28810 (0.89) — ตรวจภาพก่อนบันทึก"
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
         ],
-        "elapsed_ms": 2412.5
+        "elapsed_ms": 1784.9
       },
       {
         "file": "old-water-meter-show-detail-dirty-old-water-meter-clock-bangkok-thailand-december-water-meters-measure-volume-water-used-212500777.jpg",
@@ -311,10 +394,8 @@
             "clahe": false
           }
         },
-        "warnings": [
-          "อาจกลับหัว! หมุน 180° ได้ 85833 (0.84) — ตรวจภาพก่อนบันทึก"
-        ],
-        "elapsed_ms": 2269.5
+        "warnings": [],
+        "elapsed_ms": 1557.9
       },
       {
         "file": "Water+meter.jpg",
@@ -332,32 +413,29 @@
           }
         },
         "warnings": [
-          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
-          "อาจกลับหัว! หมุน 180° ได้ 51750 (0.86) — ตรวจภาพก่อนบันทึก"
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
         ],
-        "elapsed_ms": 2467.4
+        "elapsed_ms": 1776.0
       }
     ],
-    "full-12": [
+    "M2_prep": [
       {
         "file": "bangkok-thailand-december-water-meters-measure-volume-used-residential-commercial-building-units-supplied-212500741.jpg",
-        "reading": "33858",
+        "reading": "85833",
         "gt": "33858",
-        "exact": true,
+        "exact": false,
         "num_digits": 5,
-        "mean_confidence": 0.8165,
+        "mean_confidence": 0.8311,
         "verified": true,
         "processing": {
           "best": {
-            "angle": 90,
+            "angle": 270,
             "prep": "orig",
             "clahe": false
           }
         },
-        "warnings": [
-          "อาจกลับหัว! หมุน 180° ได้ 85833 (0.83) — ตรวจภาพก่อนบันทึก"
-        ],
-        "elapsed_ms": 5511.6
+        "warnings": [],
+        "elapsed_ms": 4736.2
       },
       {
         "file": "detail-dirty-old-water-meter-clock-shows-water-consumption-old-water-meter-100126239.jpg",
@@ -375,10 +453,9 @@
           }
         },
         "warnings": [
-          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
-          "อาจกลับหัว! หมุน 180° ได้ 82610 (0.90) — ตรวจภาพก่อนบันทึก"
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
         ],
-        "elapsed_ms": 5107.0
+        "elapsed_ms": 4696.9
       },
       {
         "file": "images (5).jpg",
@@ -395,156 +472,8 @@
             "clahe": false
           }
         },
-        "warnings": [
-          "อาจกลับหัว! หมุน 180° ได้ 12934 (0.75) — ตรวจภาพก่อนบันทึก"
-        ],
-        "elapsed_ms": 5334.5
-      },
-      {
-        "file": "IMG_7163.jpeg",
-        "reading": "023814",
-        "gt": "023814",
-        "exact": true,
-        "num_digits": 6,
-        "mean_confidence": 0.8848,
-        "verified": true,
-        "processing": {
-          "best": {
-            "angle": 270,
-            "prep": "orig",
-            "clahe": false
-          }
-        },
-        "warnings": [
-          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
-          "อาจกลับหัว! หมุน 180° ได้ 418320 (0.85) — ตรวจภาพก่อนบันทึก"
-        ],
-        "elapsed_ms": 5614.7
-      },
-      {
-        "file": "old-water-meter-2PGM332.jpg",
-        "reading": "01882",
-        "gt": "01882",
-        "exact": true,
-        "num_digits": 5,
-        "mean_confidence": 0.89,
-        "verified": true,
-        "processing": {
-          "best": {
-            "angle": 270,
-            "prep": "histeq",
-            "clahe": false
-          }
-        },
-        "warnings": [
-          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
-          "อาจกลับหัว! หมุน 180° ได้ 28810 (0.88) — ตรวจภาพก่อนบันทึก"
-        ],
-        "elapsed_ms": 5505.0
-      },
-      {
-        "file": "old-water-meter-show-detail-dirty-old-water-meter-clock-bangkok-thailand-december-water-meters-measure-volume-water-used-212500777.jpg",
-        "reading": "33858",
-        "gt": "33858",
-        "exact": true,
-        "num_digits": 5,
-        "mean_confidence": 0.8512,
-        "verified": true,
-        "processing": {
-          "best": {
-            "angle": 0,
-            "prep": "clahe",
-            "clahe": true
-          }
-        },
-        "warnings": [
-          "อาจกลับหัว! หมุน 180° ได้ 85833 (0.84) — ตรวจภาพก่อนบันทึก"
-        ],
-        "elapsed_ms": 5195.5
-      },
-      {
-        "file": "Water+meter.jpg",
-        "reading": "05715",
-        "gt": "05715",
-        "exact": true,
-        "num_digits": 5,
-        "mean_confidence": 0.8735,
-        "verified": true,
-        "processing": {
-          "best": {
-            "angle": 0,
-            "prep": "orig",
-            "clahe": false
-          }
-        },
-        "warnings": [
-          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
-          "อาจกลับหัว! หมุน 180° ได้ 51750 (0.86) — ตรวจภาพก่อนบันทึก"
-        ],
-        "elapsed_ms": 5536.0
-      }
-    ],
-    "no-is-vertical": [
-      {
-        "file": "bangkok-thailand-december-water-meters-measure-volume-used-residential-commercial-building-units-supplied-212500741.jpg",
-        "reading": "33858",
-        "gt": "33858",
-        "exact": true,
-        "num_digits": 5,
-        "mean_confidence": 0.8165,
-        "verified": true,
-        "processing": {
-          "best": {
-            "angle": 90,
-            "prep": "orig",
-            "clahe": false
-          }
-        },
-        "warnings": [
-          "อาจกลับหัว! หมุน 180° ได้ 85833 (0.83) — ตรวจภาพก่อนบันทึก"
-        ],
-        "elapsed_ms": 5744.0
-      },
-      {
-        "file": "detail-dirty-old-water-meter-clock-shows-water-consumption-old-water-meter-100126239.jpg",
-        "reading": "01628",
-        "gt": "01628",
-        "exact": true,
-        "num_digits": 5,
-        "mean_confidence": 0.891,
-        "verified": true,
-        "processing": {
-          "best": {
-            "angle": 0,
-            "prep": "histeq",
-            "clahe": false
-          }
-        },
-        "warnings": [
-          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
-          "อาจกลับหัว! หมุน 180° ได้ 82610 (0.90) — ตรวจภาพก่อนบันทึก"
-        ],
-        "elapsed_ms": 5177.3
-      },
-      {
-        "file": "images (5).jpg",
-        "reading": "43920",
-        "gt": "43920",
-        "exact": true,
-        "num_digits": 5,
-        "mean_confidence": 0.8216,
-        "verified": true,
-        "processing": {
-          "best": {
-            "angle": 0,
-            "prep": "histeq",
-            "clahe": false
-          }
-        },
-        "warnings": [
-          "อาจกลับหัว! หมุน 180° ได้ 12934 (0.75) — ตรวจภาพก่อนบันทึก"
-        ],
-        "elapsed_ms": 6057.9
+        "warnings": [],
+        "elapsed_ms": 5979.5
       },
       {
         "file": "IMG_7163.jpeg",
@@ -562,10 +491,9 @@
           }
         },
         "warnings": [
-          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
-          "อาจกลับหัว! หมุน 180° ได้ 18320 (0.89) — ตรวจภาพก่อนบันทึก"
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
         ],
-        "elapsed_ms": 6289.5
+        "elapsed_ms": 6732.7
       },
       {
         "file": "old-water-meter-2PGM332.jpg",
@@ -583,10 +511,9 @@
           }
         },
         "warnings": [
-          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
-          "อาจกลับหัว! หมุน 180° ได้ 12860 (0.79) — ตรวจภาพก่อนบันทึก"
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
         ],
-        "elapsed_ms": 12058.9
+        "elapsed_ms": 6058.9
       },
       {
         "file": "old-water-meter-show-detail-dirty-old-water-meter-clock-bangkok-thailand-december-water-meters-measure-volume-water-used-212500777.jpg",
@@ -603,10 +530,8 @@
             "clahe": true
           }
         },
-        "warnings": [
-          "อาจกลับหัว! หมุน 180° ได้ 85833 (0.84) — ตรวจภาพก่อนบันทึก"
-        ],
-        "elapsed_ms": 5585.2
+        "warnings": [],
+        "elapsed_ms": 4746.7
       },
       {
         "file": "Water+meter.jpg",
@@ -624,13 +549,12 @@
           }
         },
         "warnings": [
-          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
-          "อาจกลับหัว! หมุน 180° ได้ 51750 (0.86) — ตรวจภาพก่อนบันทึก"
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
         ],
-        "elapsed_ms": 6031.0
+        "elapsed_ms": 5497.6
       }
     ],
-    "no-red-bonus": [
+    "M3_is_vertical": [
       {
         "file": "bangkok-thailand-december-water-meters-measure-volume-used-residential-commercial-building-units-supplied-212500741.jpg",
         "reading": "85833",
@@ -646,10 +570,282 @@
             "clahe": false
           }
         },
+        "warnings": [],
+        "elapsed_ms": 5278.7
+      },
+      {
+        "file": "detail-dirty-old-water-meter-clock-shows-water-consumption-old-water-meter-100126239.jpg",
+        "reading": "01628",
+        "gt": "01628",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.891,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 0,
+            "prep": "histeq",
+            "clahe": false
+          }
+        },
         "warnings": [
-          "อาจกลับหัว! หมุน 180° ได้ 33858 (0.82) — ตรวจภาพก่อนบันทึก"
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
         ],
-        "elapsed_ms": 5114.3
+        "elapsed_ms": 5807.2
+      },
+      {
+        "file": "images (5).jpg",
+        "reading": "43920",
+        "gt": "43920",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.8216,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 0,
+            "prep": "histeq",
+            "clahe": false
+          }
+        },
+        "warnings": [],
+        "elapsed_ms": 6205.7
+      },
+      {
+        "file": "IMG_7163.jpeg",
+        "reading": "023814",
+        "gt": "023814",
+        "exact": true,
+        "num_digits": 6,
+        "mean_confidence": 0.8848,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 270,
+            "prep": "orig",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
+        ],
+        "elapsed_ms": 6118.1
+      },
+      {
+        "file": "old-water-meter-2PGM332.jpg",
+        "reading": "01882",
+        "gt": "01882",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.89,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 270,
+            "prep": "histeq",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
+        ],
+        "elapsed_ms": 5487.0
+      },
+      {
+        "file": "old-water-meter-show-detail-dirty-old-water-meter-clock-bangkok-thailand-december-water-meters-measure-volume-water-used-212500777.jpg",
+        "reading": "33858",
+        "gt": "33858",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.8512,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 0,
+            "prep": "clahe",
+            "clahe": true
+          }
+        },
+        "warnings": [],
+        "elapsed_ms": 4592.5
+      },
+      {
+        "file": "Water+meter.jpg",
+        "reading": "05715",
+        "gt": "05715",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.8735,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 0,
+            "prep": "orig",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
+        ],
+        "elapsed_ms": 5439.8
+      }
+    ],
+    "M4_red_ratio": [
+      {
+        "file": "bangkok-thailand-december-water-meters-measure-volume-used-residential-commercial-building-units-supplied-212500741.jpg",
+        "reading": "33858",
+        "gt": "33858",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.8165,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 90,
+            "prep": "orig",
+            "clahe": false
+          }
+        },
+        "warnings": [],
+        "elapsed_ms": 4666.6
+      },
+      {
+        "file": "detail-dirty-old-water-meter-clock-shows-water-consumption-old-water-meter-100126239.jpg",
+        "reading": "01628",
+        "gt": "01628",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.891,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 0,
+            "prep": "histeq",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
+        ],
+        "elapsed_ms": 4642.8
+      },
+      {
+        "file": "images (5).jpg",
+        "reading": "43920",
+        "gt": "43920",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.8216,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 0,
+            "prep": "histeq",
+            "clahe": false
+          }
+        },
+        "warnings": [],
+        "elapsed_ms": 5195.7
+      },
+      {
+        "file": "IMG_7163.jpeg",
+        "reading": "023814",
+        "gt": "023814",
+        "exact": true,
+        "num_digits": 6,
+        "mean_confidence": 0.8848,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 270,
+            "prep": "orig",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
+        ],
+        "elapsed_ms": 5298.8
+      },
+      {
+        "file": "old-water-meter-2PGM332.jpg",
+        "reading": "01882",
+        "gt": "01882",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.89,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 270,
+            "prep": "histeq",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
+        ],
+        "elapsed_ms": 5162.7
+      },
+      {
+        "file": "old-water-meter-show-detail-dirty-old-water-meter-clock-bangkok-thailand-december-water-meters-measure-volume-water-used-212500777.jpg",
+        "reading": "33858",
+        "gt": "33858",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.8512,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 0,
+            "prep": "clahe",
+            "clahe": true
+          }
+        },
+        "warnings": [],
+        "elapsed_ms": 4596.3
+      },
+      {
+        "file": "Water+meter.jpg",
+        "reading": "05715",
+        "gt": "05715",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.8735,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 0,
+            "prep": "orig",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
+        ],
+        "elapsed_ms": 5105.6
+      }
+    ],
+    "M5_flip_guard": [
+      {
+        "file": "bangkok-thailand-december-water-meters-measure-volume-used-residential-commercial-building-units-supplied-212500741.jpg",
+        "reading": "33858",
+        "gt": "33858",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.8165,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 90,
+            "prep": "orig",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "อาจกลับหัว! หมุน 180° ได้ 85833 (0.83) — ตรวจภาพก่อนบันทึก"
+        ],
+        "elapsed_ms": 5112.0
       },
       {
         "file": "detail-dirty-old-water-meter-clock-shows-water-consumption-old-water-meter-100126239.jpg",
@@ -670,7 +866,7 @@
           "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
           "อาจกลับหัว! หมุน 180° ได้ 82610 (0.90) — ตรวจภาพก่อนบันทึก"
         ],
-        "elapsed_ms": 5310.4
+        "elapsed_ms": 5265.7
       },
       {
         "file": "images (5).jpg",
@@ -690,7 +886,7 @@
         "warnings": [
           "อาจกลับหัว! หมุน 180° ได้ 12934 (0.75) — ตรวจภาพก่อนบันทึก"
         ],
-        "elapsed_ms": 5515.5
+        "elapsed_ms": 5549.7
       },
       {
         "file": "IMG_7163.jpeg",
@@ -711,7 +907,7 @@
           "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
           "อาจกลับหัว! หมุน 180° ได้ 418320 (0.85) — ตรวจภาพก่อนบันทึก"
         ],
-        "elapsed_ms": 5965.5
+        "elapsed_ms": 5983.8
       },
       {
         "file": "old-water-meter-2PGM332.jpg",
@@ -732,7 +928,7 @@
           "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
           "อาจกลับหัว! หมุน 180° ได้ 28810 (0.88) — ตรวจภาพก่อนบันทึก"
         ],
-        "elapsed_ms": 5549.2
+        "elapsed_ms": 5610.1
       },
       {
         "file": "old-water-meter-show-detail-dirty-old-water-meter-clock-bangkok-thailand-december-water-meters-measure-volume-water-used-212500777.jpg",
@@ -752,7 +948,7 @@
         "warnings": [
           "อาจกลับหัว! หมุน 180° ได้ 85833 (0.84) — ตรวจภาพก่อนบันทึก"
         ],
-        "elapsed_ms": 5222.5
+        "elapsed_ms": 5187.7
       },
       {
         "file": "Water+meter.jpg",
@@ -773,7 +969,299 @@
           "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
           "อาจกลับหัว! หมุน 180° ได้ 51750 (0.86) — ตรวจภาพก่อนบันทึก"
         ],
-        "elapsed_ms": 5820.0
+        "elapsed_ms": 6341.3
+      }
+    ],
+    "M6_cross_check": [
+      {
+        "file": "bangkok-thailand-december-water-meters-measure-volume-used-residential-commercial-building-units-supplied-212500741.jpg",
+        "reading": "33858",
+        "gt": "33858",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.8165,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 90,
+            "prep": "orig",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "อาจกลับหัว! หมุน 180° ได้ 85833 (0.83) — ตรวจภาพก่อนบันทึก"
+        ],
+        "elapsed_ms": 5810.5
+      },
+      {
+        "file": "detail-dirty-old-water-meter-clock-shows-water-consumption-old-water-meter-100126239.jpg",
+        "reading": "01628",
+        "gt": "01628",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.891,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 0,
+            "prep": "histeq",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
+          "อาจกลับหัว! หมุน 180° ได้ 82610 (0.90) — ตรวจภาพก่อนบันทึก"
+        ],
+        "elapsed_ms": 6049.2
+      },
+      {
+        "file": "images (5).jpg",
+        "reading": "43920",
+        "gt": "43920",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.8216,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 0,
+            "prep": "histeq",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "อาจกลับหัว! หมุน 180° ได้ 12934 (0.75) — ตรวจภาพก่อนบันทึก"
+        ],
+        "elapsed_ms": 5755.7
+      },
+      {
+        "file": "IMG_7163.jpeg",
+        "reading": "023814",
+        "gt": "023814",
+        "exact": true,
+        "num_digits": 6,
+        "mean_confidence": 0.8848,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 270,
+            "prep": "orig",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
+          "อาจกลับหัว! หมุน 180° ได้ 418320 (0.85) — ตรวจภาพก่อนบันทึก"
+        ],
+        "elapsed_ms": 5659.3
+      },
+      {
+        "file": "old-water-meter-2PGM332.jpg",
+        "reading": "01882",
+        "gt": "01882",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.89,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 270,
+            "prep": "histeq",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
+          "อาจกลับหัว! หมุน 180° ได้ 28810 (0.88) — ตรวจภาพก่อนบันทึก"
+        ],
+        "elapsed_ms": 5631.4
+      },
+      {
+        "file": "old-water-meter-show-detail-dirty-old-water-meter-clock-bangkok-thailand-december-water-meters-measure-volume-water-used-212500777.jpg",
+        "reading": "33858",
+        "gt": "33858",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.8512,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 0,
+            "prep": "clahe",
+            "clahe": true
+          }
+        },
+        "warnings": [
+          "อาจกลับหัว! หมุน 180° ได้ 85833 (0.84) — ตรวจภาพก่อนบันทึก"
+        ],
+        "elapsed_ms": 5072.9
+      },
+      {
+        "file": "Water+meter.jpg",
+        "reading": "05715",
+        "gt": "05715",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.8735,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 0,
+            "prep": "orig",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
+          "อาจกลับหัว! หมุน 180° ได้ 51750 (0.86) — ตรวจภาพก่อนบันทึก"
+        ],
+        "elapsed_ms": 5673.7
+      }
+    ],
+    "M7_full_pipeline": [
+      {
+        "file": "bangkok-thailand-december-water-meters-measure-volume-used-residential-commercial-building-units-supplied-212500741.jpg",
+        "reading": "33858",
+        "gt": "33858",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.8165,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 90,
+            "prep": "orig",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "อาจกลับหัว! หมุน 180° ได้ 85833 (0.83) — ตรวจภาพก่อนบันทึก"
+        ],
+        "elapsed_ms": 6237.9
+      },
+      {
+        "file": "detail-dirty-old-water-meter-clock-shows-water-consumption-old-water-meter-100126239.jpg",
+        "reading": "01628",
+        "gt": "01628",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.891,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 0,
+            "prep": "histeq",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
+          "อาจกลับหัว! หมุน 180° ได้ 82610 (0.90) — ตรวจภาพก่อนบันทึก"
+        ],
+        "elapsed_ms": 5337.8
+      },
+      {
+        "file": "images (5).jpg",
+        "reading": "43920",
+        "gt": "43920",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.8216,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 0,
+            "prep": "histeq",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "อาจกลับหัว! หมุน 180° ได้ 12934 (0.75) — ตรวจภาพก่อนบันทึก"
+        ],
+        "elapsed_ms": 5839.6
+      },
+      {
+        "file": "IMG_7163.jpeg",
+        "reading": "023814",
+        "gt": "023814",
+        "exact": true,
+        "num_digits": 6,
+        "mean_confidence": 0.8848,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 270,
+            "prep": "orig",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
+          "อาจกลับหัว! หมุน 180° ได้ 418320 (0.85) — ตรวจภาพก่อนบันทึก"
+        ],
+        "elapsed_ms": 6207.7
+      },
+      {
+        "file": "old-water-meter-2PGM332.jpg",
+        "reading": "01882",
+        "gt": "01882",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.89,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 270,
+            "prep": "histeq",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
+          "อาจกลับหัว! หมุน 180° ได้ 28810 (0.88) — ตรวจภาพก่อนบันทึก"
+        ],
+        "elapsed_ms": 5854.8
+      },
+      {
+        "file": "old-water-meter-show-detail-dirty-old-water-meter-clock-bangkok-thailand-december-water-meters-measure-volume-water-used-212500777.jpg",
+        "reading": "33858",
+        "gt": "33858",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.8512,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 0,
+            "prep": "clahe",
+            "clahe": true
+          }
+        },
+        "warnings": [
+          "อาจกลับหัว! หมุน 180° ได้ 85833 (0.84) — ตรวจภาพก่อนบันทึก"
+        ],
+        "elapsed_ms": 5386.3
+      },
+      {
+        "file": "Water+meter.jpg",
+        "reading": "05715",
+        "gt": "05715",
+        "exact": true,
+        "num_digits": 5,
+        "mean_confidence": 0.8735,
+        "verified": true,
+        "processing": {
+          "best": {
+            "angle": 0,
+            "prep": "orig",
+            "clahe": false
+          }
+        },
+        "warnings": [
+          "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
+          "อาจกลับหัว! หมุน 180° ได้ 51750 (0.86) — ตรวจภาพก่อนบันทึก"
+        ],
+        "elapsed_ms": 5937.4
       }
     ]
   },

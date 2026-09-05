@@ -24,49 +24,131 @@ from pathlib import Path
 from PIL import Image
 import numpy as np
 
+def wilson_score_interval(k: int, n: int, z: float = 1.95996) -> tuple[float, float]:
+    """Computes Wilson Score Interval (default 95% confidence, z=1.96)."""
+    if n <= 0:
+        return (0.0, 0.0)
+    p = k / n
+    denom = 1.0 + (z**2) / n
+    center = (p + (z**2) / (2 * n)) / denom
+    margin = (z * ((p * (1.0 - p) / n + (z**2) / (4 * (n**2))) ** 0.5)) / denom
+    return (max(0.0, center - margin), min(1.0, center + margin))
+
+
 def patch_main_for_mode(mode: str):
-    """Monkey-patch main.py globals for ablation. Returns restore fn."""
+    """Monkey-patch main.py globals for ablation. Returns restore fn.
+    Supports 8 progressive ablation modes (M0 to M7) + legacy modes.
+    """
     import main as m
     orig = {
         "ROTATION_ANGLES": m.ROTATION_ANGLES,
         "PREP_LIST": m.PREP_LIST,
         "is_vertical": m.is_vertical,
         "red_ratio": m.red_ratio,
-        "eval_orientation": m.eval_orientation,
+        "flip_guard": m.flip_guard,
+        "cross_check_digits": m.cross_check_digits,
+        "check_water_meter": m.check_water_meter,
     }
-    # Helper: no-op is_vertical
+
     def is_vertical_noop(dets, img_w, img_h):
         return {"vertical": False}
 
-    # Helper: red_ratio zero → no bonus (both r_first/r_last = 0)
     def red_ratio_zero(img_bgr, bbox):
         return 0.0
 
-    if mode == "single-orig":
+    def flip_guard_noop(rgb_img, digits, meta):
+        return {"warned": False, "anti_reading": "", "anti_confidence": 0.0}
+
+    def cross_check_noop(rgb_img, digits, h, w, angle=0):
+        return []
+
+    def check_water_meter_noop(rgb_img):
+        return {"verified": True, "predicted_class": "water meter", "confidence": 1.0}
+
+    # Reset all to no-op baseline first if in progressive mode
+    if mode in {"M0_baseline", "single-orig"}:
         m.ROTATION_ANGLES = (0,)
         m.PREP_LIST = ("orig",)
-    elif mode == "rotate-4":
-        m.ROTATION_ANGLES = (0,90,180,270)
+        m.is_vertical = is_vertical_noop
+        m.red_ratio = red_ratio_zero
+        m.flip_guard = flip_guard_noop
+        m.cross_check_digits = cross_check_noop
+        m.check_water_meter = check_water_meter_noop
+    elif mode in {"M1_rotate", "rotate-4"}:
+        m.ROTATION_ANGLES = (0, 90, 180, 270)
         m.PREP_LIST = ("orig",)
-    elif mode == "full-12":
-        m.ROTATION_ANGLES = (0,90,180,270)
-        m.PREP_LIST = ("orig","clahe","histeq")
+        m.is_vertical = is_vertical_noop
+        m.red_ratio = red_ratio_zero
+        m.flip_guard = flip_guard_noop
+        m.cross_check_digits = cross_check_noop
+        m.check_water_meter = check_water_meter_noop
+    elif mode == "M2_prep":
+        m.ROTATION_ANGLES = (0, 90, 180, 270)
+        m.PREP_LIST = ("orig", "clahe", "histeq")
+        m.is_vertical = is_vertical_noop
+        m.red_ratio = red_ratio_zero
+        m.flip_guard = flip_guard_noop
+        m.cross_check_digits = cross_check_noop
+        m.check_water_meter = check_water_meter_noop
+    elif mode == "M3_is_vertical":
+        m.ROTATION_ANGLES = (0, 90, 180, 270)
+        m.PREP_LIST = ("orig", "clahe", "histeq")
+        m.is_vertical = orig["is_vertical"]
+        m.red_ratio = red_ratio_zero
+        m.flip_guard = flip_guard_noop
+        m.cross_check_digits = cross_check_noop
+        m.check_water_meter = check_water_meter_noop
+    elif mode == "M4_red_ratio":
+        m.ROTATION_ANGLES = (0, 90, 180, 270)
+        m.PREP_LIST = ("orig", "clahe", "histeq")
+        m.is_vertical = orig["is_vertical"]
+        m.red_ratio = orig["red_ratio"]
+        m.flip_guard = flip_guard_noop
+        m.cross_check_digits = cross_check_noop
+        m.check_water_meter = check_water_meter_noop
+    elif mode == "M5_flip_guard":
+        m.ROTATION_ANGLES = (0, 90, 180, 270)
+        m.PREP_LIST = ("orig", "clahe", "histeq")
+        m.is_vertical = orig["is_vertical"]
+        m.red_ratio = orig["red_ratio"]
+        m.flip_guard = orig["flip_guard"]
+        m.cross_check_digits = cross_check_noop
+        m.check_water_meter = check_water_meter_noop
+    elif mode == "M6_cross_check":
+        m.ROTATION_ANGLES = (0, 90, 180, 270)
+        m.PREP_LIST = ("orig", "clahe", "histeq")
+        m.is_vertical = orig["is_vertical"]
+        m.red_ratio = orig["red_ratio"]
+        m.flip_guard = orig["flip_guard"]
+        m.cross_check_digits = orig["cross_check_digits"]
+        m.check_water_meter = check_water_meter_noop
+    elif mode in {"M7_full_pipeline", "full-12"}:
+        m.ROTATION_ANGLES = orig["ROTATION_ANGLES"]
+        m.PREP_LIST = orig["PREP_LIST"]
+        m.is_vertical = orig["is_vertical"]
+        m.red_ratio = orig["red_ratio"]
+        m.flip_guard = orig["flip_guard"]
+        m.cross_check_digits = orig["cross_check_digits"]
+        m.check_water_meter = orig["check_water_meter"]
     elif mode == "no-is-vertical":
-        m.ROTATION_ANGLES = (0,90,180,270)
-        m.PREP_LIST = ("orig","clahe","histeq")
+        m.ROTATION_ANGLES = (0, 90, 180, 270)
+        m.PREP_LIST = ("orig", "clahe", "histeq")
         m.is_vertical = is_vertical_noop
     elif mode == "no-red-bonus":
-        m.ROTATION_ANGLES = (0,90,180,270)
-        m.PREP_LIST = ("orig","clahe","histeq")
+        m.ROTATION_ANGLES = (0, 90, 180, 270)
+        m.PREP_LIST = ("orig", "clahe", "histeq")
         m.red_ratio = red_ratio_zero
     else:
-        raise ValueError(mode)
+        raise ValueError(f"Unknown mode: {mode}")
 
     def restore():
         m.ROTATION_ANGLES = orig["ROTATION_ANGLES"]
         m.PREP_LIST = orig["PREP_LIST"]
         m.is_vertical = orig["is_vertical"]
         m.red_ratio = orig["red_ratio"]
+        m.flip_guard = orig["flip_guard"]
+        m.cross_check_digits = orig["cross_check_digits"]
+        m.check_water_meter = orig["check_water_meter"]
 
     return restore
 
@@ -137,10 +219,12 @@ def run_one_mode(mode: str, image_dir: Path, gt: dict, limit: int | None, show_p
         verified = sum(1 for r in results if r["verified"])
         avg_conf = sum(r["mean_confidence"] for r in results if r["mean_confidence"] is not None) / max(1, sum(1 for r in results if r["mean_confidence"] is not None)) if results else 0
         avg_lat = sum(r["elapsed_ms"] for r in results)/total if total else 0
+        succ_ci = wilson_score_interval(success, total) if total else (0.0, 0.0)
         summary = {
             "mode": mode,
             "total": total,
             "success_rate": round(success/total*100,1) if total else 0,
+            "success_ci95": [round(succ_ci[0]*100, 1), round(succ_ci[1]*100, 1)],
             "verified_rate": round(verified/total*100,1) if total else 0,
             "avg_mean_conf": round(avg_conf,3) if results else None,
             "avg_latency_ms": round(avg_lat,1) if results else None,
@@ -148,20 +232,27 @@ def run_one_mode(mode: str, image_dir: Path, gt: dict, limit: int | None, show_p
         if gt:
             exact_total = sum(1 for r in results if r["gt"] is not None)
             exact_ok = sum(1 for r in results if r["exact"] is True)
+            exact_ci = wilson_score_interval(exact_ok, exact_total) if exact_total else (0.0, 0.0)
             summary["exact_reading_accuracy"] = round(exact_ok/exact_total*100,1) if exact_total else None
+            summary["exact_ci95"] = [round(exact_ci[0]*100, 1), round(exact_ci[1]*100, 1)]
             summary["exact_n"] = f"{exact_ok}/{exact_total}"
         return {"mode": mode, "results": results, "summary": summary}
     finally:
         restore()
 
 def main():
-    ap = argparse.ArgumentParser(description="Ablation for OpenCV parts (TUTORIAL.md 1.7 / 3.4.3)")
+    ap = argparse.ArgumentParser(description="8-Stage Progressive Ablation for Meter Reader Pipeline (TUTORIAL.md 3.4.6)")
     ap.add_argument("--dir", type=str, default="meter_img", help="image folder")
     ap.add_argument("--limit", type=int, default=None, help="limit images per mode")
     ap.add_argument("--gt", type=str, default=None, help="ground truth CSV with columns file,reading (optional for Exact Accuracy)")
     ap.add_argument("--out", type=str, default="reviews/ablation.json", help="output JSON")
     ap.add_argument("--csv", type=str, default="reviews/ablation.csv", help="output CSV")
-    ap.add_argument("--modes", nargs="*", default=["single-orig","rotate-4","full-12","no-is-vertical","no-red-bonus"], help="modes to compare")
+    ap.add_argument(
+        "--modes",
+        nargs="*",
+        default=["M0_baseline", "M1_rotate", "M2_prep", "M3_is_vertical", "M4_red_ratio", "M5_flip_guard", "M6_cross_check", "M7_full_pipeline"],
+        help="modes to compare (M0_baseline..M7_full_pipeline or legacy single-orig..full-12)"
+    )
     ap.add_argument("--no-progress", action="store_true")
     args = ap.parse_args()
 
