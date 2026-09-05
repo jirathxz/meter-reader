@@ -1,6 +1,7 @@
 # Meter Reader — ระบบอ่านค่ามาตรวัดน้ำอัตโนมัติด้วยปัญญาประดิษฐ์ (Automated Water Meter Reading System)
 
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 [![Version v2.14](https://img.shields.io/badge/Release-v2.14-blue.svg)](https://github.com/jirathxz/meter-reader/releases/tag/v2.14)
 [![YOLO26m](https://img.shields.io/badge/Detector-YOLO26m-00FFFF.svg)](https://docs.ultralytics.com/)
 [![SigLIP2](https://img.shields.io/badge/Zero--shot-SigLIP2--Base-4285F4.svg)](https://huggingface.co/google/siglip2-base-patch16-224)
@@ -72,6 +73,7 @@ meter-reader/
 ├── eval_yolo_metrics.py        # สคริปต์ประเมินประสิทธิภาพตัวตรวจจับ YOLO26m บน Held-out Test Split
 ├── meter_dataset.yaml          # ไฟล์คอนฟิกูเรชันชุดข้อมูลสำหรับ Ultralytics YOLO
 ├── requirements.txt            # รายการไลบรารีและแพ็กเกจที่ต้องติดตั้ง
+├── LICENSE                     # สัญญาอนุญาตการใช้งานซอฟต์แวร์ (GNU AGPLv3)
 ├── TUTORIAL.md                 # คู่มือฉบับเต็มภาษาไทยตามมาตรฐานงานวิจัยเชิงประจักษ์ (v2.14)
 ├── meter_img/                  # ชุดภาพตัวอย่างสาธิตมาตรวัดน้ำ (Demo Set, n=7)
 │   └── ground_truth.csv        # ค่าเฉลยตัวเลขของชุดภาพสาธิต
@@ -244,7 +246,9 @@ uv run python eval_yolo_metrics.py
 
 ## 📜 ลิขสิทธิ์และการใช้งาน (License)
 
-* โครงสร้างซอฟต์แวร์และโค้ดต้นฉบับในโปรเจกต์นี้เผยแพร่ภายใต้สัญญาอนุญาตตามข้อกำหนดของไลบรารีที่ใช้งาน:
-  * Ultralytics YOLO: AGPL-3.0 (Open Source) หรือ Commercial License
-  * SigLIP2 (Google): Apache License 2.0
-  * FastAPI & Gradio: MIT / Apache License
+โปรเจกต์นี้เผยแพร่ภายใต้สัญญาอนุญาต **GNU Affero General Public License v3.0 (AGPL-3.0)** ดูรายละเอียดฉบับเต็มได้ที่ไฟล์ [LICENSE](file:///d:/_Work/Guidebook-RE/meter-reader/LICENSE)
+
+* **ความเข้ากันได้กับไลบรารีภายนอก:**
+  * **Ultralytics YOLO:** AGPL-3.0 (สอดคล้องตามข้อกำหนดของ Ultralytics)
+  * **SigLIP2 (Google):** Apache License 2.0 (เข้ากันได้กับ AGPLv3)
+  * **FastAPI & Gradio:** MIT / Apache License 2.0 (เข้ากันได้กับ AGPLv3)
