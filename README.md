@@ -132,7 +132,7 @@ uv run python gradio_app.py
 
 ### ตัวอย่างการทดสอบส่งภาพผ่าน cURL:
 ```powershell
-curl.exe -X POST http://127.0.0.1:8000/api/read-meter -F "file=@meter_img/Water+meter.jpg"
+curl.exe -X POST http://127.0.0.1:8000/api/read-meter -F "file=@meter_img/meter_sample_07.jpg"
 ```
 
 ---
