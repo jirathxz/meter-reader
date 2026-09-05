@@ -1,7 +1,7 @@
 """
 main.py — ระบบอ่านเลขมิเตอร์น้ำอัตโนมัติ (Automated Water Meter Reader v1.1)
 Functional Pipeline ล้วน — จัดระเบียบบรรทัดให้อ่านง่าย สบายตา และเข้าใจได้ทีละขั้นตอน
-รัน API: python main.py → http://127.0.0.1:8000/docs
+รัน API: python main.py เปิดเอกสารได้ที่ http://127.0.0.1:8000/docs
 """
 from __future__ import annotations
 

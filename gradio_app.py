@@ -108,7 +108,7 @@ def predict(image: Image.Image | None):
     mc = data["meter_check"]
     check_line = (f"✅ มิเตอร์น้ำ ({mc['confidence']:.0%})"
                   if mc["verified"] else
-                  f"❌ ไม่ใช่มิเตอร์น้ำ → จำแนกว่า {mc['predicted_class']} ({mc['confidence']:.0%})")
+                  f"❌ ไม่ใช่มิเตอร์น้ำ: จำแนกเป็น {mc['predicted_class']} ({mc['confidence']:.0%})")
 
     if best is None: variant = "—"
     elif prep == "histeq": variant = f"มุม {best['angle']}° + HistEq"
@@ -134,7 +134,7 @@ with gr.Blocks(title="Meter Reader - อ่านค่ามิเตอร์�
     gr.Markdown(
         """
 # 🚰 Meter Reader — ระบบอ่านเลขมิเตอร์น้ำอัตโนมัติ
-อัปโหลดภาพหน้าปัดมิเตอร์ → ระบบคัดแยกและอ่านตัวเลขแต่ละหลักอัตโนมัติ
+อัปโหลดภาพหน้าปัดมิเตอร์ เพื่อให้ระบบคัดแยกและอ่านตัวเลขแต่ละหลักอัตโนมัติ
         """
     )
     status = gr.Markdown()
