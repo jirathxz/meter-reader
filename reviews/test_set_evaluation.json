@@ -1,0 +1,1345 @@
+{
+  "summary": {
+    "dataset": "Roboflow Held-out Test Split",
+    "sample_size_n": 120,
+    "total_ground_truth_digits": 941,
+    "exact_reading_accuracy": {
+      "percentage": 67.5,
+      "correct": 81,
+      "total": 120,
+      "wilson_95_ci": [
+        58.7,
+        75.2
+      ]
+    },
+    "digit_level_accuracy": {
+      "percentage": 90.44,
+      "correct": 851,
+      "total": 941,
+      "wilson_95_ci": [
+        88.4,
+        92.2
+      ]
+    },
+    "digit_error_rate_der": 0.0733,
+    "mean_model_confidence": 0.8566,
+    "latency_profiling_ms": {
+      "average_ms": 533.2,
+      "min_ms": 490.2,
+      "max_ms": 661.0,
+      "total_elapsed_s": 64.26
+    },
+    "failure_taxonomy_summary": {
+      "total_failures": 39,
+      "sample_failure_cases": [
+        {
+          "file": "0b61cbb2-id_802_value_10_886_jpg.rf.2834456b2e3a0b3e064587b673a42772.jpg",
+          "gt": "000108865",
+          "pred": "000108863",
+          "reason": "Character misclassification",
+          "mean_conf": 0.8726
+        },
+        {
+          "file": "0bf86f8b-108536-closeup-191212_foto-1_jpg.rf.8bc4754e596d6e51093a229d932b4eca.jpg",
+          "gt": "00000155",
+          "pred": "00000165",
+          "reason": "Character misclassification",
+          "mean_conf": 0.7989
+        },
+        {
+          "file": "0cf29796-164016-closeup-Foto_29-03-2022_11-33-38_jpg.rf.f8fe6f907d52a43f0ddc7370d9da852d.jpg",
+          "gt": "00764880",
+          "pred": "00768780",
+          "reason": "Character misclassification",
+          "mean_conf": 0.8468
+        },
+        {
+          "file": "0d615096-46891-closeup-1017_-_gas_meter_-_serial_no_5254976_-_2018-08-03_jpg.rf.b56ac83f593126b58106d1053cea91d1.jpg",
+          "gt": "47186580",
+          "pred": "47186590",
+          "reason": "Character misclassification",
+          "mean_conf": 0.7888
+        },
+        {
+          "file": "0d709e9f-103463-closeup-Photo_12-11-2019_11-50-13_jpg.rf.d1941d44080c567abc69a458a0e96584.jpg",
+          "gt": "9052503",
+          "pred": "09052503",
+          "reason": "Extra digits / Artifact",
+          "mean_conf": 0.8857
+        },
+        {
+          "file": "0dee9fbd-id_35_value_469_334_jpg.rf.54b6ac753d2b06de4dbfcb1c1c6c723e.jpg",
+          "gt": "0469334",
+          "pred": "04693343",
+          "reason": "Extra digits / Artifact",
+          "mean_conf": 0.8609
+        },
+        {
+          "file": "0e5cbe7e-73374-closeup-IMG_9953_jpg.rf.cb8dbd4e787be00b59d01d174166a99d.jpg",
+          "gt": "50002622",
+          "pred": "5000226",
+          "reason": "Missing digits",
+          "mean_conf": 0.8962
+        },
+        {
+          "file": "0eaedf12-113483-closeup-20200624_143416_jpg.rf.c664d3612884b3c5cc96979332a80885.jpg",
+          "gt": "3892300",
+          "pred": "8393200",
+          "reason": "Character misclassification",
+          "mean_conf": 0.8954
+        },
+        {
+          "file": "0eb878b8-104101-closeup-191120_meterstand_jpg.rf.5b5ffb4fa03da138d5621041fa4ba343.jpg",
+          "gt": "21787876",
+          "pred": "21787879",
+          "reason": "Character misclassification",
+          "mean_conf": 0.8632
+        },
+        {
+          "file": "0ff74b06-5405-closeup-Foto_17_08_2021_09_12_40_1_jpg.rf.10771ed95e60052dcdc7b3db15123ed3.jpg",
+          "gt": "00001852",
+          "pred": "00001952",
+          "reason": "Character misclassification",
+          "mean_conf": 0.8789
+        },
+        {
+          "file": "10097a38-images_jpg.rf.69ba14d0996339082c4474acc887486d.jpg",
+          "gt": "00006065",
+          "pred": "0015",
+          "reason": "Missing digits",
+          "mean_conf": 0.8147
+        },
+        {
+          "file": "10fb5206-113924-closeup-IMG_2982_jpg.rf.4a6ce0a75f3e7a8a9694a4d67c13cc63.jpg",
+          "gt": "0000283",
+          "pred": "000028",
+          "reason": "Missing digits",
+          "mean_conf": 0.8819
+        },
+        {
+          "file": "110fd0bc-136456-closeup-Photo_29-04-2021_10-56-05_jpg.rf.c59a9c32ec5b9720a7c631b4f27a6d4b.jpg",
+          "gt": "0095697",
+          "pred": "00956976",
+          "reason": "Extra digits / Artifact",
+          "mean_conf": 0.8593
+        },
+        {
+          "file": "112c0e1e-117984-closeup-WhatsApp_Image_2022-06-07_at_3-16-04_PM_jpg.rf.7c946e20f716dea904d988fc61848e8b.jpg",
+          "gt": "06150804",
+          "pred": "0615080",
+          "reason": "Missing digits",
+          "mean_conf": 0.903
+        },
+        {
+          "file": "1141f215-metric_and_imperial_gas_meters_jpg.rf.c84917e24a636bca785b4b6885c6c942.jpg",
+          "gt": "00001281386800",
+          "pred": "000012813868",
+          "reason": "Missing digits",
+          "mean_conf": 0.8736
+        }
+      ]
+    }
+  },
+  "per_image_results": [
+    {
+      "file": "0b00a868-pulsgever-voor-gasmeter-elster-en-actaris_jpg.rf.ba9dc908d94f96e75eb47d4f84d8d9a1.jpg",
+      "gt": "00967459",
+      "pred": "00967459",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8697,
+      "latency_ms": 629.9,
+      "edit_dist": 0
+    },
+    {
+      "file": "0b61cbb2-id_802_value_10_886_jpg.rf.2834456b2e3a0b3e064587b673a42772.jpg",
+      "gt": "000108865",
+      "pred": "000108863",
+      "exact": false,
+      "digit_accuracy": 0.8889,
+      "mean_conf": 0.8726,
+      "latency_ms": 533.4,
+      "edit_dist": 1
+    },
+    {
+      "file": "0b7b207a-id_946_value_809_0_jpg.rf.bae95013e73ce964c7e1044785a4040d.jpg",
+      "gt": "00809",
+      "pred": "00809",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8725,
+      "latency_ms": 554.1,
+      "edit_dist": 0
+    },
+    {
+      "file": "0b8a3d2d-65248-closeup-IMG_20180702_155551_jpg.rf.453e7b518990f96e961d953f918fbfb0.jpg",
+      "gt": "08066134",
+      "pred": "08066134",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8804,
+      "latency_ms": 557.2,
+      "edit_dist": 0
+    },
+    {
+      "file": "0bbce8f7-29396-closeup-IMG_20170927_085451_jpg.rf.4736d6ff82de89876283f5667e75bb30.jpg",
+      "gt": "21235141",
+      "pred": "21235141",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8029,
+      "latency_ms": 553.1,
+      "edit_dist": 0
+    },
+    {
+      "file": "0bf86f8b-108536-closeup-191212_foto-1_jpg.rf.8bc4754e596d6e51093a229d932b4eca.jpg",
+      "gt": "00000155",
+      "pred": "00000165",
+      "exact": false,
+      "digit_accuracy": 0.875,
+      "mean_conf": 0.7989,
+      "latency_ms": 552.1,
+      "edit_dist": 1
+    },
+    {
+      "file": "0cc3fc68-id_1182_value_268_903_jpg.rf.f30f0db73dfeaa68590be98589b3653e.jpg",
+      "gt": "00268903",
+      "pred": "00268903",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8489,
+      "latency_ms": 536.5,
+      "edit_dist": 0
+    },
+    {
+      "file": "0cf29796-164016-closeup-Foto_29-03-2022_11-33-38_jpg.rf.f8fe6f907d52a43f0ddc7370d9da852d.jpg",
+      "gt": "00764880",
+      "pred": "00768780",
+      "exact": false,
+      "digit_accuracy": 0.75,
+      "mean_conf": 0.8468,
+      "latency_ms": 546.1,
+      "edit_dist": 2
+    },
+    {
+      "file": "0d27bd24-id_952_value_493_437_jpg.rf.86d510cc4cdec9dacaba4df7e0606905.jpg",
+      "gt": "00493437",
+      "pred": "00493437",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8694,
+      "latency_ms": 541.2,
+      "edit_dist": 0
+    },
+    {
+      "file": "0d615096-46891-closeup-1017_-_gas_meter_-_serial_no_5254976_-_2018-08-03_jpg.rf.b56ac83f593126b58106d1053cea91d1.jpg",
+      "gt": "47186580",
+      "pred": "47186590",
+      "exact": false,
+      "digit_accuracy": 0.875,
+      "mean_conf": 0.7888,
+      "latency_ms": 515.2,
+      "edit_dist": 1
+    },
+    {
+      "file": "0d709e9f-103463-closeup-Photo_12-11-2019_11-50-13_jpg.rf.d1941d44080c567abc69a458a0e96584.jpg",
+      "gt": "9052503",
+      "pred": "09052503",
+      "exact": false,
+      "digit_accuracy": 0.0,
+      "mean_conf": 0.8857,
+      "latency_ms": 524.4,
+      "edit_dist": 1
+    },
+    {
+      "file": "0dee9fbd-id_35_value_469_334_jpg.rf.54b6ac753d2b06de4dbfcb1c1c6c723e.jpg",
+      "gt": "0469334",
+      "pred": "04693343",
+      "exact": false,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8609,
+      "latency_ms": 556.0,
+      "edit_dist": 1
+    },
+    {
+      "file": "0e07981c-id_1144_value_590_053_jpg.rf.8c22fd936b39cef665eb32dd6e0d375a.jpg",
+      "gt": "00590053",
+      "pred": "00590053",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8642,
+      "latency_ms": 541.8,
+      "edit_dist": 0
+    },
+    {
+      "file": "0e080318-id_1047_value_84_705_jpg.rf.a00546b88e45a5ef4698fd12e9b2af9e.jpg",
+      "gt": "00084705",
+      "pred": "00084705",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8809,
+      "latency_ms": 549.1,
+      "edit_dist": 0
+    },
+    {
+      "file": "0e220185-id_386_value_563_182_jpg.rf.438ff853ea4ab03682c5da16149c62d7.jpg",
+      "gt": "00563182",
+      "pred": "00563182",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8883,
+      "latency_ms": 549.7,
+      "edit_dist": 0
+    },
+    {
+      "file": "0e41b823-id_182_value_542_723_jpg.rf.7c1e79923f4072587858a57b2480dc38.jpg",
+      "gt": "00542723",
+      "pred": "00542723",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8853,
+      "latency_ms": 517.7,
+      "edit_dist": 0
+    },
+    {
+      "file": "0e487673-id_1137_value_704_175_jpg.rf.0f7ec392c779c8be6d7f0435571207d1.jpg",
+      "gt": "00704175",
+      "pred": "00704175",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8263,
+      "latency_ms": 518.5,
+      "edit_dist": 0
+    },
+    {
+      "file": "0e56fe31-87148-closeup-Photo_29-10-2020_16-43-54_jpg.rf.63b3995c9284599ddb1ffd107b123cad.jpg",
+      "gt": "0077050",
+      "pred": "0077050",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8759,
+      "latency_ms": 523.4,
+      "edit_dist": 0
+    },
+    {
+      "file": "0e5cbe7e-73374-closeup-IMG_9953_jpg.rf.cb8dbd4e787be00b59d01d174166a99d.jpg",
+      "gt": "50002622",
+      "pred": "5000226",
+      "exact": false,
+      "digit_accuracy": 0.625,
+      "mean_conf": 0.8962,
+      "latency_ms": 518.9,
+      "edit_dist": 2
+    },
+    {
+      "file": "0e7d4d98-89436-closeup-Photo_01-10-2019_14-41-46_jpg.rf.9aa46eb2c36f67dcdffb5866046593cc.jpg",
+      "gt": "00000178",
+      "pred": "00000178",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8654,
+      "latency_ms": 524.7,
+      "edit_dist": 0
+    },
+    {
+      "file": "0e96db3a-136470-closeup-Photo_03-05-2021_14-01-25_jpg.rf.fb9a82231a3fceeb3343c6fac7f3564b.jpg",
+      "gt": "06374497",
+      "pred": "06374497",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8609,
+      "latency_ms": 523.5,
+      "edit_dist": 0
+    },
+    {
+      "file": "0ea687cf-id_211_value_165_954_jpg.rf.1185b8e54054319f9537b7a5c2e4c250.jpg",
+      "gt": "00165954",
+      "pred": "00165954",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8805,
+      "latency_ms": 529.7,
+      "edit_dist": 0
+    },
+    {
+      "file": "0eaedf12-113483-closeup-20200624_143416_jpg.rf.c664d3612884b3c5cc96979332a80885.jpg",
+      "gt": "3892300",
+      "pred": "8393200",
+      "exact": false,
+      "digit_accuracy": 0.4286,
+      "mean_conf": 0.8954,
+      "latency_ms": 523.1,
+      "edit_dist": 4
+    },
+    {
+      "file": "0eb878b8-104101-closeup-191120_meterstand_jpg.rf.5b5ffb4fa03da138d5621041fa4ba343.jpg",
+      "gt": "21787876",
+      "pred": "21787879",
+      "exact": false,
+      "digit_accuracy": 0.875,
+      "mean_conf": 0.8632,
+      "latency_ms": 504.8,
+      "edit_dist": 1
+    },
+    {
+      "file": "0efe4054-9545-closeup-Foto_2-01-2023_17-48-33_jpg.rf.30f4dfae3dce252f3616e5b17630d200.jpg",
+      "gt": "00486865",
+      "pred": "00486865",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8222,
+      "latency_ms": 503.6,
+      "edit_dist": 0
+    },
+    {
+      "file": "0f13d761-id_206_value_219_63_jpg.rf.c95fa3ce93d5206a849eeb382e691cf8.jpg",
+      "gt": "00219630",
+      "pred": "00219630",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8687,
+      "latency_ms": 504.6,
+      "edit_dist": 0
+    },
+    {
+      "file": "0f6c7274-id_996_value_19_0_jpg.rf.2c6e657f0bb6df5a10857c1fa2940db8.jpg",
+      "gt": "00019",
+      "pred": "00019",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8531,
+      "latency_ms": 513.2,
+      "edit_dist": 0
+    },
+    {
+      "file": "0f747ee6-88196-closeup-MicrosoftTeams-image_1_jpg.rf.48dc9a29a262e8c31d708fcab4dd308c.jpg",
+      "gt": "00302856",
+      "pred": "00302856",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8876,
+      "latency_ms": 515.7,
+      "edit_dist": 0
+    },
+    {
+      "file": "0f9a5d9d-id_1039_value_643_825_jpg.rf.9dd0b1416baa524c6a5d80c5e7c792ad.jpg",
+      "gt": "00643825",
+      "pred": "00643825",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8772,
+      "latency_ms": 629.8,
+      "edit_dist": 0
+    },
+    {
+      "file": "0f9cf6f7-id_202_value_493_084_jpg.rf.1a020e8e1d77b59570688811a14727a1.jpg",
+      "gt": "00493084",
+      "pred": "00493084",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8812,
+      "latency_ms": 505.5,
+      "edit_dist": 0
+    },
+    {
+      "file": "0ff681e6-21539-closeup-IMG_6571_jpg.rf.d0c9f6129cc794e7d838cb442d048256.jpg",
+      "gt": "17553272",
+      "pred": "17553272",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8223,
+      "latency_ms": 516.4,
+      "edit_dist": 0
+    },
+    {
+      "file": "0ff74b06-5405-closeup-Foto_17_08_2021_09_12_40_1_jpg.rf.10771ed95e60052dcdc7b3db15123ed3.jpg",
+      "gt": "00001852",
+      "pred": "00001952",
+      "exact": false,
+      "digit_accuracy": 0.875,
+      "mean_conf": 0.8789,
+      "latency_ms": 506.2,
+      "edit_dist": 1
+    },
+    {
+      "file": "10097a38-images_jpg.rf.69ba14d0996339082c4474acc887486d.jpg",
+      "gt": "00006065",
+      "pred": "0015",
+      "exact": false,
+      "digit_accuracy": 0.25,
+      "mean_conf": 0.8147,
+      "latency_ms": 490.2,
+      "edit_dist": 5
+    },
+    {
+      "file": "100e36ee-128070-closeup-Photo_28-01-2021_15-03-45_jpg.rf.e3fad7f52d379d4f2149cba7f7742aa8.jpg",
+      "gt": "00000",
+      "pred": "00000",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8659,
+      "latency_ms": 502.5,
+      "edit_dist": 0
+    },
+    {
+      "file": "10186b52-id_1243_value_13_474_jpg.rf.0c1361b77764b73636064e243002e1d9.jpg",
+      "gt": "00013474",
+      "pred": "00013474",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8831,
+      "latency_ms": 513.8,
+      "edit_dist": 0
+    },
+    {
+      "file": "10352877-id_350_value_120_97_jpg.rf.0a627d6dfeecce2002d4257551f63be0.jpg",
+      "gt": "00120970",
+      "pred": "00120970",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8462,
+      "latency_ms": 505.2,
+      "edit_dist": 0
+    },
+    {
+      "file": "1035c71b-28763-closeup-Photo_22-06-2021_14-38-04_jpg.rf.d6ddcd37cbd1d77b6af1ed8a141c1380.jpg",
+      "gt": "99121200",
+      "pred": "99121200",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8899,
+      "latency_ms": 512.8,
+      "edit_dist": 0
+    },
+    {
+      "file": "10547b5f-id_470_value_8_275_jpg.rf.a298bea4d88bb3380ca8e10623a1a39d.jpg",
+      "gt": "00008275",
+      "pred": "00008275",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8865,
+      "latency_ms": 514.8,
+      "edit_dist": 0
+    },
+    {
+      "file": "10b319e2-3714-closeup-IMG_1524_jpg.rf.e13d7a7b4d2b8ffbe7469a2023e7590d.jpg",
+      "gt": "06979031",
+      "pred": "06979031",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8857,
+      "latency_ms": 519.2,
+      "edit_dist": 0
+    },
+    {
+      "file": "10d67e45-id_441_value_250_461_jpg.rf.3c974ab89369f45a2554989fad589526.jpg",
+      "gt": "00250461",
+      "pred": "00250461",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8693,
+      "latency_ms": 501.4,
+      "edit_dist": 0
+    },
+    {
+      "file": "10e7f587-id_38_value_299_131_jpg.rf.f82bd71599b84e6a3c90ad053366cc73.jpg",
+      "gt": "00299131",
+      "pred": "00299131",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8189,
+      "latency_ms": 566.1,
+      "edit_dist": 0
+    },
+    {
+      "file": "10efeb48-id_1177_value_208_368_jpg.rf.2f8cd53b23119f8819e0d73c2dc88d0a.jpg",
+      "gt": "00208368",
+      "pred": "00208368",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8663,
+      "latency_ms": 503.4,
+      "edit_dist": 0
+    },
+    {
+      "file": "10fb5206-113924-closeup-IMG_2982_jpg.rf.4a6ce0a75f3e7a8a9694a4d67c13cc63.jpg",
+      "gt": "0000283",
+      "pred": "000028",
+      "exact": false,
+      "digit_accuracy": 0.8571,
+      "mean_conf": 0.8819,
+      "latency_ms": 512.6,
+      "edit_dist": 1
+    },
+    {
+      "file": "10fdd7fb-id_440_value_1081_309_jpg.rf.f9b73849d7a44295b77b6df91b5d8926.jpg",
+      "gt": "01081309",
+      "pred": "01081309",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.882,
+      "latency_ms": 506.2,
+      "edit_dist": 0
+    },
+    {
+      "file": "110bde0b-id_416_value_115_431_jpg.rf.ac9204b98d894a43f46cafc562f5ba10.jpg",
+      "gt": "00115431",
+      "pred": "00115431",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8825,
+      "latency_ms": 539.8,
+      "edit_dist": 0
+    },
+    {
+      "file": "110fd0bc-136456-closeup-Photo_29-04-2021_10-56-05_jpg.rf.c59a9c32ec5b9720a7c631b4f27a6d4b.jpg",
+      "gt": "0095697",
+      "pred": "00956976",
+      "exact": false,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8593,
+      "latency_ms": 515.2,
+      "edit_dist": 1
+    },
+    {
+      "file": "1124245c-139176-closeup-Photo_05-05-2021_09-52-35_jpg.rf.1aa5ab98e14427cc140d6346d66c638c.jpg",
+      "gt": "50274865",
+      "pred": "50274865",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8137,
+      "latency_ms": 514.7,
+      "edit_dist": 0
+    },
+    {
+      "file": "112c0e1e-117984-closeup-WhatsApp_Image_2022-06-07_at_3-16-04_PM_jpg.rf.7c946e20f716dea904d988fc61848e8b.jpg",
+      "gt": "06150804",
+      "pred": "0615080",
+      "exact": false,
+      "digit_accuracy": 0.875,
+      "mean_conf": 0.903,
+      "latency_ms": 501.7,
+      "edit_dist": 1
+    },
+    {
+      "file": "1141f215-metric_and_imperial_gas_meters_jpg.rf.c84917e24a636bca785b4b6885c6c942.jpg",
+      "gt": "00001281386800",
+      "pred": "000012813868",
+      "exact": false,
+      "digit_accuracy": 0.8571,
+      "mean_conf": 0.8736,
+      "latency_ms": 514.7,
+      "edit_dist": 2
+    },
+    {
+      "file": "11574f27-id_360_value_35_832_jpg.rf.9634b1a09615ca0313357cb77cd968b1.jpg",
+      "gt": "00035832",
+      "pred": "0003583020052",
+      "exact": false,
+      "digit_accuracy": 0.875,
+      "mean_conf": 0.7683,
+      "latency_ms": 505.5,
+      "edit_dist": 5
+    },
+    {
+      "file": "117320f5-145469-closeup-Photo_20-05-2021_13-44-11_jpg.rf.c0930ee187db64fa3f6a7e8bca1ec696.jpg",
+      "gt": "00000114",
+      "pred": "00000114",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8702,
+      "latency_ms": 621.4,
+      "edit_dist": 0
+    },
+    {
+      "file": "1173d8f4-153898-closeup-Photo_09-11-2021_13-40-22_jpg.rf.2d9e1de46a0146cfcc48b3b55145ebfb.jpg",
+      "gt": "0023800",
+      "pred": "0023800",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.9045,
+      "latency_ms": 548.5,
+      "edit_dist": 0
+    },
+    {
+      "file": "117ad1f0-id_1008_value_95_912_jpg.rf.872975c1a5361dcbb5598d97404ff098.jpg",
+      "gt": "00095912",
+      "pred": "00095912",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8663,
+      "latency_ms": 539.8,
+      "edit_dist": 0
+    },
+    {
+      "file": "1183ad77-60863-closeup-IMG_1186_jpg.rf.5aca18ab8bf928004c0c0928cab8a7e4.jpg",
+      "gt": "01703527",
+      "pred": "0170952",
+      "exact": false,
+      "digit_accuracy": 0.75,
+      "mean_conf": 0.7203,
+      "latency_ms": 545.5,
+      "edit_dist": 2
+    },
+    {
+      "file": "119fa6e6-146705-closeup-Photo_22-09-2021_09-53-13_jpg.rf.d54d3d5c2f992c499a8aa10df995d27e.jpg",
+      "gt": "30504863",
+      "pred": "30504863",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8699,
+      "latency_ms": 526.9,
+      "edit_dist": 0
+    },
+    {
+      "file": "11bbefa1-id_1236_value_209_114_jpg.rf.b90740a91a6abdca2c6ab2c02152f37e.jpg",
+      "gt": "00209114",
+      "pred": "002091145",
+      "exact": false,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8311,
+      "latency_ms": 541.9,
+      "edit_dist": 1
+    },
+    {
+      "file": "11c25875-id_1030_value_128_318_jpg.rf.74d3949a2ab856a30cb405c8e28d9b27.jpg",
+      "gt": "00128318",
+      "pred": "00128318",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8749,
+      "latency_ms": 562.0,
+      "edit_dist": 0
+    },
+    {
+      "file": "11dfcb24-id_92_value_116_405_jpg.rf.345841aa3bb2b1be6d6311810cfedaae.jpg",
+      "gt": "00116405",
+      "pred": "00116405",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8743,
+      "latency_ms": 532.7,
+      "edit_dist": 0
+    },
+    {
+      "file": "11eba5a0-id_116_value_56_516_jpg.rf.1d07fd0ec48f63bfffe7f1fa40644aed.jpg",
+      "gt": "00056516",
+      "pred": "00056516",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8953,
+      "latency_ms": 521.7,
+      "edit_dist": 0
+    },
+    {
+      "file": "1250e6e3-68372-closeup-IMG_4715_jpg.rf.d7ecc088247b2a7e93d25736a2df243e.jpg",
+      "gt": "383000",
+      "pred": "338000",
+      "exact": false,
+      "digit_accuracy": 0.6667,
+      "mean_conf": 0.8814,
+      "latency_ms": 515.3,
+      "edit_dist": 2
+    },
+    {
+      "file": "1252941f-110151-closeup-20200129_141823_jpg.rf.e0e8f2ab901ef75daa95e8379095cd4c.jpg",
+      "gt": "03841368",
+      "pred": "03841368",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8649,
+      "latency_ms": 524.0,
+      "edit_dist": 0
+    },
+    {
+      "file": "1273ca10-88895-closeup-Photo_26-09-2019_10-23-43_jpg.rf.6f165c3725cb889ffaf0282811e46d76.jpg",
+      "gt": "0230668",
+      "pred": "020668",
+      "exact": false,
+      "digit_accuracy": 0.4286,
+      "mean_conf": 0.8538,
+      "latency_ms": 515.7,
+      "edit_dist": 1
+    },
+    {
+      "file": "12b603ef-id_261_value_80_19_jpg.rf.d04e694d0932a256545cb93be96411c1.jpg",
+      "gt": "00080190",
+      "pred": "00080190",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8889,
+      "latency_ms": 530.3,
+      "edit_dist": 0
+    },
+    {
+      "file": "1316f963-id_490_value_858_516_jpg.rf.3c480d0b8b50b9a32a06ebb8e5499f59.jpg",
+      "gt": "61585800",
+      "pred": "61585800",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8677,
+      "latency_ms": 527.5,
+      "edit_dist": 0
+    },
+    {
+      "file": "132efc63-id_476_value_34_907_jpg.rf.7d9ba4c1117a74fe6a715462361926f1.jpg",
+      "gt": "00034907",
+      "pred": "00034907",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8872,
+      "latency_ms": 591.9,
+      "edit_dist": 0
+    },
+    {
+      "file": "13420ec6-id_1024_value_1_862_jpg.rf.c3a976dea41dce1b74b8ba56a2e6b898.jpg",
+      "gt": "00001862",
+      "pred": "000018622",
+      "exact": false,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8427,
+      "latency_ms": 541.3,
+      "edit_dist": 1
+    },
+    {
+      "file": "13ac5fd6-24349-closeup-Photo_17-08-2021_15-19-27_jpg.rf.a1d36285d059705b32394f741154735a.jpg",
+      "gt": "01498328",
+      "pred": "01498328",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8861,
+      "latency_ms": 521.2,
+      "edit_dist": 0
+    },
+    {
+      "file": "13b38a98-89272-closeup-Photo_30-09-2019_15-30-05_jpg.rf.8991365527bf521f873103c3d11a5ce6.jpg",
+      "gt": "52259011",
+      "pred": "5225904",
+      "exact": false,
+      "digit_accuracy": 0.75,
+      "mean_conf": 0.8501,
+      "latency_ms": 524.5,
+      "edit_dist": 2
+    },
+    {
+      "file": "13ed8f16-149931-closeup-Photo_29-10-2021_15-59-02_jpg.rf.1a7b8454187e99b40391db48d971154f.jpg",
+      "gt": "00000148",
+      "pred": "00000148",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8194,
+      "latency_ms": 524.7,
+      "edit_dist": 0
+    },
+    {
+      "file": "13f41b64-id_1178_value_145_126_jpg.rf.5cd05b08804e73773e05ba11743e3b28.jpg",
+      "gt": "00145126",
+      "pred": "00145126",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8319,
+      "latency_ms": 527.6,
+      "edit_dist": 0
+    },
+    {
+      "file": "14492409-id_1023_value_428_353_jpg.rf.6c901c60383d5a072ddb5d3a58ec401b.jpg",
+      "gt": "00428353",
+      "pred": "00428353",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8898,
+      "latency_ms": 513.5,
+      "edit_dist": 0
+    },
+    {
+      "file": "14a60211-153378-closeup-Photo_27-10-2021_07-35-28_jpg.rf.8be1b6c19c4c2d3bc26870a2e863cb90.jpg",
+      "gt": "0010849",
+      "pred": "0010849",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.9043,
+      "latency_ms": 529.4,
+      "edit_dist": 0
+    },
+    {
+      "file": "14ae92fb-88838-closeup-190924_meterstand_jpg.rf.d7203cf528fba583e8e026ec8cc13b7e.jpg",
+      "gt": "79465002",
+      "pred": "78460025",
+      "exact": false,
+      "digit_accuracy": 0.5,
+      "mean_conf": 0.8533,
+      "latency_ms": 529.1,
+      "edit_dist": 3
+    },
+    {
+      "file": "15061440-id_844_value_6_412_jpg.rf.a7aff9f98e95156d61033f12606ca165.jpg",
+      "gt": "00006412",
+      "pred": "00006412",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8945,
+      "latency_ms": 524.2,
+      "edit_dist": 0
+    },
+    {
+      "file": "15288dcf-id_27_value_140_738_jpg.rf.d05b762b340b28eaee2c0e13ec11a4a1.jpg",
+      "gt": "00140738",
+      "pred": "00140738",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8634,
+      "latency_ms": 516.5,
+      "edit_dist": 0
+    },
+    {
+      "file": "154da936-55624-closeup-Foto_26-07-2021_12-35-41_jpg.rf.b05704ad7819be8e6bae94768ebd27c5.jpg",
+      "gt": "45781885",
+      "pred": "45781885",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8722,
+      "latency_ms": 527.2,
+      "edit_dist": 0
+    },
+    {
+      "file": "1560146c-115078-closeup-IMG_4308_jpg.rf.7b2f185fa656f880af749b190ed950e8.jpg",
+      "gt": "00000133",
+      "pred": "00000133",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8688,
+      "latency_ms": 537.1,
+      "edit_dist": 0
+    },
+    {
+      "file": "1565db18-145288-closeup-Photo_29-06-2021_12-41-16_jpg.rf.cecd57ef5b3e605ab3616f1d16cfc8a9.jpg",
+      "gt": "00000089",
+      "pred": "00000089",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8745,
+      "latency_ms": 521.2,
+      "edit_dist": 0
+    },
+    {
+      "file": "1565deaa-88076-closeup-Photo_18-05-2021_11-09-37_jpg.rf.29c5d20c6ec3c5a27f267c24f8b389f5.jpg",
+      "gt": "00000022",
+      "pred": "00000022",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8176,
+      "latency_ms": 519.3,
+      "edit_dist": 0
+    },
+    {
+      "file": "15755555-id_919_value_315_892_jpg.rf.9a0574a8bd66e8bfb7d774479720fb7e.jpg",
+      "gt": "003158921",
+      "pred": "00315892",
+      "exact": false,
+      "digit_accuracy": 0.8889,
+      "mean_conf": 0.8667,
+      "latency_ms": 517.0,
+      "edit_dist": 1
+    },
+    {
+      "file": "157b84fa-puls-counter-reed-switch-for-samgas-g4-gas-meter_jpg.rf.c6a733bbe9b9cc436b9dd226c368f0d1.jpg",
+      "gt": "00000322",
+      "pred": "00000382",
+      "exact": false,
+      "digit_accuracy": 0.875,
+      "mean_conf": 0.8346,
+      "latency_ms": 534.4,
+      "edit_dist": 1
+    },
+    {
+      "file": "1582b3cf-id_803_value_14_591_jpg.rf.67afa7167e2f19ac01b60d160bebb151.jpg",
+      "gt": "000145912",
+      "pred": "00014591",
+      "exact": false,
+      "digit_accuracy": 0.8889,
+      "mean_conf": 0.8492,
+      "latency_ms": 532.4,
+      "edit_dist": 1
+    },
+    {
+      "file": "15f277df-150048-closeup-DSCF0399_jpg.rf.6852bb2d21d5ccf15c33d36ff0e7dd62.jpg",
+      "gt": "082678",
+      "pred": "082678",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8679,
+      "latency_ms": 551.3,
+      "edit_dist": 0
+    },
+    {
+      "file": "15f43839-8255-closeup-IMG_9598_jpg.rf.969bfa3754362525170519b7c7585fb9.jpg",
+      "gt": "8249731",
+      "pred": "8249731",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8599,
+      "latency_ms": 530.1,
+      "edit_dist": 0
+    },
+    {
+      "file": "16061f82-id_973_value_951_333_jpg.rf.c73006fe925947b4ac2f1c95f2b04dda.jpg",
+      "gt": "00951333",
+      "pred": "00951333",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8838,
+      "latency_ms": 548.0,
+      "edit_dist": 0
+    },
+    {
+      "file": "1651171a-id_34_value_635_498_jpg.rf.035619b3a70493caa9d13c7072a0831a.jpg",
+      "gt": "00635498",
+      "pred": "00635498",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8737,
+      "latency_ms": 519.6,
+      "edit_dist": 0
+    },
+    {
+      "file": "16fe755f-88127-closeup-Photo_12-04-2021_14-12-09_jpg.rf.1530e379e3baed4031290b22aae9cde9.jpg",
+      "gt": "0002519",
+      "pred": "0002519",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.901,
+      "latency_ms": 558.3,
+      "edit_dist": 0
+    },
+    {
+      "file": "172d5aa3-105824-closeup-IMG_1548_jpg.rf.06afbb678380ca48165e7f9edebd0618.jpg",
+      "gt": "04468311",
+      "pred": "04468317",
+      "exact": false,
+      "digit_accuracy": 0.875,
+      "mean_conf": 0.8842,
+      "latency_ms": 537.3,
+      "edit_dist": 1
+    },
+    {
+      "file": "172dbd9d-124929-closeup-Photo_29-06-2021_09-33-52_jpg.rf.8b481e66f3fe0afd2ce6c2e95483f977.jpg",
+      "gt": "76101408",
+      "pred": "76101408",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8821,
+      "latency_ms": 545.8,
+      "edit_dist": 0
+    },
+    {
+      "file": "17748aad-107944-closeup-Photo_12-12-2019_11-24-25_jpg.rf.ba1879115ca0c5c254252d596c08554f.jpg",
+      "gt": "00000145",
+      "pred": "00000145",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8205,
+      "latency_ms": 525.6,
+      "edit_dist": 0
+    },
+    {
+      "file": "178c0e5d-id_1042_value_30_011_jpg.rf.eee933e79d2c1c7655cb63c3a11de4f2.jpg",
+      "gt": "00030011",
+      "pred": "00030011",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8811,
+      "latency_ms": 519.5,
+      "edit_dist": 0
+    },
+    {
+      "file": "17953840-32334-closeup-IMG_20170919_155827_jpg.rf.89dccfc0c1fd94feacdb5f17d457b43a.jpg",
+      "gt": "27997843",
+      "pred": "27997843",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8515,
+      "latency_ms": 522.3,
+      "edit_dist": 0
+    },
+    {
+      "file": "17ea0254-165923-closeup-Foto_3-06-2022_10-58-42_jpg.rf.fce4a74ebc6df93d6d04c1bb64508a4c.jpg",
+      "gt": "0094487",
+      "pred": "0094437",
+      "exact": false,
+      "digit_accuracy": 0.8571,
+      "mean_conf": 0.8635,
+      "latency_ms": 550.3,
+      "edit_dist": 1
+    },
+    {
+      "file": "17f3a463-25005-closeup-IMG_20180228_104420_jpg.rf.44a25d8aa3ed9281a987ee1b68cb4e8b.jpg",
+      "gt": "00671853",
+      "pred": "00671858",
+      "exact": false,
+      "digit_accuracy": 0.875,
+      "mean_conf": 0.8495,
+      "latency_ms": 515.7,
+      "edit_dist": 1
+    },
+    {
+      "file": "180d5e83-id_1084_value_433_559_jpg.rf.ed0a0ab2ab09af7d88ce0ab61833a0a9.jpg",
+      "gt": "00433559",
+      "pred": "00433559",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8786,
+      "latency_ms": 520.5,
+      "edit_dist": 0
+    },
+    {
+      "file": "187b1599-31011-closeup-Foto_5-05-2022_15-03-28_jpg.rf.22fd235748ff09b941e94162ee7e3402.jpg",
+      "gt": "43767309",
+      "pred": "43767309",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8798,
+      "latency_ms": 543.1,
+      "edit_dist": 0
+    },
+    {
+      "file": "187f60a7-id_886_value_491_457_jpg.rf.7f7190ad4013f718f5f3c06bdba05421.jpg",
+      "gt": "00491457",
+      "pred": "0049145",
+      "exact": false,
+      "digit_accuracy": 0.875,
+      "mean_conf": 0.8617,
+      "latency_ms": 533.3,
+      "edit_dist": 1
+    },
+    {
+      "file": "1895c347-114321-closeup-4-5_jpg.rf.5e7d014403cf5d7876e3465f678820ef.jpg",
+      "gt": "00042739",
+      "pred": "00042739",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8654,
+      "latency_ms": 541.5,
+      "edit_dist": 0
+    },
+    {
+      "file": "18a1e007-id_1031_value_199_337_jpg.rf.ffd073e2a40e1e8e19d4e64ffff06723.jpg",
+      "gt": "00199337",
+      "pred": "00199337",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8402,
+      "latency_ms": 528.8,
+      "edit_dist": 0
+    },
+    {
+      "file": "18af2300-id_246_value_497_833_jpg.rf.0e97824f9121bb0f10f48a66133f577b.jpg",
+      "gt": "00497833",
+      "pred": "00497833",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8839,
+      "latency_ms": 546.6,
+      "edit_dist": 0
+    },
+    {
+      "file": "18b7dbb9-id_247_value_795_861_jpg.rf.6a38fa13f473b62063755c9c1a43957c.jpg",
+      "gt": "00795861",
+      "pred": "00795861",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8718,
+      "latency_ms": 536.1,
+      "edit_dist": 0
+    },
+    {
+      "file": "18d44a23-148856-closeup-Photo_16-09-2021_13-48-16_jpg.rf.837207f65c1f5c2f7dbf2fe6a1afe9e1.jpg",
+      "gt": "16661169",
+      "pred": "1666116",
+      "exact": false,
+      "digit_accuracy": 0.875,
+      "mean_conf": 0.8824,
+      "latency_ms": 548.7,
+      "edit_dist": 1
+    },
+    {
+      "file": "18f59e7a-133077-closeup-Photo_20-01-2021_13-34-24_jpg.rf.e8f4241c4e3aaeae6dd150a460d0f050.jpg",
+      "gt": "08438731",
+      "pred": "08438731",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8055,
+      "latency_ms": 529.7,
+      "edit_dist": 0
+    },
+    {
+      "file": "1909d130-id_423_value_136_858_jpg.rf.4e9bed9d30fc5e25a0a3b01e73f3a9c2.jpg",
+      "gt": "00136858",
+      "pred": "13688",
+      "exact": false,
+      "digit_accuracy": 0.0,
+      "mean_conf": 0.5737,
+      "latency_ms": 535.1,
+      "edit_dist": 3
+    },
+    {
+      "file": "19526da0-id_484_value_28_748_jpg.rf.3a8d7aecff01b77e615e0696e0ffb249.jpg",
+      "gt": "00028748",
+      "pred": "00028748",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.865,
+      "latency_ms": 546.5,
+      "edit_dist": 0
+    },
+    {
+      "file": "19559d26-89345-closeup-Photo_06-09-2021_10-09-02_jpg.rf.cc59cde35a138bf8e5716ab7e7c215de.jpg",
+      "gt": "00027404",
+      "pred": "00027404",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8314,
+      "latency_ms": 542.5,
+      "edit_dist": 0
+    },
+    {
+      "file": "195681b8-id_1213_value_126_175_jpg.rf.dd5ca7a9879513a089f40c5b97d03201.jpg",
+      "gt": "001261745",
+      "pred": "00126175",
+      "exact": false,
+      "digit_accuracy": 0.7778,
+      "mean_conf": 0.8212,
+      "latency_ms": 661.0,
+      "edit_dist": 1
+    },
+    {
+      "file": "197527c1-id_1172_value_74_176_jpg.rf.5645c9fed2dbd3d596fac2e502798151.jpg",
+      "gt": "00074176",
+      "pred": "00024176",
+      "exact": false,
+      "digit_accuracy": 0.875,
+      "mean_conf": 0.795,
+      "latency_ms": 565.5,
+      "edit_dist": 1
+    },
+    {
+      "file": "19873743-id_39_value_205_803_jpg.rf.5b4578aba000483c160e9f493dfaab4e.jpg",
+      "gt": "00205803",
+      "pred": "00205803",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8716,
+      "latency_ms": 507.7,
+      "edit_dist": 0
+    },
+    {
+      "file": "1a2caa1a-61094-closeup-DSCF7932_jpg.rf.a7e179419e0caf92f46e7459c25dfbd0.jpg",
+      "gt": "000032",
+      "pred": "000032",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8401,
+      "latency_ms": 538.4,
+      "edit_dist": 0
+    },
+    {
+      "file": "1a2fab9e-49280-closeup-IMG_20181018_110911_jpg.rf.379a2b13f6c9c6f61998ae199a2b7f18.jpg",
+      "gt": "08522314",
+      "pred": "08522314",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8899,
+      "latency_ms": 528.7,
+      "edit_dist": 0
+    },
+    {
+      "file": "1a896f3d-id_454_value_945_536_jpg.rf.78dc454ba33f581c7a71b59821b4d475.jpg",
+      "gt": "00945536",
+      "pred": "0455",
+      "exact": false,
+      "digit_accuracy": 0.125,
+      "mean_conf": 0.6798,
+      "latency_ms": 514.5,
+      "edit_dist": 4
+    },
+    {
+      "file": "1a8e666d-148704-closeup-Foto_28-09-2021_13-44-39_jpg.rf.374d3fc1069b72acd244b798396eb550.jpg",
+      "gt": "00000151",
+      "pred": "00000151",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.878,
+      "latency_ms": 512.0,
+      "edit_dist": 0
+    },
+    {
+      "file": "1aa5f55f-87746-closeup-Photo_05-09-2019_14-40-40_jpg.rf.f1ad87b88087511b1533a417cc72a198.jpg",
+      "gt": "71634863",
+      "pred": "7134839",
+      "exact": false,
+      "digit_accuracy": 0.25,
+      "mean_conf": 0.7909,
+      "latency_ms": 595.4,
+      "edit_dist": 3
+    },
+    {
+      "file": "1ab4ac01-id_912_value_40_172_jpg.rf.e8ce23099916396e7255ed8342a60873.jpg",
+      "gt": "000040172",
+      "pred": "00040172",
+      "exact": false,
+      "digit_accuracy": 0.3333,
+      "mean_conf": 0.7995,
+      "latency_ms": 507.4,
+      "edit_dist": 1
+    },
+    {
+      "file": "1af353c7-id_1118_value_1551_606_jpg.rf.b6eb6f26384583214c3d6781822bdcbf.jpg",
+      "gt": "01165560",
+      "pred": "11056560",
+      "exact": false,
+      "digit_accuracy": 0.5,
+      "mean_conf": 0.8459,
+      "latency_ms": 507.5,
+      "edit_dist": 3
+    },
+    {
+      "file": "1b09fbc5-id_1145_value_127_383_jpg.rf.766a7a4649f9eb81bea7fe83a481e063.jpg",
+      "gt": "00127383",
+      "pred": "00127383",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8951,
+      "latency_ms": 522.7,
+      "edit_dist": 0
+    },
+    {
+      "file": "1b48ea45-4258-closeup-190827_meterstand_teller_jpg.rf.e203a3c0d93981344cc8eb9b3270b8b7.jpg",
+      "gt": "99998",
+      "pred": "9996783",
+      "exact": false,
+      "digit_accuracy": 0.6,
+      "mean_conf": 0.8268,
+      "latency_ms": 508.7,
+      "edit_dist": 3
+    },
+    {
+      "file": "1b90c987-39464-closeup-IMG_20180411_121222_jpg.rf.2bb48fb03b776e1f6e8052085c550010.jpg",
+      "gt": "57755346",
+      "pred": "57755346",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8878,
+      "latency_ms": 650.5,
+      "edit_dist": 0
+    },
+    {
+      "file": "1ba08a26-id_958_value_1581_969_jpg.rf.c8651367d3a86c0315d0d8d7020675ab.jpg",
+      "gt": "01581969",
+      "pred": "01581969",
+      "exact": true,
+      "digit_accuracy": 1.0,
+      "mean_conf": 0.8748,
+      "latency_ms": 541.6,
+      "edit_dist": 0
+    }
+  ]
+}
