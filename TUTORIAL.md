@@ -442,7 +442,6 @@ flowchart TD
 &emsp;&emsp;&emsp;&emsp;**การปฏิบัติการบน Google Colab:** การฝึกแบบจำลองการเรียนรู้เชิงลึก (Deep Learning) ต้องการการประมวลผลเมทริกซ์ประสิทธิภาพสูง จึงกำหนดให้ปฏิบัติตามหัวข้อ 1.10.1–1.10.2 บน **Google Colab** โดยเปิด [colab.research.google.com](https://colab.research.google.com) สร้างสมุดบันทึกใหม่ชื่อ `train_model_colab.ipynb` และเลือกฮาร์ดแวร์เร่งความเร็วเป็น **T4 GPU**
 
 ```python
-# train_model_colab.ipynb — ดาวน์โหลดชุดข้อมูลจาก Roboflow
 from roboflow import Roboflow
 
 rf = Roboflow(api_key="YOUR_API_KEY")
@@ -450,13 +449,13 @@ project = rf.workspace("watermeter-jvlgr").project("utility-meter-reading-datase
 version = project.version(1)
 dataset = version.download("yolo26")
 ```
+<p align="center"><strong>ซอร์สโค้ดที่ 1.1: <code>train_model_colab.ipynb</code> — การดาวน์โหลดชุดข้อมูลจาก Roboflow</strong></p>
 
 #### 1.10.2 การฝึกแบบจำลอง YOLO บน Google Colab
 
 &emsp;&emsp;&emsp;&emsp;ระบบเลือกใช้สถาปัตยกรรม **Ultralytics YOLO26 Nano (`yolo26n.pt`)** (Jocher et al., 2023) ซึ่งเป็นแบบจำลองตรวจจับวัตถุแบบ Single-stage ที่มีขนาดพารามิเตอร์เพียงประมาณ 2.6 ล้านตัว ช่วยให้ประหยัดหน่วยความจำและสามารถประมวลผลบนเครื่องคอมพิวเตอร์ทั่วไปได้รวดเร็ว
 
 ```python
-# train_model_colab.ipynb — กำหนดพารามิเตอร์และเริ่มกระบวนการฝึกฝน
 from ultralytics import YOLO
 
 model = YOLO("yolo26n.pt")
@@ -475,19 +474,20 @@ results = model.train(
     hsv_v=0.4,         # การแปรผันค่าความสว่างจำลองสภาพแสงจ้าและแสงสลัว
 )
 ```
+<p align="center"><strong>ซอร์สโค้ดที่ 1.2: <code>train_model_colab.ipynb</code> — การกำหนดพารามิเตอร์และเริ่มกระบวนการฝึกฝนแบบจำลอง</strong></p>
 
 #### 1.10.3 การประเมินประสิทธิภาพตัวตรวจจับวัตถุ (Object Detection Evaluation)
 
 &emsp;&emsp;&emsp;&emsp;เพื่อตอบคำถามการวิจัยข้อที่หนึ่ง (**RQ1**) แบบจำลอง YOLO26 Nano ที่ผ่านการฝึกฝนจะได้รับการทดสอบบนชุดข้อมูลทดสอบอิสระ (Held-out Test Split, $N=194$ ภาพ) โดยวัดประสิทธิภาพการตรวจจับตัวเลขโดด 0–9 ผ่านตัวชี้วัดสากลด้าน Object Detection:
 
 ```python
-# train_model_colab.ipynb — ประเมินผลบนชุดทดสอบอิสระ (Test Split)
 metrics = model.val(data=f"{dataset.location}/data.yaml", split="test")
 print(f"Precision: {metrics.box.mp:.4f}")
 print(f"Recall:    {metrics.box.mr:.4f}")
 print(f"mAP@50:    {metrics.box.map50:.4f}")
 print(f"mAP@50-95: {metrics.box.map:.4f}")
 ```
+<p align="center"><strong>ซอร์สโค้ดที่ 1.3: <code>train_model_colab.ipynb</code> — การประเมินผลแบบจำลองบนชุดข้อมูลทดสอบอิสระ (Test Split)</strong></p>
 
 **ตารางที่ 1.4 ผลการประเมินประสิทธิภาพตัวตรวจจับวัตถุ YOLO26m (`weights/MeterOCR.pt`) บนชุดทดสอบอิสระ (Test Split, n=194, 1,508 ตัวเลข)**
 
@@ -543,6 +543,7 @@ uv venv --python 3.11
 # 3. ติดตั้ง Library ทั้งหมดผ่าน uv
 uv pip install -r requirements.txt
 ```
+<p align="center"><strong>ชุดคำสั่งที่ 1.1: การสร้างสภาพแวดล้อมเสมือนและการติดตั้งไลบรารีด้วยเครื่องมือ <code>uv</code></strong></p>
 
 &emsp;&emsp;&emsp;&emsp;**ผลลัพธ์ที่คาดหวัง:** เห็นข้อความ `Installed ... packages` และไม่มี error
 
@@ -1210,7 +1211,6 @@ def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
 
 
 ```python
-# main.py — FastAPI Application
 app = FastAPI(
  title="Meter Reader API",
  version="1.1",
@@ -1255,6 +1255,7 @@ async def read_meter_endpoint(file: UploadFile = File(...)) -> dict[str, Any]:
 if __name__ == "__main__":
  uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
 ```
+<p align="center"><strong>ซอร์สโค้ดที่ 3.3: <code>main.py</code> — การให้บริการส่วนเชื่อมต่อโปรแกรมประยุกต์ด้วย FastAPI</strong></p>
 
 &emsp;&emsp;&emsp;&emsp;**ผลลัพธ์ที่คาดหวัง:** เมื่อสั่งทำงานคำสั่ง `uv run python main.py` ระบบจะเปิดให้บริการที่ `http://127.0.0.1:8000` โดยสามารถเข้าถึงส่วนทดสอบส่วนต่อประสานโปรแกรมประยุกต์ผ่าน Swagger UI ได้ที่ `http://127.0.0.1:8000/docs`
 
@@ -1276,7 +1277,6 @@ if __name__ == "__main__":
 
 
 ```python
-# gradio_app.py — Gradio Web Interface
 import io
 import cv2
 import gradio as gr
@@ -1355,6 +1355,7 @@ with gr.Blocks(title="Water Meter Reader") as demo:
 if __name__ == "__main__":
  demo.launch(server_port=7860)
 ```
+<p align="center"><strong>ซอร์สโค้ดที่ 3.4: <code>gradio_app.py</code> — การพัฒนาส่วนติดต่อผู้ใช้บนเว็บด้วย Gradio</strong></p>
 
 &emsp;&emsp;&emsp;&emsp;**ผลลัพธ์ที่คาดหวัง:** หน้าต่างเว็บเบราว์เซอร์แสดงสถานะการเชื่อมต่อ `API: ok` เมื่อผู้ใช้อัปโหลดภาพและสั่งประมวลผล ระบบจะแสดงค่าตัวเลขที่อ่านได้ ค่าความเชื่อมั่นเฉลี่ย และรายการแจ้งเตือนการตรวจสอบ
 
