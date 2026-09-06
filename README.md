@@ -13,7 +13,7 @@
 
 ---
 
-## 🎯 จุดเด่นของระบบ (Key Highlights)
+## จุดเด่นของระบบ (Key Highlights)
 
 1. **การคัดกรองภาพนำเข้าแบบ Zero-shot (SigLIP2 Gatekeeper):** ตรวจสอบว่าเป็นภาพมาตรวัดน้ำจริงหรือไม่ก่อนเริ่มการประมวลผล ช่วยป้องกันการสิ้นเปลืองทรัพยากรการคำนวณและลดผลบวกลวง (False Positives) จากภาพสิ่งแปลกปลอม
 2. **การค้นหาเชิงสมมติฐานพหุคูณ 12 รูปแบบ (Multi-hypothesis 12-Combination Search):** ประมวลผลภาพ 4 ทิศทางการหมุน (0°, 90°, 180°, 270°) ร่วมกับ 3 ฟิลเตอร์ปรับปรุงคอนทราสต์ (Original, CLAHE, Histogram Equalization) ชดเชยความแปรปรวนของมุมกล้องและสภาพแสงภาคสนาม
@@ -27,7 +27,7 @@
 
 ---
 
-## 🏗️ สถาปัตยกรรมการประมวลผล (Pipeline Architecture)
+## สถาปัตยกรรมการประมวลผล (Pipeline Architecture)
 
 1. **ภาพถ่ายมาตรวัดน้ำ RGB:** ข้อมูลภาพนำเข้าจากอุปกรณ์เคลื่อนที่หรือส่วนติดต่อผู้ใช้
 2. **ขั้นตอนที่ 1: SigLIP2 Zero-shot Gatekeeper:**
@@ -50,7 +50,7 @@
 
 ---
 
-## 📁 โครงสร้างโปรเจกต์ (Project Directory Structure)
+## โครงสร้างโปรเจกต์ (Project Directory Structure)
 
 ```text
 meter-reader/
@@ -83,7 +83,7 @@ meter-reader/
 
 ---
 
-## 🛠️ การติดตั้งสภาพแวดล้อม (Installation with `uv`)
+## การติดตั้งสภาพแวดล้อม (Installation with `uv`)
 
 > **ข้อกำหนดระบบ:** แนะนำ **Python 3.11** (รองรับ Python 3.10 – 3.12) และใช้เครื่องมือ **uv** เพื่อประสิทธิภาพและความรวดเร็ว
 
@@ -103,7 +103,7 @@ uv pip install -r requirements.txt
 
 ---
 
-## 🚀 การสั่งทำงานระบบ (Running the Application)
+## การสั่งทำงานระบบ (Running the Application)
 
 ### เทอร์มินัลที่ 1 — เริ่มต้นการทำงานของ FastAPI Backend:
 ```powershell
@@ -126,7 +126,7 @@ curl.exe -X POST http://127.0.0.1:8000/api/read-meter -F "file=@meter_img/meter_
 
 ---
 
-## 📊 ผลการประเมินประสิทธิภาพเชิงประจักษ์ (Empirical Evaluation)
+## ผลการประเมินประสิทธิภาพเชิงประจักษ์ (Empirical Evaluation)
 
 ### 1. ประสิทธิภาพการอ่านค่ามิเตอร์ทั้งระบบบนชุดทดสอบมาตรฐาน (Held-out Test Split, N=120 ภาพ)
 ประเมินแบบ End-to-End บนชุดข้อมูลทดสอบอิสระขนาดใหญ่ ($N=120$ ภาพ ประกอบด้วยตัวเลขเฉลย Ground Truth 941 หลัก) ที่สกัดจาก Roboflow Test Split:
@@ -178,7 +178,7 @@ curl.exe -X POST http://127.0.0.1:8000/api/read-meter -F "file=@meter_img/meter_
 
 ---
 
-## 🧪 การทดสอบระบบและการตรวจสอบความถูกต้อง (Verification Suite)
+## การทดสอบระบบและการตรวจสอบความถูกต้อง (Verification Suite)
 
 ### 1. การรัน Unit Tests
 ```powershell
@@ -203,7 +203,7 @@ uv run python eval_yolo_metrics.py
 
 ---
 
-## 📦 รูปแบบผลลัพธ์ของ API (Response Payload Example)
+## รูปแบบผลลัพธ์ของ API (Response Payload Example)
 
 ```json
 {
@@ -239,7 +239,7 @@ uv run python eval_yolo_metrics.py
 
 ---
 
-## 📖 เอกสารคู่มือฉบับเต็มและงานวิจัยที่เกี่ยวข้อง (Documentation)
+## เอกสารคู่มือฉบับเต็มและงานวิจัยที่เกี่ยวข้อง (Documentation)
 
 * **คู่มือการพัฒนาระบบและรายงานวิจัยฉบับสมบูรณ์ (v2.15):** [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md)
 * **การอ้างอิงและบรรณานุกรมสำคัญ:**
@@ -249,7 +249,7 @@ uv run python eval_yolo_metrics.py
 
 ---
 
-## 📜 ลิขสิทธิ์และการใช้งาน (License)
+## ลิขสิทธิ์และการใช้งาน (License)
 
 โปรเจกต์นี้เผยแพร่ภายใต้สัญญาอนุญาต **GNU Affero General Public License v3.0 (AGPL-3.0)** ดูรายละเอียดฉบับเต็มได้ที่ไฟล์ [LICENSE](file:///d:/_Work/Guidebook-RE/meter-reader/LICENSE)
 
