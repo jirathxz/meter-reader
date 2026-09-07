@@ -543,7 +543,7 @@ project = rf.workspace("watermeter-jvlgr").project("utility-meter-reading-datase
 version = project.version(1)
 dataset = version.download("yolo26")
 ```
-<p align="center"><strong>ซอร์สโค้ดที่ 1.1: <code>train_model_colab.ipynb</code> — การดาวน์โหลดชุดข้อมูลจาก Roboflow</strong></p>
+<p align="center"><strong>ซอร์สโค้ดที่ 1.1: <code>train_model_colab.ipynb</code> (1/3) — การดาวน์โหลดชุดข้อมูลจาก Roboflow</strong></p>
 
 #### 1.10.2 การฝึกแบบจำลอง YOLO บน Google Colab
 
@@ -568,7 +568,7 @@ results = model.train(
     hsv_v=0.4,         # การแปรผันค่าความสว่างจำลองสภาพแสงจ้าและแสงสลัว
 )
 ```
-<p align="center"><strong>ซอร์สโค้ดที่ 1.2: <code>train_model_colab.ipynb</code> — การกำหนดพารามิเตอร์และเริ่มกระบวนการฝึกฝนแบบจำลอง</strong></p>
+<p align="center"><strong>ซอร์สโค้ดที่ 1.2: <code>train_model_colab.ipynb</code> (2/3) — การกำหนดพารามิเตอร์และเริ่มกระบวนการฝึกฝนแบบจำลอง</strong></p>
 
 #### 1.10.3 การประเมินประสิทธิภาพตัวตรวจจับวัตถุ (Object Detection Evaluation)
 
@@ -581,7 +581,7 @@ print(f"Recall:    {metrics.box.mr:.4f}")
 print(f"mAP@50:    {metrics.box.map50:.4f}")
 print(f"mAP@50-95: {metrics.box.map:.4f}")
 ```
-<p align="center"><strong>ซอร์สโค้ดที่ 1.3: <code>train_model_colab.ipynb</code> — การประเมินผลแบบจำลองบนชุดข้อมูลทดสอบอิสระ (Test Split)</strong></p>
+<p align="center"><strong>ซอร์สโค้ดที่ 1.3: <code>train_model_colab.ipynb</code> (3/3) — การประเมินผลแบบจำลองบนชุดข้อมูลทดสอบอิสระ (Test Split)</strong></p>
 
 <p align="center"><strong>ตารางที่ 1.5: ผลการประเมินประสิทธิภาพตัวตรวจจับวัตถุ YOLO26m บนชุดทดสอบอิสระ (Test Split, n=194)</strong></p>
 
@@ -708,7 +708,7 @@ def apply_prep(img_bgr: np.ndarray, prep: str) -> np.ndarray:
 
     return img_bgr
 ```
-<p align="center"><strong>ซอร์สโค้ดที่ 1.5: ฟังก์ชัน <code>rotate_image</code> และ <code>apply_prep</code> สำหรับการหมุนภาพและปรับปรุงคุณภาพแสง</strong></p>
+<p align="center"><strong>ซอร์สโค้ดที่ 1.5: <code>main.py</code> (1/4) — ฟังก์ชัน <code>rotate_image</code> และ <code>apply_prep</code> สำหรับการหมุนภาพและปรับปรุงคุณภาพแสง</strong></p>
 
 ---
 
@@ -823,7 +823,7 @@ def remap_bbox(bbox: list[float], angle: int, w: int, h: int) -> list[float]:
         max(p1_y, p2_y),
     ]
 ```
-<p align="center"><strong>ซอร์สโค้ดที่ 1.6: ฟังก์ชัน <code>remap_point</code> และ <code>remap_bbox</code> สำหรับการแปลงพิกัดเรขาคณิตย้อนกลับสู่ภาพต้นฉบับ</strong></p>
+<p align="center"><strong>ซอร์สโค้ดที่ 1.6: <code>main.py</code> (2/4) — ฟังก์ชัน <code>remap_point</code> และ <code>remap_bbox</code> สำหรับการแปลงพิกัดเรขาคณิตย้อนกลับสู่ภาพต้นฉบับ</strong></p>
 
 &emsp;&emsp;&emsp;&emsp;**ผลลัพธ์ที่คาดหวัง:** ไม่ว่าภาพจะถูกหมุนมุมไหน กล่องที่วาดบนภาพต้นฉบับจะตรงตำแหน่งตัวเลขเสมอ
 
@@ -852,7 +852,7 @@ def is_vertical(dets: list[dict[str, Any]], img_w: int, img_h: int) -> dict[str,
     is_vert = (height_span >= width_span * 0.8) or (width_span <= 0.05 and height_span >= 0.08)
     return {"vertical": is_vert}
 ```
-<p align="center"><strong>ซอร์สโค้ดที่ 1.7: ฟังก์ชัน <code>is_vertical</code> สำหรับการตรวจสอบและคัดกรองการเรียงตัวของแถวตัวเลข</strong></p>
+<p align="center"><strong>ซอร์สโค้ดที่ 1.7: <code>main.py</code> (3/4) — ฟังก์ชัน <code>is_vertical</code> สำหรับการตรวจสอบและคัดกรองการเรียงตัวของแถวตัวเลข</strong></p>
 
 ---
 
@@ -1070,7 +1070,7 @@ def detect_digits_best(rgb_img: np.ndarray) -> tuple[list[dict[str, Any]], dict[
 
     return best_dets, best_meta
 ```
-<p align="center"><strong>ซอร์สโค้ดที่ 1.8: ฟังก์ชัน <code>red_ratio</code>, <code>eval_orientation</code> และ <code>detect_digits_best</code> สำหรับการค้นหาเชิงสมมติฐานพหุคูณ 12 รูปแบบ</strong></p>
+<p align="center"><strong>ซอร์สโค้ดที่ 1.8: <code>main.py</code> (4/4) — ฟังก์ชัน <code>red_ratio</code>, <code>eval_orientation</code> และ <code>detect_digits_best</code> สำหรับการค้นหาเชิงสมมติฐานพหุคูณ 12 รูปแบบ</strong></p>
 
 > **สรุปสาระสำคัญหัวข้อ 1.12:**
 > * `detect_digits_best`: ประมวลผลการค้นหาเชิงสมมติฐานพหุคูณ 12 รูปแบบ (4 ทิศทางการหมุน × 3 ฟิลเตอร์ปรับปรุงภาพ) และคัดเลือกผลลัพธ์โดยอาศัยเกณฑ์ค่าความเชื่อมั่นเฉลี่ย สัดส่วนสีแดง และค่า Margin
@@ -1319,7 +1319,7 @@ def cross_check_digits(rgb_img: np.ndarray, digits: list[dict[str, Any]], h: int
 
  return mismatches
 ```
-<p align="center"><strong>ซอร์สโค้ดที่ 3.1: ฟังก์ชัน <code>flip_guard</code> และ <code>cross_check_digits</code> สำหรับการตรวจสอบความสมมาตร 180° และตรวจทานความถูกต้องด้วย SigLIP2</strong></p>
+<p align="center"><strong>ซอร์สโค้ดที่ 3.1: <code>main.py</code> (1/3) — ฟังก์ชัน <code>flip_guard</code> และ <code>cross_check_digits</code> สำหรับการตรวจสอบความสมมาตร 180° และตรวจทานความถูกต้องด้วย SigLIP2</strong></p>
 
 ---
 
@@ -1425,7 +1425,7 @@ def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
  "elapsed_ms": round((perf_counter() - t0) * 1000, 1),
  }
 ```
-<p align="center"><strong>ซอร์สโค้ดที่ 3.2: ฟังก์ชันประมวลผลหลัก <code>read_meter</code> สำหรับควบคุมท่อข้อมูลแบบเบ็ดเสร็จ (End-to-End Pipeline)</strong></p>
+<p align="center"><strong>ซอร์สโค้ดที่ 3.2: <code>main.py</code> (2/3) — ฟังก์ชันประมวลผลหลัก <code>read_meter</code> สำหรับควบคุมท่อข้อมูลแบบเบ็ดเสร็จ (End-to-End Pipeline)</strong></p>
 
 &emsp;&emsp;&emsp;&emsp;**ผลลัพธ์ที่คาดหวัง:** ฟังก์ชันส่งคืนพจนานุกรมข้อมูลประกอบด้วย สตริงตัวเลขที่อ่านได้ (`reading`), รายการข้อมูลตัวเลขรายหลักพร้อมพิกัด Bounding Box และค่าความเชื่อมั่น (`digits`), ค่าความเชื่อมั่นเฉลี่ย (`mean_confidence`), รายการแจ้งเตือนความเสี่ยง (`warnings`), และเวลาประมวลผล (`elapsed_ms`)
 
@@ -1488,7 +1488,7 @@ async def read_meter_endpoint(file: UploadFile = File(...)) -> dict[str, Any]:
 if __name__ == "__main__":
  uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
 ```
-<p align="center"><strong>ซอร์สโค้ดที่ 3.3: <code>main.py</code> — การให้บริการส่วนเชื่อมต่อโปรแกรมประยุกต์ด้วย FastAPI</strong></p>
+<p align="center"><strong>ซอร์สโค้ดที่ 3.3: <code>main.py</code> (3/3) — การให้บริการส่วนเชื่อมต่อโปรแกรมประยุกต์ด้วย FastAPI</strong></p>
 
 &emsp;&emsp;&emsp;&emsp;**ผลลัพธ์ที่คาดหวัง:** เมื่อสั่งทำงานคำสั่ง `uv run python main.py` ระบบจะเปิดให้บริการที่ `http://127.0.0.1:8000` โดยสามารถเข้าถึงส่วนทดสอบส่วนต่อประสานโปรแกรมประยุกต์ผ่าน Swagger UI ได้ที่ `http://127.0.0.1:8000/docs`
 
@@ -1596,7 +1596,7 @@ if __name__ == "__main__":
 ```powershell
 uv run python main.py
 ```
-<p align="center"><strong>ชุดคำสั่งที่ 3.1: การสั่งเริ่มต้นทำงานเซิร์ฟเวอร์ FastAPI Backend ด้วยเครื่องมือ <code>uv</code></strong></p>
+<p align="center"><strong>ชุดคำสั่งที่ 3.1: Terminal 1 (1/2) — การสั่งเริ่มต้นทำงานเซิร์ฟเวอร์ FastAPI Backend ด้วยเครื่องมือ <code>uv</code></strong></p>
 
 &emsp;&emsp;&emsp;&emsp;**ผลลัพธ์ที่คาดหวัง:** หน้าต่างคำสั่งแสดงข้อความการทำงาน `Uvicorn running on http://127.0.0.1:8000` และสามารถเข้าใช้งาน Swagger UI ผ่านเว็บเบราว์เซอร์ได้ที่ `http://127.0.0.1:8000/docs`
 
@@ -1605,7 +1605,7 @@ uv run python main.py
 ```powershell
 uv run python gradio_app.py
 ```
-<p align="center"><strong>ชุดคำสั่งที่ 3.2: การสั่งเริ่มต้นทำงานส่วนติดต่อผู้ใช้ Gradio Web UI ด้วยเครื่องมือ <code>uv</code></strong></p>
+<p align="center"><strong>ชุดคำสั่งที่ 3.2: Terminal 2 (2/2) — การสั่งเริ่มต้นทำงานส่วนติดต่อผู้ใช้ Gradio Web UI ด้วยเครื่องมือ <code>uv</code></strong></p>
 
 &emsp;&emsp;&emsp;&emsp;**ผลลัพธ์ที่คาดหวัง:** หน้าต่างคำสั่งแสดงข้อความการทำงาน `Running on local URL: http://127.0.0.1:7860` และสามารถเข้าใช้งานส่วนติดต่อผู้ใช้ผ่านเว็บเบราว์เซอร์ได้
 
