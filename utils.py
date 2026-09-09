@@ -115,7 +115,7 @@ def dedup_detections(dets: list[dict[str, Any]], thresh: float = 0.45) -> list[d
 def red_ratio(img_bgr: np.ndarray, bbox: list[float]) -> float:
     """
     Compute ratio of red pixels within a bounding box crop using HSV thresholding.
-    Used for decimal digit verification (red digits on water meters).
+    Used for decimal digit verification (vivid red digits on water meters).
     """
     x1, y1, x2, y2 = [int(v) for v in bbox]
     pad_x = max(1, int((x2 - x1) * 0.15))
@@ -129,8 +129,9 @@ def red_ratio(img_bgr: np.ndarray, bbox: list[float]) -> float:
         return 0.0
 
     hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
-    mask1 = cv2.inRange(hsv, (0, 40, 40), (12, 255, 255))
-    mask2 = cv2.inRange(hsv, (165, 40, 40), (180, 255, 255))
+    # คัดกรองเฉพาะสีแดงสด (S>=70, V>=70) ป้องกันคราบสนิม/ฝุ่นสีน้ำตาลเข้มในร่องตัวเลข
+    mask1 = cv2.inRange(hsv, (0, 70, 70), (12, 255, 255))
+    mask2 = cv2.inRange(hsv, (165, 70, 70), (180, 255, 255))
     red_mask = mask1 | mask2
 
     return float(np.mean(red_mask > 0))
@@ -170,3 +171,84 @@ def wilson_score_interval(successes: int, total: int, confidence: float = 0.95) 
     lower = max(0.0, (center - spread) * 100.0)
     upper = min(100.0, (center + spread) * 100.0)
     return round(lower, 1), round(upper, 1)
+
+
+def detect_dial_text_orientation(img_bgr: np.ndarray) -> dict[str, Any]:
+    """
+    ตรวจจับสัญลักษณ์ m/m³ และข้อความบนหน้าปัดมิเตอร์น้ำ (Dial Text & Unit 'm' Detection)
+    ประเมินว่าข้อความและสัญลักษณ์มีแนวโน้มเป็นแนวตั้ง (Vertical) หรือแนวนอน (Horizontal)
+    เพื่อใช้ชี้ทิศทางการหมุนภาพ (Orientation Alignment) แก้ไขปัญหาความคลาดเคลื่อนจากการอ่านภาพที่เอียง
+    """
+    h, w = img_bgr.shape[:2]
+    gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+
+    # โฟกัสบริเวณกึ่งกลางหน้าปัดทรงกลม/สี่เหลี่ยม (ตัดท่อน้ำและฉากหลังรอบนอกออก)
+    side = int(min(h, w) * 0.72)
+    cx, cy = w // 2, h // 2
+    dial_crop = gray[max(0, cy - side // 2): min(h, cy + side // 2),
+                     max(0, cx - side // 2): min(w, cx + side // 2)]
+    dh, dw = dial_crop.shape
+
+    # Adaptive thresholding เพื่อสกัดเส้นขอบตัวอักษรและตัวเลข
+    blur = cv2.GaussianBlur(dial_crop, (3, 3), 0)
+    bin_img = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 15, 5)
+
+    # เคอร์เนลตรวจจับแนวการเรียงตัวของข้อความ
+    # แนวนอน (Horizontal): ตัวอักษรเรียงตัวยาวในแกน X
+    kh = cv2.getStructuringElement(cv2.MORPH_RECT, (13, 2))
+    # แนวตั้ง (Vertical): ตัวอักษรเรียงตัวยาวในแกน Y
+    kv = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 13))
+
+    lines_h = cv2.morphologyEx(bin_img, cv2.MORPH_CLOSE, kh)
+    lines_v = cv2.morphologyEx(bin_img, cv2.MORPH_CLOSE, kv)
+
+    cnts_h, _ = cv2.findContours(lines_h, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts_v, _ = cv2.findContours(lines_v, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    score_h = 0.0
+    for c in cnts_h:
+        bx, by, bw, bh = cv2.boundingRect(c)
+        aspect = bw / float(bh + 1e-5)
+        if 14 < bw < dw * 0.6 and 6 < bh < dh * 0.25 and aspect >= 1.6:
+            score_h += aspect * cv2.contourArea(c)
+
+    score_v = 0.0
+    for c in cnts_v:
+        bx, by, bw, bh = cv2.boundingRect(c)
+        aspect = bh / float(bw + 1e-5)
+        if 14 < bh < dh * 0.6 and 6 < bw < dw * 0.25 and aspect >= 1.6:
+            score_v += aspect * cv2.contourArea(c)
+
+    total = score_h + score_v + 1e-5
+    v_ratio = score_v / total
+
+    # วิเคราะห์รูปทรงอักษร 'm' หรือ 'm³'
+    m_h_votes = 0
+    m_v_votes = 0
+    raw_cnts, _ = cv2.findContours(bin_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    for c in raw_cnts:
+        bx, by, bw, bh = cv2.boundingRect(c)
+        if 8 < bw < 60 and 8 < bh < 60:
+            asp = bw / float(bh)
+            area = cv2.contourArea(c)
+            if area > 35:
+                if 1.15 <= asp <= 2.1:
+                    m_h_votes += 1
+                elif 0.48 <= asp <= 0.87:
+                    m_v_votes += 1
+
+    text_detected = (score_h + score_v > 200) or (m_h_votes + m_v_votes > 0)
+    unit_m_detected = (m_h_votes + m_v_votes > 0)
+    is_vertical_text = bool(v_ratio > 0.52 and score_v > 250)
+    conf = float(v_ratio if is_vertical_text else (1.0 - v_ratio))
+
+    return {
+        "text_detected": bool(text_detected),
+        "unit_m_detected": bool(unit_m_detected),
+        "is_vertical": bool(is_vertical_text),
+        "confidence": round(conf, 3),
+        "v_ratio": round(v_ratio, 3),
+        "score_h": round(score_h, 1),
+        "score_v": round(score_v, 1),
+    }
+

@@ -19,6 +19,8 @@ from PIL import Image
 from starlette.concurrency import run_in_threadpool
 import uvicorn
 
+from utils import detect_dial_text_orientation
+
 
 # ================================================================
 # 1) ค่าคงที่ (Constants)
@@ -46,7 +48,7 @@ ORIENT_MARGIN = 0.12
 FLIP_GUARD_CONF = 0.60
 FLIP_MAP = {0: 0, 1: 1, 2: 5, 5: 2, 6: 9, 8: 8, 9: 6, 3: 3, 4: 4, 7: 7}
 ALIGN_MAX_SPREAD = 0.10
-RED_THRESH = 0.08
+RED_THRESH = 0.12
 RED_DOMINANCE = 2.0
 MIN_CROP_PX = 4
 # หมายเหตุ: CONF_RELIABLE (=0.60) ถูกใช้ร่วมกัน 3 จุดโดยตั้งใจ — (1) เกณฑ์เตือน flip_guard,
@@ -182,8 +184,9 @@ def red_ratio(img_bgr: np.ndarray, bbox: list[float]) -> float:
         return 0.0
 
     hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
-    mask1 = cv2.inRange(hsv, (0, 40, 40), (12, 255, 255))
-    mask2 = cv2.inRange(hsv, (165, 40, 40), (180, 255, 255))
+    # คัดกรองเฉพาะสีแดงสด (S>=70, V>=70) ป้องกันคราบสนิม/ฝุ่นสีน้ำตาลเข้มในร่องตัวเลข
+    mask1 = cv2.inRange(hsv, (0, 70, 70), (12, 255, 255))
+    mask2 = cv2.inRange(hsv, (165, 70, 70), (180, 255, 255))
     red_mask = mask1 | mask2
 
     return float(np.mean(red_mask > 0))
@@ -234,7 +237,7 @@ def is_vertical(dets: list[dict[str, Any]], img_w: int, img_h: int) -> dict[str,
 
 
 def eval_orientation(bgr_img: np.ndarray, angle: int, prep: str) -> dict[str, Any]:
-    """ประเมินผลลัพธ์ของ 1 มุม × 1 ฟิลเตอร์"""
+    """ประเมินผลลัพธ์ของ 1 มุม × 1 ฟิลเตอร์ พร้อมวิเคราะห์ทิศทางข้อความ/สัญลักษณ์ m บนหน้าปัด"""
     rot = rotate_image(bgr_img, angle)
     proc = apply_prep(rot, prep)
     dets = dedup_detections(detect_digits(proc))
@@ -243,12 +246,15 @@ def eval_orientation(bgr_img: np.ndarray, angle: int, prep: str) -> dict[str, An
     vert = is_vertical(dets, rw, rh)
     n = len(dets)
 
+    text_info = detect_dial_text_orientation(rot)
+
     if not dets or vert["vertical"] or not (EXPECTED_MIN_DIGITS <= n <= EXPECTED_MAX_DIGITS):
         return {
             "score": 0.0,
             "dets": dets,
             "prep": prep,
             "vert": vert,
+            "text_info": text_info,
         }
 
     mean_conf = float(np.mean([d["confidence"] for d in dets]))
@@ -263,18 +269,29 @@ def eval_orientation(bgr_img: np.ndarray, angle: int, prep: str) -> dict[str, An
     elif r_last > RED_THRESH and r_last > r_first * RED_DOMINANCE:
         score *= 1.05  # แดงอยู่ขวา -> ทิศทางถูกต้อง
 
+    # โบนัส/ปรับลดคะแนนตามการวางตัวของข้อความและสัญลักษณ์ m
+    if text_info["text_detected"]:
+        if text_info["is_vertical"]:
+            score *= 0.4  # ข้อความยังเป็นแนวตั้ง แสดงว่ามุมนี้ยังผิดทิศ
+        else:
+            score *= 1.1  # ข้อความอยู่ในแนวนอนถูกต้องแล้ว
+
     return {
         "score": score,
         "dets": dets,
         "prep": prep,
         "vert": vert,
+        "text_info": text_info,
     }
 
 
 def detect_digits_best(rgb_img: np.ndarray) -> tuple[list[dict[str, Any]], dict[str, Any] | None]:
-    """ทดลอง 4 ทิศ × 3 ฟิลเตอร์ แล้วเลือกชุดที่ได้คะแนนรวมสูงสุด"""
+    """ทดลอง 4 ทิศ × 3 ฟิลเตอร์ แล้วเลือกชุดที่ได้คะแนนรวมสูงสุด พร้อมปรับหมุนหากตรวจพบข้อความแนวตั้ง"""
     h, w = rgb_img.shape[:2]
     bgr = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR)
+
+    # ตรวจสอบทิศทางข้อความและสัญลักษณ์ m ที่ภาพต้นฉบับ (0°)
+    base_text_info = detect_dial_text_orientation(bgr)
 
     candidates = {}
     for angle in ROTATION_ANGLES:
@@ -290,11 +307,19 @@ def detect_digits_best(rgb_img: np.ndarray) -> tuple[list[dict[str, Any]], dict[
         key=lambda item: item[1]["score"],
     )
 
-    # Margin Rule: มุมอื่นต้องชนะมุม 0° เกินกำหนด จึงยอมสลับมุม (กันพลิกฉิวเฉียด)
+    # หากภาพต้นฉบับตรวจพบข้อความ/m เป็นแนวตั้ง หรือตัวเลขที่ 0° เรียงตัวเป็นแนวตั้ง
+    # แสดงว่าภาพถูกถ่ายแบบเอียง 90 หรือ 270 องศา จะไม่ยอมให้เลือกมุม 0 หรือ 180 ที่ข้อความ/ตัวเลขยังตั้งอยู่
+    is_sideways = base_text_info["is_vertical"] or cand0["vert"]["vertical"]
+    if is_sideways and best_angle in (0, 180):
+        alt_candidates = {a: candidates[a] for a in (90, 270) if candidates[a]["score"] > 0}
+        if alt_candidates:
+            best_angle, best_cand = max(alt_candidates.items(), key=lambda item: item[1]["score"])
+
+    # Margin Rule: มุมอื่นต้องชนะมุม 0° เกินกำหนด จึงยอมสลับมุม (กันพลิกฉิวเฉียด เว้นแต่ 0° ข้อความ/ตัวเลขเป็นแนวตั้ง)
     if (
         best_angle != 0
         and cand0["dets"]
-        and not cand0["vert"]["vertical"]
+        and not is_sideways
         and (best_cand["score"] - cand0["score"] < ORIENT_MARGIN)
     ):
         best_angle, best_cand = 0, cand0
@@ -307,6 +332,8 @@ def detect_digits_best(rgb_img: np.ndarray) -> tuple[list[dict[str, Any]], dict[
             "angle": best_angle,
             "prep": best_cand["prep"],
             "clahe": best_cand["prep"] == "clahe",
+            "base_text_vertical": base_text_info["is_vertical"],
+            "text_info": best_cand.get("text_info", {}),
         }
         for d in best_dets:
             d["bbox"] = remap_bbox(d["bbox"], best_angle, w, h)
@@ -314,6 +341,7 @@ def detect_digits_best(rgb_img: np.ndarray) -> tuple[list[dict[str, Any]], dict[
             d["center_y"] = (d["bbox"][1] + d["bbox"][3]) / 2.0
 
     return best_dets, best_meta
+
 
 
 # ================================================================
@@ -383,8 +411,15 @@ def flip_guard(rgb_img: np.ndarray, digits: list[dict[str, Any]], meta: dict[str
         )
     )
 
+    # หากค่าอ่านปัจจุบันมีเลข 0 นำหน้าตามธรรมชาติของมาตรวัดน้ำ ขณะที่ค่ากลับหัว 180° จบด้วย 0 (เช่น 01535 เทียบกับ 53510)
+    # แสดงว่าทิศทางปัจจุบันถูกต้องแล้ว การเตือน flip_guard จึงไม่จำเป็น
+    leading_zero_curr = len(digits) > 0 and digits[0]["digit"] == 0
+    leading_zero_anti = len(anti_vals) > 0 and anti_vals[0] == 0
+    trailing_zero_anti = len(anti_vals) > 0 and anti_vals[-1] == 0
+    is_natural_odometer = leading_zero_curr and not leading_zero_anti and trailing_zero_anti
+
     return {
-        "warned": bool(mean_conf >= FLIP_GUARD_CONF and not consistent),
+        "warned": bool(mean_conf >= FLIP_GUARD_CONF and not consistent and not is_natural_odometer),
         "anti_reading": anti_reading,
         "anti_confidence": round(mean_conf, 4),
     }
@@ -535,12 +570,30 @@ def read_meter(rgb_img: np.ndarray) -> dict[str, Any]:
         for m in mismatches
     ]
 
+    dial_text_vertical = bool(meta and meta.get("base_text_vertical"))
+    rotated_for_dial_text = bool(meta and meta.get("base_text_vertical") and meta.get("angle") in (90, 270))
+    if rotated_for_dial_text:
+        warns.append(
+            f"ตรวจพบสัญลักษณ์ m หรือตัวอักษรบนหน้าปัดในแนวตั้ง — ปรับหมุนภาพ {meta['angle']}° ให้อ่านในแนวนอนเพื่อลดความคลาดเคลื่อน"
+        )
+
     return {
         "reading": "".join(str(d["digit"]) for d in digits),
         "digits": digits,
         "mean_confidence": round(mean_conf, 4),
         "meter_check": meter,
         "processing": {"best": meta},
+        "safety_guards": {
+            "is_water_meter": meter["verified"],
+            "orientation_angle": meta["angle"] if meta else 0,
+            "contrast_prep": meta["prep"] if meta else "orig",
+            "flip_guard_warned": flip["warned"],
+            "flip_guard_anti_reading": flip["anti_reading"],
+            "alignment_ok": align_ok,
+            "siglip_mismatches": mismatches,
+            "dial_text_vertical": dial_text_vertical,
+            "rotated_for_dial_text": rotated_for_dial_text,
+        },
         "warnings": warns,
         "elapsed_ms": round((perf_counter() - t0) * 1000, 1),
     }
