@@ -2,7 +2,7 @@
 
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
-[![Version v3.0](https://img.shields.io/badge/Release-v3.0-blue.svg)](https://github.com/jirathxz/meter-reader/releases/tag/v3.0)
+[![Version v3.1](https://img.shields.io/badge/Release-v3.1-blue.svg)](https://github.com/jirathxz/meter-reader/releases/tag/v3.1)
 [![YOLO26m](https://img.shields.io/badge/Detector-YOLO26m-00FFFF.svg)](https://docs.ultralytics.com/)
 [![SigLIP2](https://img.shields.io/badge/Zero--shot-SigLIP2--Base-4285F4.svg)](https://huggingface.co/google/siglip2-base-patch16-224)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
@@ -63,7 +63,7 @@ meter-reader/
 ├── meter_dataset.yaml          # ไฟล์คอนฟิกูเรชันชุดข้อมูลสำหรับ Ultralytics YOLO
 ├── requirements.txt            # รายการไลบรารีและแพ็กเกจที่ต้องติดตั้ง
 ├── LICENSE                     # สัญญาอนุญาตการใช้งานซอฟต์แวร์ (GNU AGPLv3)
-├── TUTORIAL.md                 # คู่มือฉบับเต็มภาษาไทยตามมาตรฐานงานวิจัยเชิงประจักษ์ (v3.0)
+├── TUTORIAL.md                 # คู่มือฉบับเต็มภาษาไทยตามมาตรฐานงานวิจัยเชิงประจักษ์ (v3.1)
 ├── meter_img/                  # ชุดภาพตัวอย่างสาธิตมาตรวัดน้ำ (Demo Set, n=7)
 │   └── ground_truth.csv        # ค่าเฉลยตัวเลขของชุดภาพสาธิต
 ├── tests/                      # ชุดทดสอบอัตโนมัติ (Automated Unit Tests)
@@ -241,7 +241,7 @@ uv run python eval_yolo_metrics.py
 
 ## เอกสารคู่มือฉบับเต็มและงานวิจัยที่เกี่ยวข้อง (Documentation)
 
-* **คู่มือการพัฒนาระบบและรายงานวิจัยฉบับสมบูรณ์ (v3.0):** [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md)
+* **คู่มือการพัฒนาระบบและรายงานวิจัยฉบับสมบูรณ์ (v3.1):** [TUTORIAL.md](file:///d:/_Work/Guidebook-RE/meter-reader/TUTORIAL.md)
 * **การอ้างอิงและบรรณานุกรมสำคัญ:**
   * **Ultralytics YOLO:** Ultralytics (2024), Jocher et al. (2023)
   * **SigLIP / SigLIP2:** Zhai et al. (2023), Tschannen et al. (2025)
