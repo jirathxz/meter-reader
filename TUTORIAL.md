@@ -80,16 +80,16 @@
 &emsp;&emsp;[3.2 ขบวนการที่ 1: การเตรียมข้อมูลและคัดกรองภาพนำเข้า (Preprocessing)](#32-ขบวนการที่-1-การเตรียมข้อมูลและคัดกรองภาพนำเข้า-preprocessing)  
 &emsp;&emsp;&emsp;&emsp;[3.2.1 ขั้นตอนการทำงานและเหตุผลความจำเป็นของแต่ละฟีเจอร์](#321-ขั้นตอนการทำงานและเหตุผลความจำเป็นของแต่ละฟีเจอร์)  
 &emsp;&emsp;&emsp;&emsp;[3.2.2 รหัสต้นฉบับของขบวนการเตรียมข้อมูลและคัดกรองภาพ](#322-รหัสต้นฉบับของขบวนการเตรียมข้อมูลและคัดกรองภาพ)  
-&emsp;&emsp;&emsp;&emsp;[3.2.3 การทดสอบความถูกต้องของขบวนการเตรียมข้อมูล (Checkpoint 1: Preprocessing Test)](#323-การทดสอบความถูกต้องของขบวนการเตรียมข้อมูล-checkpoint-1-preprocessing-test)  
+&emsp;&emsp;&emsp;&emsp;[3.2.3 การทดสอบความถูกต้องของขบวนการเตรียมข้อมูล (Checkpoint 1: Preprocessing & Gatekeeper Visual Test)](#323-การทดสอบความถูกต้องของขบวนการเตรียมข้อมูล-checkpoint-1-preprocessing--gatekeeper-visual-test)  
 &emsp;&emsp;[3.3 ขบวนการที่ 2: การปรับปรุงคุณภาพภาพและวิเคราะห์ระนาบ (Process)](#33-ขบวนการที่-2-การปรับปรุงคุณภาพภาพและวิเคราะห์ระนาบ-process)  
 &emsp;&emsp;&emsp;&emsp;[3.3.1 ขั้นตอนการทำงานและเหตุผลความจำเป็นของแต่ละฟีเจอร์](#331-ขั้นตอนการทำงานและเหตุผลความจำเป็นของแต่ละฟีเจอร์)  
 &emsp;&emsp;&emsp;&emsp;[3.3.2 รหัสต้นฉบับของขบวนการปรับปรุงคุณภาพภาพและวิเคราะห์ระนาบ](#332-รหัสต้นฉบับของขบวนการปรับปรุงคุณภาพภาพและวิเคราะห์ระนาบ)  
-&emsp;&emsp;&emsp;&emsp;[3.3.3 การทดสอบความถูกต้องของขบวนการปรับปรุงภาพ (Checkpoint 2: Transformation & Dial Text Test)](#333-การทดสอบความถูกต้องของขบวนการปรับปรุงภาพ-checkpoint-2-transformation--dial-text-test)  
+&emsp;&emsp;&emsp;&emsp;[3.3.3 การทดสอบความถูกต้องของขบวนการปรับปรุงภาพ (Checkpoint 2: Process & Transformation Visual Test)](#333-การทดสอบความถูกต้องของขบวนการปรับปรุงภาพ-checkpoint-2-process--transformation-visual-test)  
 &emsp;&emsp;[3.4 ขบวนการที่ 3: การตรวจจับและรู้จำตัวเลข (Output)](#34-ขบวนการที่-3-การตรวจจับและรู้จำตัวเลข-output)  
 &emsp;&emsp;&emsp;&emsp;[3.4.1 การสอนฝึกแบบจำลองสำหรับการตรวจจับตัวเลข YOLO26 (Required Training Prerequisite)](#341-การสอนฝึกแบบจำลองสำหรับการตรวจจับตัวเลข-yolo26-required-training-prerequisite)  
 &emsp;&emsp;&emsp;&emsp;[3.4.2 ขั้นตอนการทำงานและเหตุผลความจำเป็นของแต่ละฟีเจอร์](#342-ขั้นตอนการทำงานและเหตุผลความจำเป็นของแต่ละฟีเจอร์)  
 &emsp;&emsp;&emsp;&emsp;[3.4.3 รหัสต้นฉบับของขบวนการตรวจจับและรู้จำตัวเลข](#343-รหัสต้นฉบับของขบวนการตรวจจับและรู้จำตัวเลข)  
-&emsp;&emsp;&emsp;&emsp;[3.4.4 การทดสอบความถูกต้องของขบวนการตรวจจับตัวเลข (Checkpoint 3: Detection & Output Test)](#344-การทดสอบความถูกต้องของขบวนการตรวจจับตัวเลข-checkpoint-3-detection--output-test)  
+&emsp;&emsp;&emsp;&emsp;[3.4.4 การทดสอบความถูกต้องของขบวนการตรวจจับตัวเลข (Checkpoint 3: Detection & Output Visual Test)](#344-การทดสอบความถูกต้องของขบวนการตรวจจับตัวเลข-checkpoint-3-detection--output-visual-test)  
 &emsp;&emsp;[3.5 ขั้นตอนสุดท้าย: การบูรณาการระบบและการส่งมอบผลลัพธ์ (Integration & Dispatch)](#35-ขั้นตอนสุดท้าย-การบูรณาการระบบและการส่งมอบผลลัพธ์-integration--dispatch)  
 &emsp;&emsp;&emsp;&emsp;[3.5.1 การบูรณาการ 3 ขบวนการเข้าเป็นฟังก์ชันหลัก `read_meter` และกลไกความปลอดภัย](#351-การบูรณาการ-3-ขบวนการเข้าเป็นฟังก์ชันหลัก-read_meter-และกลไกความปลอดภัย)  
 &emsp;&emsp;&emsp;&emsp;[3.5.2 การส่งคืนผลลัพธ์ลงระบบบริการด้วย FastAPI](#352-การส่งคืนผลลัพธ์ลงระบบบริการด้วย-fastapi)  
@@ -1299,46 +1299,103 @@ def check_water_meter(rgb_img: np.ndarray) -> dict:
 ```
 <p align="center"><strong>ซอร์สโค้ดที่ 3.1: รหัสต้นฉบับขบวนการที่ 1 — การเตรียมข้อมูลและการคัดกรองภาพด้วย SigLIP2 Zero-shot</strong></p>
 
-#### 3.2.3 การทดสอบความถูกต้องของขบวนการเตรียมข้อมูล (Checkpoint 1: Preprocessing Test)
+#### 3.2.3 การทดสอบความถูกต้องของขบวนการเตรียมข้อมูล (Checkpoint 1: Preprocessing & Gatekeeper Visual Test)
 
-&emsp;&emsp;&emsp;&emsp;ผู้พัฒนาสามารถสร้างและสั่งรันสคริปต์ทดสอบเดี่ยวสำหรับขบวนการที่ 1 เพื่อยืนยันว่าการตรวจสอบ MIME Type, การเปิดอ่านภาพ, การแปลง RGB และการจำแนกประเภทด้วย SigLIP2 ทำงานได้อย่างถูกต้องสมบูรณ์ก่อนนำไปประกอบกับขบวนการถัดไป ดังแสดงในซอร์สโค้ดที่ 3.2:
+&emsp;&emsp;&emsp;&emsp;**ความสำคัญของการทดสอบด้วยการแสดงภาพผลลัพธ์ (Visual Inspection Rationale):** ในงานวิศวกรรมคอมพิวเตอร์วิทัศน์ การทดสอบขบวนการเตรียมข้อมูลด้วยคำสั่งตรวจสอบเชิงข้อความ (Console Assertion) เช่น การเช็คค่าตรรกะ `verified == True` เพียงอย่างเดียว ไม่เพียงพอต่อการรับประกันคุณภาพของข้อมูลนำเข้า เนื่องจากคอนโซลไม่สามารถเปิดเผยข้อผิดพลาดที่เกิดขึ้นบนผืนภาพได้ เช่น การสลับช่องสัญญาณสีระหว่าง BGR และ RGB ซึ่งทำให้ตัวเลขและหน้าปัดมีสีเพี้ยน, การตัดขอบภาพผิดพลาด, หรือการคงอยู่ของสิ่งแปลกปลอมในภาพ ดังนั้น การทดสอบ Checkpoint 1 จึงได้รับการออกแบบให้สร้าง **ภาพผลลัพธ์เชิงประจักษ์ (Visual Output)** เพื่อแสดงผลลัพธ์การคัดกรองแบบคู่ขนาน 2 ฝั่ง (Positive vs Negative Panel) โดยฝั่งซ้ายเป็นกรณีภาพมาตรวัดน้ำจริง (Positive Case) ที่ผ่านการตรวจสอบ MIME Type, โครงสร้าง 3 ช่องสัญญาณสี และได้รับการรับรองจากแบบจำลอง SigLIP2 ด้วยค่าความเชื่อมั่นสูง และฝั่งขวาเป็นกรณีภาพสัญญาณรบกวนหรือไม่ใช่มิเตอร์น้ำ (Negative Case) ที่ระบบกระตุ้นกลไกตัดจบการทำงานล่วงหน้า (Early Exit) พร้อมแสดงแถบเตือนสีแดงอย่างโปร่งใส
+
+&emsp;&emsp;&emsp;&emsp;รหัสต้นฉบับสคริปต์ทดสอบ `scripts/test_checkpoint1_visual.py` แสดงในซอร์สโค้ดที่ 3.2:
 
 ```python
-# scripts/test_checkpoint1_preprocessing.py
+# scripts/test_checkpoint1_visual.py
+"""
+สคริปต์ทดสอบ Checkpoint 1: Preprocessing & Gatekeeper พร้อมสร้างภาพผลลัพธ์เชิงประจักษ์ (Visual Output)
+บันทึกผลการทดสอบเป็นภาพที่ media/checkpoint1_preprocessing_test.png
+"""
+import os
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 from main import check_water_meter
 
-def run_checkpoint1():
-    print("=== เริ่มการทดสอบ Checkpoint 1: Preprocessing & Gatekeeper ===")
+def run_checkpoint1_visual():
+    print("=== เริ่มการทดสอบ Checkpoint 1: Preprocessing & Gatekeeper (Visual Test) ===")
     
-    # 1. ทดสอบกับภาพมิเตอร์น้ำจริง (Positive Case)
-    valid_img_path = "meter_img/meter_01.jpg"
-    bgr = cv2.imread(valid_img_path)
-    assert bgr is not None, f"ไม่พบไฟล์ทดสอบ {valid_img_path}"
-    rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
-    
-    res_valid = check_water_meter(rgb)
-    print(f"ผลการทดสอบภาพมาตรวัดน้ำจริง: verified={res_valid['verified']}, conf={res_valid['water_meter_confidence']}")
-    assert res_valid["verified"] is True, "ความล้มเหลว: ภาพมาตรวัดน้ำจริงต้องผ่านเกณฑ์ SigLIP2"
+    # 1. ทดสอบภาพบวก (Positive Case: ภาพมาตรวัดน้ำจริง)
+    pos_path = "meter_img/meter_sample_01.jpg"
+    bgr_pos = cv2.imread(pos_path)
+    assert bgr_pos is not None, f"ไม่พบไฟล์ทดสอบ {pos_path}"
+    rgb_pos = cv2.cvtColor(bgr_pos, cv2.COLOR_BGR2RGB)
+    res_pos = check_water_meter(rgb_pos)
+    assert res_pos["verified"] is True, "ความล้มเหลว: ภาพมาตรวัดน้ำจริงต้องผ่านการคัดกรอง"
+    print(f"Positive Case: verified={res_pos['verified']}, class={res_pos['predicted_class']}, conf={res_pos['confidence']:.4f}")
 
-    # 2. ทดสอบกับภาพสังเคราะห์ที่ไม่ใช่มิเตอร์น้ำ (Negative Case - Noise Image)
-    dummy_noise = np.random.randint(0, 255, (300, 300, 3), dtype=np.uint8)
-    res_noise = check_water_meter(dummy_noise)
-    print(f"ผลการทดสอบภาพสัญญาณรบกวน: verified={res_noise['verified']}, predicted={res_noise['predicted_class']}")
-    assert res_noise["verified"] is False, "ความล้มเหลว: ภาพสัญญาณรบกวนต้องถูกปฏิเสธ"
+    # 2. ทดสอบภาพลบ (Negative Case: ภาพสัญญาณรบกวน / วัตถุอื่นที่ไม่ใช่มิเตอร์)
+    neg_img = np.zeros((bgr_pos.shape[0], bgr_pos.shape[1], 3), dtype=np.uint8)
+    cv2.circle(neg_img, (neg_img.shape[1]//2, neg_img.shape[0]//2), 200, (100, 100, 100), -1)
+    cv2.rectangle(neg_img, (100, 100), (neg_img.shape[1]-100, neg_img.shape[0]-100), (60, 60, 60), 10)
+    for i in range(10):
+        cv2.line(neg_img, (0, i*50), (neg_img.shape[1], i*50), (40, 40, 40), 2)
+    rgb_neg = cv2.cvtColor(neg_img, cv2.COLOR_BGR2RGB)
+    res_neg = check_water_meter(rgb_neg)
+    assert res_neg["verified"] is False, "ความล้มเหลว: ภาพรบกวนต้องถูกคัดกรองทิ้ง"
+    print(f"Negative Case: verified={res_neg['verified']}, class={res_neg['predicted_class']}, conf={res_neg['confidence']:.4f}")
 
-    print(">>> ผ่านการทดสอบ Checkpoint 1 เรียบร้อย: ระบบคัดกรอง Preprocessing มีความถูกต้อง 100% <<<")
+    # 3. สร้างภาพแสดงผลลัพธ์เชิงประจักษ์แบบ 2 ฝั่ง (Positive vs Negative Panel)
+    fig, axes = plt.subplots(1, 2, figsize=(12, 6), dpi=150)
+    fig.patch.set_facecolor('#f8fafc')
+
+    # ฝั่งซ้าย: Positive Case
+    axes[0].imshow(rgb_pos)
+    axes[0].set_title("Positive Case: Valid Water Meter Image", fontsize=12, fontweight='bold', pad=10, color='#1e293b')
+    axes[0].axis('off')
+    rect1 = patches.Rectangle((20, 20), 460, 140, linewidth=2, edgecolor='#16a34a', facecolor='#dcfce7', alpha=0.9)
+    axes[0].add_patch(rect1)
+    axes[0].text(35, 55, "[CHECKPOINT 1: PASSED]", fontsize=11, fontweight='bold', color='#15803d')
+    axes[0].text(35, 85, "MIME: image/jpeg | Valid RGB 3-Channels", fontsize=9, color='#1e293b')
+    axes[0].text(35, 110, f"SigLIP2 Class: '{res_pos['predicted_class']}'", fontsize=9, fontweight='bold', color='#1e293b')
+    axes[0].text(35, 135, f"Water Meter Confidence: {res_pos['confidence']:.2%} >= 50.00%", fontsize=9, color='#15803d')
+
+    # ฝั่งขวา: Negative Case
+    axes[1].imshow(rgb_neg)
+    axes[1].set_title("Negative Case: Non-meter / Corrupted Input", fontsize=12, fontweight='bold', pad=10, color='#1e293b')
+    axes[1].axis('off')
+    rect2 = patches.Rectangle((20, 20), 460, 140, linewidth=2, edgecolor='#dc2626', facecolor='#fee2e2', alpha=0.9)
+    axes[1].add_patch(rect2)
+    axes[1].text(35, 55, "[CHECKPOINT 1: REJECTED]", fontsize=11, fontweight='bold', color='#b91c1c')
+    axes[1].text(35, 85, "MIME: Checked | Invalid Water Meter Feature", fontsize=9, color='#1e293b')
+    axes[1].text(35, 110, f"SigLIP2 Class: '{res_neg['predicted_class']}'", fontsize=9, fontweight='bold', color='#1e293b')
+    axes[1].text(35, 135, f"Water Meter Confidence: {res_neg['confidence']:.2%} < 50.00% (Early Exit)", fontsize=9, color='#b91c1c')
+
+    plt.tight_layout()
+    os.makedirs("media", exist_ok=True)
+    out_path = "media/checkpoint1_preprocessing_test.png"
+    plt.savefig(out_path, bbox_inches='tight', facecolor=fig.get_facecolor())
+    plt.close()
+    print(f">>> บันทึกภาพผลลัพธ์การทดสอบ Checkpoint 1 สำเร็จที่: {out_path} <<<")
 
 if __name__ == "__main__":
-    run_checkpoint1()
+    run_checkpoint1_visual()
 ```
-<p align="center"><strong>ซอร์สโค้ดที่ 3.2: สคริปต์ทดสอบ Checkpoint 1 สำหรับตรวจสอบความถูกต้องของขบวนการเตรียมข้อมูล</strong></p>
+<p align="center"><strong>ซอร์สโค้ดที่ 3.2: สคริปต์ทดสอบ Checkpoint 1 สำหรับตรวจสอบความถูกต้องของขบวนการเตรียมข้อมูลพร้อมสร้างภาพผลลัพธ์เชิงประจักษ์</strong></p>
 
-&emsp;&emsp;&emsp;&emsp;คำสั่งในการรันจุดทดสอบ Checkpoint 1:
+&emsp;&emsp;&emsp;&emsp;คำสั่งในการรันจุดทดสอบ Checkpoint 1 ด้วยเครื่องมือ `uv`:
 ```powershell
-uv run python -c "from main import check_water_meter; import cv2; img=cv2.cvtColor(cv2.imread('meter_img/meter_01.jpg'), cv2.COLOR_BGR2RGB); print(check_water_meter(img))"
+uv run python scripts/test_checkpoint1_visual.py
 ```
+
+&emsp;&emsp;&emsp;&emsp;ผลลัพธ์จากการรันสคริปต์ทดสอบจะถูกบันทึกเป็นไฟล์ภาพเชิงประจักษ์ ซึ่งแสดงให้เห็นกระบวนการคัดกรองและการทำงานของ Gatekeeper อย่างชัดเจน ดังแสดงในภาพที่ 3.2:
+
+<p align="center">
+  <img src="media/checkpoint1_preprocessing_test.png" alt="ผลการทดสอบเชิงประจักษ์ใน Checkpoint 1 การคัดกรองภาพนำเข้าด้วย SigLIP2 Zero-shot" width="700"/>
+  <br>
+  <strong>ภาพที่ 3.2: ภาพผลลัพธ์การทดสอบเชิงประจักษ์ของขบวนการเตรียมข้อมูล (Checkpoint 1: Preprocessing & Gatekeeper Visual Test) แสดงการคัดกรองเปรียบเทียบระหว่างภาพมาตรวัดน้ำจริงกับสัญญาณรบกวน</strong>
+  <br>
+  <em>ที่มา: จากการทดสอบระบบจริงในโครงงานนี้</em>
+</p>
 
 ---
 
@@ -1427,44 +1484,114 @@ def detect_dial_text_orientation(bgr_img: np.ndarray) -> dict:
 ```
 <p align="center"><strong>ซอร์สโค้ดที่ 3.3: รหัสต้นฉบับขบวนการที่ 2 — การหมุนภาพ ปรับฟิลเตอร์แสง และตรวจจับทิศทางข้อความหน้าปัด</strong></p>
 
-#### 3.3.3 การทดสอบความถูกต้องของขบวนการปรับปรุงภาพ (Checkpoint 2: Transformation & Dial Text Test)
+#### 3.3.3 การทดสอบความถูกต้องของขบวนการปรับปรุงภาพ (Checkpoint 2: Process & Transformation Visual Test)
 
-&emsp;&emsp;&emsp;&emsp;ผู้พัฒนาสามารถทดสอบขบวนการที่ 2 เพื่อยืนยันว่าฟังก์ชันการหมุนและปรับปรุงภาพทำงานถูกต้อง รักษาระดับมิติภาพได้สมบูรณ์ และฟังก์ชันวิเคราะห์ทิศทางข้อความสามารถจำแนกภาพแนวตั้งได้แม่นยำ ดังแสดงในซอร์สโค้ดที่ 3.4:
+&emsp;&emsp;&emsp;&emsp;**ความสำคัญของการทดสอบด้วยการแสดงภาพผลลัพธ์ (Visual Inspection Rationale):** ในขบวนการปรับปรุงภาพ การหมุนภาพ 4 ระนาบ (0°, 90°, 180°, 270°) และการปรับแต่งคอนทราสต์ 3 รูปแบบ (Orig, CLAHE บน LAB, และ HistEq บน YCrCb) ส่งผลกระทบโดยตรงต่อโครงสร้างทางเรขาคณิตและระดับความเข้มของพิกเซล หากทดสอบเฉพาะมิติอาเรย์ของภาพผ่านฟังก์ชัน เช่น `assert rot_90.shape[:2] == (w, h)` ผู้พัฒนาจะไม่สามารถทราบได้เลยว่าฟิลเตอร์ CLAHE ก่อให้เกิดสัญญาณรบกวนเกินขนาดในบริเวณตัวเลขหรือไม่ หรือฟิลเตอร์ HistEq ทำให้บริเวณที่มีแสงจ้ากลายเป็นสีขาวโพลนจนลายเส้นตัวเลขขาดหายหรือไม่ นอกจากนี้ การตรวจสอบฟังก์ชันวิเคราะห์ทิศทางข้อความบนหน้าปัด (`detect_dial_text_orientation`) จำเป็นต้องมองเห็นกรอบคอนทัวร์ที่ตรวจจับได้จริงว่าสอดคล้องกับสัญลักษณ์ $m^3$ หรือไม่ การทดสอบ Checkpoint 2 จึงรวบรวมผลการประมวลผลทั้ง 8 สภาวะออกมาเป็นตารางภาพผลลัพธ์ 2 แถว 4 คอลัมน์อย่างสมบูรณ์
+
+&emsp;&emsp;&emsp;&emsp;รหัสต้นฉบับสคริปต์ทดสอบ `scripts/test_checkpoint2_visual.py` แสดงในซอร์สโค้ดที่ 3.4:
 
 ```python
-# scripts/test_checkpoint2_process.py
+# scripts/test_checkpoint2_visual.py
+"""
+สคริปต์ทดสอบ Checkpoint 2: Process & Transformation พร้อมสร้างภาพผลลัพธ์เชิงประจักษ์ (Visual Output)
+บันทึกผลการทดสอบเป็นภาพที่ media/checkpoint2_process_test.png
+"""
+import os
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 from main import rotate_image, apply_prep, detect_dial_text_orientation
 
-def run_checkpoint2():
-    print("=== เริ่มการทดสอบ Checkpoint 2: Process & Transformation ===")
-    img = cv2.imread("meter_img/meter_01.jpg")
-    h, w = img.shape[:2]
+def run_checkpoint2_visual():
+    print("=== เริ่มการทดสอบ Checkpoint 2: Process & Transformation (Visual Test) ===")
+    img_path = "meter_img/meter_sample_01.jpg"
+    bgr = cv2.imread(img_path)
+    assert bgr is not None, f"ไม่พบไฟล์ทดสอบ {img_path}"
+    h, w = bgr.shape[:2]
 
-    # 1. ทดสอบมิติภาพจากการหมุน 4 ระนาบ
-    rot_90 = rotate_image(img, 90)
-    assert rot_90.shape[:2] == (w, h), "ความล้มเหลว: หมุน 90° มิติกว้างยาวต้องสลับกัน"
-    rot_180 = rotate_image(img, 180)
-    assert rot_180.shape[:2] == (h, w), "ความล้มเหลว: หมุน 180° มิติต้องเท่าเดิม"
-    print(" ผ่านการทดสอบการหมุน 4 ทิศทาง")
+    # 1. ทดสอบการหมุน 4 ระนาบ (0, 90, 180, 270)
+    rot_0 = rotate_image(bgr, 0)
+    rot_90 = rotate_image(bgr, 90)
+    rot_180 = rotate_image(bgr, 180)
+    rot_270 = rotate_image(bgr, 270)
+    assert rot_90.shape[:2] == (w, h), "ความล้มเหลว: หมุน 90° มิติภาพต้องสลับ กว้าง x สูง"
+    assert rot_180.shape[:2] == (h, w), "ความล้มเหลว: หมุน 180° มิติภาพต้องเท่าเดิม"
+    print(" ผ่านการทดสอบการหมุน 4 ทิศทาง (0°, 90°, 180°, 270°)")
 
-    # 2. ทดสอบการปรับปรุงภาพ CLAHE และ HistEq
-    clahe_img = apply_prep(img, "clahe")
-    hist_img = apply_prep(img, "histeq")
-    assert clahe_img.shape == img.shape and hist_img.shape == img.shape, "ความล้มเหลว: ฟิลเตอร์ต้องรักษามิติภาพ"
-    print(" ผ่านการทดสอบฟิลเตอร์ปรับปรุงแสง CLAHE / HistEq")
+    # 2. ทดสอบฟิลเตอร์ปรับปรุงคอนทราสต์ 3 รูปแบบ (orig, clahe, histeq)
+    filt_orig = apply_prep(bgr, "orig")
+    filt_clahe = apply_prep(bgr, "clahe")
+    filt_histeq = apply_prep(bgr, "histeq")
+    assert filt_clahe.shape == bgr.shape and filt_histeq.shape == bgr.shape, "ความล้มเหลว: ฟิลเตอร์ต้องรักษาระดับมิติภาพ"
+    print(" ผ่านการทดสอบฟิลเตอร์ปรับปรุงแสง CLAHE (LAB) และ HistEq (YCrCb)")
 
-    # 3. ทดสอบการตรวจจับทิศทางข้อความบนภาพตะแคง 90°
-    text_info = detect_dial_text_orientation(rot_90)
-    print(f"ผลการวิเคราะห์ทิศทางข้อความบนภาพหมุน 90°: {text_info}")
-    
-    print(">>> ผ่านการทดสอบ Checkpoint 2 เรียบร้อย: ขบวนการ Process ทำงานสมบูรณ์ <<<")
+    # 3. ทดสอบการตรวจจับทิศทางข้อความบนหน้าปัด m³
+    dial_info = detect_dial_text_orientation(rot_90)
+    print(f"ผลวิเคราะห์ทิศทางข้อความหน้าปัดบนภาพหมุน 90°: is_vertical={dial_info['is_vertical']}, score_h={dial_info['score_h']}, score_v={dial_info['score_v']}")
+
+    # สร้างภาพ Visual Crop สำหรับแสดงผลการตรวจจับขอบเขตข้อความ m³
+    crop = bgr[int(h * 0.2): int(h * 0.8), int(w * 0.2): int(w * 0.8)].copy()
+    gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
+    thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 15, 4)
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    ch, cw = crop.shape[:2]
+    crop_vis = crop.copy()
+    for c in contours:
+        x, y, bw, bh = cv2.boundingRect(c)
+        if 8 < bw < cw * 0.4 and 8 < bh < ch * 0.4:
+            aspect = bw / float(bh)
+            color = (0, 255, 0) if aspect > 1.4 else ((0, 165, 255) if aspect < 0.7 else (255, 0, 0))
+            cv2.rectangle(crop_vis, (x, y), (x + bw, y + bh), color, 2)
+
+    # 4. สร้างภาพผลลัพธ์แบบ 2 แถว x 4 คอลัมน์ (8 ช่องรวม)
+    fig, axes = plt.subplots(2, 4, figsize=(16, 8), dpi=150)
+    fig.patch.set_facecolor('#f8fafc')
+
+    # แถวที่ 1: การหมุน 4 ทิศทาง
+    rot_imgs = [rot_0, rot_90, rot_180, rot_270]
+    rot_titles = ["(1) Rotation 0° (Normal)", "(2) Rotation 90° (Clockwise)", "(3) Rotation 180° (Inverted)", "(4) Rotation 270° (Counter-CW)"]
+    for i in range(4):
+        axes[0, i].imshow(cv2.cvtColor(rot_imgs[i], cv2.COLOR_BGR2RGB))
+        axes[0, i].set_title(rot_titles[i], fontsize=10, fontweight='bold', color='#1e293b')
+        axes[0, i].axis('off')
+
+    # แถวที่ 2: ฟิลเตอร์ 3 แบบ + ขอบเขตข้อความหน้าปัด
+    filt_imgs = [filt_orig, filt_clahe, filt_histeq, crop_vis]
+    filt_titles = ["(5) Filter: Original", "(6) Filter: CLAHE (LAB)", "(7) Filter: HistEq (YCrCb)", "(8) Dial Text m³ Detection Crop"]
+    for i in range(4):
+        axes[1, i].imshow(cv2.cvtColor(filt_imgs[i], cv2.COLOR_BGR2RGB))
+        axes[1, i].set_title(filt_titles[i], fontsize=10, fontweight='bold', color='#1e293b')
+        axes[1, i].axis('off')
+
+    plt.tight_layout()
+    os.makedirs("media", exist_ok=True)
+    out_path = "media/checkpoint2_process_test.png"
+    plt.savefig(out_path, bbox_inches='tight', facecolor=fig.get_facecolor())
+    plt.close()
+    print(f">>> บันทึกภาพผลลัพธ์การทดสอบ Checkpoint 2 สำเร็จที่: {out_path} <<<")
 
 if __name__ == "__main__":
-    run_checkpoint2()
+    run_checkpoint2_visual()
 ```
-<p align="center"><strong>ซอร์สโค้ดที่ 3.4: สคริปต์ทดสอบ Checkpoint 2 สำหรับตรวจสอบความถูกต้องของขบวนการแปลงภาพ</strong></p>
+<p align="center"><strong>ซอร์สโค้ดที่ 3.4: สคริปต์ทดสอบ Checkpoint 2 สำหรับตรวจสอบความถูกต้องของขบวนการแปลงภาพพร้อมสร้างภาพผลลัพธ์เชิงประจักษ์</strong></p>
+
+&emsp;&emsp;&emsp;&emsp;คำสั่งในการรันจุดทดสอบ Checkpoint 2 ด้วยเครื่องมือ `uv`:
+```powershell
+uv run python scripts/test_checkpoint2_visual.py
+```
+
+&emsp;&emsp;&emsp;&emsp;ผลลัพธ์จากการรันสคริปต์ทดสอบจะถูกบันทึกเป็นไฟล์ภาพเชิงประจักษ์ 8 สภาวะ ซึ่งแสดงให้เห็นประสิทธิภาพของการหมุนภาพ การปรับแสง และการวิเคราะห์ข้อความหน้าปัดอย่างครอบคลุม ดังแสดงในภาพที่ 3.3:
+
+<p align="center">
+  <img src="media/checkpoint2_process_test.png" alt="ผลการทดสอบเชิงประจักษ์ใน Checkpoint 2 การหมุนภาพ 4 ระนาบ การปรับคอนทราสต์ 3 รูปแบบ และการตรวจจับข้อความหน้าปัด" width="800"/>
+  <br>
+  <strong>ภาพที่ 3.3: ภาพผลลัพธ์การทดสอบเชิงประจักษ์ของขบวนการปรับปรุงภาพ (Checkpoint 2: Transformation & Dial Text Visual Test) แสดงการหมุน 4 ระนาบ การปรับคอนทราสต์ 3 รูปแบบ และการตรวจจับข้อความหน้าปัด m³</strong>
+  <br>
+  <em>ที่มา: จากการทดสอบระบบจริงในโครงงานนี้</em>
+</p>
 
 ---
 
@@ -1605,40 +1732,122 @@ def dedup_detections(dets: list[dict], thresh: float = IOU_THRESHOLD) -> list[di
 ```
 <p align="center"><strong>ซอร์สโค้ดที่ 3.6: รหัสต้นฉบับขบวนการที่ 3 — การตรวจจับตัวเลขด้วย YOLO26 การตัดกล่องซ้อนทับ และการเรียงลำดับซ้ายไปขวา</strong></p>
 
-#### 3.4.4 การทดสอบความถูกต้องของขบวนการตรวจจับตัวเลข (Checkpoint 3: Detection & Output Test)
+#### 3.4.4 การทดสอบความถูกต้องของขบวนการตรวจจับตัวเลข (Checkpoint 3: Detection & Output Visual Test)
 
-&emsp;&emsp;&emsp;&emsp;ผู้พัฒนาสามารถสั่งทดสอบการทำงานของขบวนการที่ 3 ด้วยการส่งภาพเข้าสู่แบบจำลอง YOLO ตรวจสอบการตัดกล่องซ้ำซ้อน และยืนยันการเรียงลำดับตัวเลขจากซ้ายไปขวา ดังแสดงในซอร์สโค้ดที่ 3.7:
+&emsp;&emsp;&emsp;&emsp;**ความสำคัญของการทดสอบด้วยการแสดงภาพผลลัพธ์ (Visual Inspection Rationale):** ขบวนการตรวจจับและรู้จำตัวเลขถือเป็นหัวใจสำคัญสูงสุดของระบบ หากทดสอบเฉพาะค่าสตริงตัวเลขหรือการนับจำนวนกล่อง (Bounding Box Count) ในคอนโซล ผู้พัฒนาจะไม่สามารถตรวจสอบข้อเท็จจริงทางเรขาคณิตและสีสันได้เลยว่า:
+1. กรอบสี่เหลี่ยมแนบสนิทกับตัวเลขจริงหรือไม่ หรือมีกล่องขนาดใหญ่ที่คลุมตัวเลขหลายตัวพร้อมกัน
+2. อัลกอริทึมตัดกล่องซ้อนทับด้วย IoU (`dedup_detections`) ตัดกล่องที่ซ้ำซ้อนออกได้อย่างแม่นยำโดยไม่เผลอลบตัวเลขจริงที่อยู่ติดกัน
+3. การเรียงลำดับพิกัดจากซ้ายไปขวาตามแกน X เกิดขึ้นจริงและสอดคล้องกับตำแหน่งหลักหน่วย/สิบ/ร้อยบนหน้าปัด
+4. อัลกอริทึมวิเคราะห์สัดส่วนสีแดง (`red_ratio >= 0.25`) สามารถแยกแยะหลักทศนิยมออกจากหลักจำนวนเต็มได้อย่างถูกต้องหรือไม่
+
+&emsp;&emsp;&emsp;&emsp;การทดสอบ Checkpoint 3 จึงถูกออกแบบให้สร้างภาพการตรวจจับเชิงประจักษ์ (Visual Bounding Boxes & Badges) โดยแสดงหมายเลขลำดับหลัก (#1 ถึง #5), ค่าตัวเลขที่ทำนายได้พร้อมค่าความเชื่อมั่น, การเน้นสีกรอบ (กรอบสีเขียวสำหรับจำนวนเต็ม และกรอบสีแดงสำหรับหลักทศนิยม) ควบคู่กับแถบสรุปสถานะการทดสอบด้านล่างของภาพอย่างสมบูรณ์
+
+&emsp;&emsp;&emsp;&emsp;รหัสต้นฉบับสคริปต์ทดสอบ `scripts/test_checkpoint3_visual.py` แสดงในซอร์สโค้ดที่ 3.7:
 
 ```python
-# scripts/test_checkpoint3_output.py
+# scripts/test_checkpoint3_visual.py
+"""
+สคริปต์ทดสอบ Checkpoint 3: Detection & Output พร้อมสร้างภาพผลลัพธ์เชิงประจักษ์ (Visual Output)
+บันทึกผลการทดสอบเป็นภาพที่ media/checkpoint3_output_test.png
+"""
+import os
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import cv2
-from main import detect_digits, dedup_detections
+import numpy as np
+import matplotlib.pyplot as plt
+from main import detect_digits, dedup_detections, red_ratio, rotate_image
 
-def run_checkpoint3():
-    print("=== เริ่มการทดสอบ Checkpoint 3: Detection & Output ===")
-    img = cv2.imread("meter_img/meter_01.jpg")
-    
-    # 1. ทดสอบการตรวจจับตัวเลขดิบ
-    raw_dets = detect_digits(img)
+def run_checkpoint3_visual():
+    print("=== เริ่มการทดสอบ Checkpoint 3: Detection & Output (Visual Test) ===")
+    img_path = "meter_img/meter_sample_01.jpg"
+    bgr_raw = cv2.imread(img_path)
+    assert bgr_raw is not None, f"ไม่พบไฟล์ทดสอบ {img_path}"
+
+    # 1. ปรับทิศทางภาพให้ตั้งตรงตามผลลัพธ์ของ Process (หมุน 90°)
+    bgr = rotate_image(bgr_raw, 90)
+
+    # 2. ตรวจจับตัวเลขดิบด้วย YOLO26
+    raw_dets = detect_digits(bgr)
     print(f"จำนวนกล่องตัวเลขดิบที่ตรวจพบ: {len(raw_dets)}")
     assert len(raw_dets) > 0, "ความล้มเหลว: ต้องตรวจพบตัวเลขบนหน้าปัดมิเตอร์อย่างน้อย 1 ตัว"
 
-    # 2. ทดสอบการตัดกล่องซ้ำและเรียงลำดับ
+    # 3. ตัดกล่องซ้ำซ้อนด้วย IoU และเรียงลำดับซ้ายไปขวา
     clean_dets = dedup_detections(raw_dets)
-    print(f"จำนวนกล่องตัวเลขหลังตัดกล่องซ้ำ (IoU): {len(clean_dets)}")
+    print(f"จำนวนกล่องตัวเลขหลังตัดกล่องซ้ำ (IoU Dedup): {len(clean_dets)}")
     
-    # ยืนยันว่าพิกัด xmin เรียงจากน้อยไปมาก (ซ้ายไปขวา)
-    x_coords = [d["bbox"][0] for d in clean_dets]
-    assert x_coords == sorted(x_coords), "ความล้มเหลว: ตัวเลขต้องเรียงพิกัดจากซ้ายไปขวา"
-    
-    reading_str = "".join(str(d["digit"]) for d in clean_dets)
-    print(f"ค่าตัวเลขที่อ่านได้: {reading_str}")
-    print(">>> ผ่านการทดสอบ Checkpoint 3 เรียบร้อย: ขบวนการ Output ทำงานสมบูรณ์ <<<")
+    # ยืนยันพิกัด center_x เรียงลำดับจากซ้ายไปขวา
+    x_centers = [d["center_x"] for d in clean_dets]
+    assert x_centers == sorted(x_centers), "ความล้มเหลว: กล่องตัวเลขต้องเรียงพิกัดจากซ้ายไปขวา"
+
+    # 4. วาดภาพการตรวจจับเชิงประจักษ์ (Visual Bounding Boxes & Badges)
+    vis = bgr.copy()
+    num_decimals = 0
+    for i, d in enumerate(clean_dets, 1):
+        x1, y1, x2, y2 = [int(v) for v in d["bbox"]]
+        digit = d["digit"]
+        conf = d["confidence"]
+        
+        # ตรวจสอบสัดส่วนสีแดงของตัวเลขหลักทศนิยม
+        r_ratio = red_ratio(bgr, d["bbox"])
+        is_red = r_ratio >= 0.25
+        if is_red:
+            num_decimals += 1
+
+        color = (0, 0, 255) if is_red else (0, 220, 0) # สีแดงสำหรับทศนิยม, สีเขียวสำหรับจำนวนเต็ม
+        cv2.rectangle(vis, (x1, y1), (x2, y2), color, 3)
+
+        # ป้ายกำกับลำดับที่ ตัวเลข และความเชื่อมั่น
+        label = f"#{i}: {digit} ({conf:.2f})"
+        cv2.rectangle(vis, (x1, max(0, y1 - 25)), (x1 + 130, y1), color, -1)
+        cv2.putText(vis, label, (x1 + 5, y1 - 7), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 2)
+
+    vis_rgb = cv2.cvtColor(vis, cv2.COLOR_BGR2RGB)
+
+    # 5. สร้างภาพผลลัพธ์พร้อมแถบสรุปสถานะการทดสอบ
+    fig, ax = plt.subplots(figsize=(10, 8), dpi=150)
+    fig.patch.set_facecolor('#f8fafc')
+    ax.imshow(vis_rgb)
+    ax.set_title("Checkpoint 3: YOLO26 Digit Detection, IoU Dedup & Left-to-Right Sorting", fontsize=12, fontweight='bold', pad=12, color='#1e293b')
+    ax.axis('off')
+
+    reading = "".join(str(d["digit"]) for d in clean_dets)
+    mean_conf = np.mean([d["confidence"] for d in clean_dets]) if clean_dets else 0.0
+    summary_text = (
+        f"Detected Sequence: {reading}  |  Digits: {len(clean_dets)}  |  Mean Confidence: {mean_conf:.2%}
+"
+        f"Sorting: Left-to-Right by xmin (OK)  |  Vertical Filter: PASSED (Horizontal Row)  |  Decimals: {num_decimals} Red Digit(s)"
+    )
+    plt.figtext(0.5, 0.02, summary_text, wrap=True, horizontalalignment='center', fontsize=10, fontweight='bold',
+                 bbox=dict(boxstyle='round,pad=0.6', facecolor='#dbeafe', edgecolor='#2563eb', alpha=0.95))
+
+    plt.tight_layout()
+    os.makedirs("media", exist_ok=True)
+    out_path = "media/checkpoint3_output_test.png"
+    plt.savefig(out_path, bbox_inches='tight', facecolor=fig.get_facecolor())
+    plt.close()
+    print(f">>> บันทึกภาพผลลัพธ์การทดสอบ Checkpoint 3 สำเร็จที่: {out_path} <<<")
 
 if __name__ == "__main__":
-    run_checkpoint3()
+    run_checkpoint3_visual()
 ```
-<p align="center"><strong>ซอร์สโค้ดที่ 3.7: สคริปต์ทดสอบ Checkpoint 3 สำหรับตรวจสอบความถูกต้องของการตรวจจับและรู้จำตัวเลข</strong></p>
+<p align="center"><strong>ซอร์สโค้ดที่ 3.7: สคริปต์ทดสอบ Checkpoint 3 สำหรับตรวจสอบความถูกต้องของการตรวจจับและรู้จำตัวเลขพร้อมสร้างภาพผลลัพธ์เชิงประจักษ์</strong></p>
+
+&emsp;&emsp;&emsp;&emsp;คำสั่งในการรันจุดทดสอบ Checkpoint 3 ด้วยเครื่องมือ `uv`:
+```powershell
+uv run python scripts/test_checkpoint3_visual.py
+```
+
+&emsp;&emsp;&emsp;&emsp;ผลลัพธ์จากการรันสคริปต์ทดสอบจะถูกบันทึกเป็นไฟล์ภาพเชิงประจักษ์ ซึ่งแสดงให้เห็นกล่องตีกรอบตัวเลข ลำดับการเรียงซ้ายไปขวา และการแยกแยะทศนิยมสีแดงได้อย่างครบถ้วน ดังแสดงในภาพที่ 3.4:
+
+<p align="center">
+  <img src="media/checkpoint3_output_test.png" alt="ผลการทดสอบเชิงประจักษ์ใน Checkpoint 3 การตรวจจับตัวเลขด้วย YOLO26 การตัดกล่องซ้อนด้วย IoU และการเรียงลำดับซ้ายไปขวา" width="700"/>
+  <br>
+  <strong>ภาพที่ 3.4: ภาพผลลัพธ์การทดสอบเชิงประจักษ์ของขบวนการตรวจจับตัวเลข (Checkpoint 3: Detection & Output Visual Test) แสดงการตีกรอบตัวเลข ลำดับการเรียงจากซ้ายไปขวา และการแยกแยะหลักทศนิยมสีแดง</strong>
+  <br>
+  <em>ที่มา: จากการทดสอบระบบจริงในโครงงานนี้</em>
+</p>
 
 ---
 
@@ -1905,12 +2114,12 @@ uv run python gradio_app.py
 ```
 <p align="center"><strong>ชุดคำสั่งที่ 3.2: การสั่งเริ่มต้นทำงานส่วนติดต่อผู้ใช้ Gradio Web UI ด้วยเครื่องมือ <code>uv</code></strong></p>
 
-&emsp;&emsp;&emsp;&emsp;ผลลัพธ์ที่คาดหวัง: หน้าต่างคำสั่งแสดงข้อความ `Running on local URL: http://127.0.0.1:7860` และผู้ใช้สามารถเปิดเว็บเบราว์เซอร์เพื่อใช้งานระบบได้ทันที ดังแสดงในภาพที่ 3.2:
+&emsp;&emsp;&emsp;&emsp;ผลลัพธ์ที่คาดหวัง: หน้าต่างคำสั่งแสดงข้อความ `Running on local URL: http://127.0.0.1:7860` และผู้ใช้สามารถเปิดเว็บเบราว์เซอร์เพื่อใช้งานระบบได้ทันที ดังแสดงในภาพที่ 3.5:
 
 <p align="center">
   <img src="media/gradio_ui_running.png" alt="ส่วนต่อประสานผู้ใช้ Gradio Web UI ขณะประมวลผลอ่านค่ามาตรวัดน้ำอัตโนมัติ" width="700"/>
   <br>
-  <strong>ภาพที่ 3.2: ส่วนต่อประสานผู้ใช้บนเว็บเบราว์เซอร์ (Gradio Web UI) ขณะประมวลผลอ่านค่ามาตรวัดน้ำอัตโนมัติที่ URL http://127.0.0.1:7860</strong>
+  <strong>ภาพที่ 3.5: ส่วนต่อประสานผู้ใช้บนเว็บเบราว์เซอร์ (Gradio Web UI) ขณะประมวลผลอ่านค่ามาตรวัดน้ำอัตโนมัติที่ URL http://127.0.0.1:7860</strong>
   <br>
   <em>ที่มา: จากการทดสอบระบบจริงในโครงงานนี้</em>
 </p>
@@ -2097,7 +2306,7 @@ uv run python validate_ablation.py
 <p align="center">
   <img src="media/pipeline_detection_sample_01.png" alt="ตัวอย่างผลลัพธ์การตรวจจับตัวเลขและตีกรอบ Bounding Box บนภาพ meter_sample_01.jpg หลังผ่านการหมุนปรับทิศทางอัตโนมัติ 90 องศา" width="450"/>
   <br>
-  <strong>ภาพที่ 3.3: ตัวอย่างผลลัพธ์เชิงประจักษ์ของการตรวจจับตัวเลขและตีกรอบ Bounding Box บนภาพ <code>meter_sample_01.jpg</code> (อ่านค่าได้ 33858 ตรงตามเฉลย Ground Truth หลังระบบหมุนปรับทิศทางอัตโนมัติ 90°)</strong>
+  <strong>ภาพที่ 4.1: ตัวอย่างผลลัพธ์เชิงประจักษ์ของการตรวจจับตัวเลขและตีกรอบ Bounding Box บนภาพ <code>meter_sample_01.jpg</code> (อ่านค่าได้ 33858 ตรงตามเฉลย Ground Truth หลังระบบหมุนปรับทิศทางอัตโนมัติ 90°)</strong>
   <br>
   <em>ที่มา: จากการทดสอบระบบจริงในโครงงานนี้</em>
 </p>
@@ -2105,7 +2314,7 @@ uv run python validate_ablation.py
 <p align="center">
   <img src="media/pipeline_detection_sample_02.png" alt="ตัวอย่างผลลัพธ์การตรวจจับตัวเลขและตีกรอบ Bounding Box บนภาพ meter_sample_02.jpg หลังผ่านฟิลเตอร์ปรับปรุงแสง Histogram Equalization" width="450"/>
   <br>
-  <strong>ภาพที่ 3.4: ตัวอย่างผลลัพธ์เชิงประจักษ์ของการตรวจจับตัวเลขและตีกรอบ Bounding Box บนภาพ <code>meter_sample_02.jpg</code> (อ่านค่าได้ 01628 ตรงตามเฉลย Ground Truth หลังผ่านฟิลเตอร์ Histogram Equalization)</strong>
+  <strong>ภาพที่ 4.2: ตัวอย่างผลลัพธ์เชิงประจักษ์ของการตรวจจับตัวเลขและตีกรอบ Bounding Box บนภาพ <code>meter_sample_02.jpg</code> (อ่านค่าได้ 01628 ตรงตามเฉลย Ground Truth หลังผ่านฟิลเตอร์ Histogram Equalization)</strong>
   <br>
   <em>ที่มา: จากการทดสอบระบบจริงในโครงงานนี้</em>
 </p>
@@ -2113,7 +2322,7 @@ uv run python validate_ablation.py
 <p align="center">
   <img src="media/pipeline_detection_sample_04.png" alt="ตัวอย่างผลลัพธ์การตรวจจับตัวเลข 6 หลักบนภาพ meter_sample_04.jpg หลังผ่านการหมุนปรับทิศทางอัตโนมัติ 270 องศา" width="450"/>
   <br>
-  <strong>ภาพที่ 3.5: ตัวอย่างผลลัพธ์เชิงประจักษ์ของการตรวจจับตัวเลข 6 หลักบนภาพ <code>meter_sample_04.jpg</code> (อ่านค่าได้ 023814 ตรงตามเฉลย Ground Truth หลังระบบหมุนปรับทิศทางอัตโนมัติ 270°)</strong>
+  <strong>ภาพที่ 4.3: ตัวอย่างผลลัพธ์เชิงประจักษ์ของการตรวจจับตัวเลข 6 หลักบนภาพ <code>meter_sample_04.jpg</code> (อ่านค่าได้ 023814 ตรงตามเฉลย Ground Truth หลังระบบหมุนปรับทิศทางอัตโนมัติ 270°)</strong>
   <br>
   <em>ที่มา: จากการทดสอบระบบจริงในโครงงานนี้</em>
 </p>

@@ -9,7 +9,6 @@ training/raw/
 *.log
 .DS_Store
 thai.md
-scripts/
 *.bak
 *.bak2
 *.bak3
