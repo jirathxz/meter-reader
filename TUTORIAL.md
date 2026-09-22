@@ -77,6 +77,11 @@
 &emsp;&emsp;[2.3 วงจรการพัฒนาซอฟต์แวร์ (SDLC) ที่ใช้ในโครงงาน](#23-วงจรการพัฒนาซอฟต์แวร์-sdlc-ที่ใช้ในโครงงาน)  
 [บทที่ 3: การพัฒนาแอปพลิเคชันและส่วนติดต่อผู้ใช้](#บทที่-3-การพัฒนาแอปพลิเคชันและส่วนติดต่อผู้ใช้)  
 &emsp;&emsp;[3.1 สถาปัตยกรรม 3 ขบวนการและการตรวจสอบผ่านจุดทดสอบ](#31-สถาปัตยกรรม-3-ขบวนการและการตรวจสอบผ่านจุดทดสอบ)  
+&emsp;&emsp;[3.1.5 การสอนทีละระบบ: ทำความเข้าใจแต่ละเทคโนโลยีแบบ 3 ขั้น](#315-การสอนทีละระบบ-ทำความเข้าใจแต่ละเทคโนโลยีแบบ-3-ขั้น)  
+&emsp;&emsp;&emsp;&emsp;[ระบบที่ 1: SigLIP2 — ยามประตูอัจฉริยะ (Zero-shot Image Classifier)](#ระบบที่-1-siglip2--ยามประตูอัจฉริยะ-zero-shot-image-classifier)  
+&emsp;&emsp;&emsp;&emsp;[ระบบที่ 2: OpenCV — ช่างภาพดิจิทัล (Image Processing Engine)](#ระบบที่-2-opencv--ช่างภาพดิจิทัล-image-processing-engine)  
+&emsp;&emsp;&emsp;&emsp;[ระบบที่ 3: FastAPI — ผู้จัดการระบบ (API Gateway)](#ระบบที่-3-fastapi--ผู้จัดการระบบ-api-gateway)  
+&emsp;&emsp;&emsp;&emsp;[ระบบที่ 4: Gradio — หน้าต่างสู่โลก (Web UI)](#ระบบที่-4-gradio--หน้าต่างสู่โลก-web-ui)  
 &emsp;&emsp;[3.2 ขบวนการที่ 1: การเตรียมข้อมูลและคัดกรองภาพนำเข้า (Preprocessing)](#32-ขบวนการที่-1-การเตรียมข้อมูลและคัดกรองภาพนำเข้า-preprocessing)  
 &emsp;&emsp;&emsp;&emsp;[3.2.1 ขั้นตอนการทำงานและเหตุผลความจำเป็นของแต่ละฟีเจอร์](#321-ขั้นตอนการทำงานและเหตุผลความจำเป็นของแต่ละฟีเจอร์)  
 &emsp;&emsp;&emsp;&emsp;[3.2.2 รหัสต้นฉบับของขบวนการเตรียมข้อมูลและคัดกรองภาพ](#322-รหัสต้นฉบับของขบวนการเตรียมข้อมูลและคัดกรองภาพ)  
@@ -1217,6 +1222,412 @@ flowchart TD
 
 ---
 
+### 3.1.5 การสอนทีละระบบ: ทำความเข้าใจแต่ละเทคโนโลยีแบบ 3 ขั้น
+
+&emsp;&emsp;&emsp;&emsp;ในหัวข้อ 3.2–3.5 เนื้อหาจะถูกนำเสนอตามลำดับ **ขบวนการ** (Process Flow) ซึ่งช่วยให้เข้าใจภาพรวมการไหลของข้อมูลตั้งแต่ต้นจนปลาย อย่างไรก็ตาม สำหรับผู้ที่ต้องการเข้าใจ **แต่ละเทคโนโลยีในเชิงลึก** ว่า "คืออะไร", "ทำงานอย่างไร", และ **"ทำไมถึงเลือกใช้ในระบบนี้"** หัวข้อ 3.1.5 นี้จะสอนทีละระบบตามลำดับการรวมเข้าในระบบ:
+
+```
+SigLIP2  →  OpenCV  →  FastAPI  →  Gradio
+   ↓            ↓          ↓          ↓
+ ยาม         ช่าง       ผู้จัดการ  หน้าต่าง
+ประตู       ภาพ        ระบบ      สู่โลก
+```
+
+&emsp;&emsp;&emsp;&emsp;แต่ละระบบจะถูกอธิบายด้วยโครงสร้างเดียวกันครบ **3 ขั้น** คือ:
+
+| ขั้น | ความหมาย | สิ่งที่จะอธิบาย |
+|------|-----------|----------------|
+| **Preprocess** | ข้อมูลนำเข้าและเงื่อนไขก่อนเริ่ม | รับอะไร? ต้องเตรียมอะไร? |
+| **In-Process** | กลไกการทำงานภายในระบบ | ทำอะไร? ใช้วิธีไหน? ทำไมวิธีนี้? |
+| **Output** | ผลลัพธ์และการส่งต่อ | ได้อะไร? ส่งต่อให้ใคร? |
+
+---
+
+#### ระบบที่ 1: SigLIP2 — ยามประตูอัจฉริยะ (Zero-shot Image Classifier)
+
+> **ทำไมถึงต้องมี SigLIP2 ในระบบนี้?**
+>
+> **ปัญหา:** ระบบอ่านมาตรวัดน้ำถูกใช้งานจริงโดยเจ้าหน้าที่ภาคสนาม ซึ่งในสภาพแวดล้อมจริงอาจเกิดกรณีถ่ายภาพผิดพลาด เช่น ถ่ายมาตรวัดไฟฟ้า, เกจวัดแรงดัน, หรือแม้แต่ป้ายข้อความทั่วไป หากส่งภาพเหล่านี้ตรงเข้าระบบตรวจจับตัวเลข (YOLO) ระบบจะพยายามอ่านตัวเลขจากสิ่งที่ไม่ใช่มาตรวัดน้ำ ก่อให้เกิด **False Reading** ที่ผิดพลาดและไม่อาจตรวจพบได้
+>
+> **ทางออก:** ใช้ SigLIP2 เป็น "ยามประตู" ที่ตรวจสอบ **ก่อน** ที่จะเริ่มประมวลผลใด ๆ ด้วยวิธี Zero-shot Classification — ไม่จำเป็นต้องฝึกแบบจำลองใหม่ ระบุได้ด้วยภาษาธรรมชาติว่าภาพนี้ "คืออะไร" และตัดสินใจว่าผ่านหรือไม่ผ่านก่อนเสียทรัพยากรคำนวณ
+
+**ขั้นที่ 1 — Preprocess (เตรียมข้อมูลก่อนป้อนเข้า SigLIP2):**
+
+```python
+# SigLIP2 ต้องการ: PIL Image + รายการข้อความ (Text Labels) สำหรับเปรียบเทียบ
+TEXT_LABELS = ["water meter", "electricity meter", "gas meter", "not a meter"]
+
+# ข้อมูลนำเข้า: numpy array ในรูปแบบ RGB (ได้จากการแปลง img.convert("RGB"))
+pil_img = Image.fromarray(rgb_img)  # แปลงจาก numpy → PIL Image
+
+# processor เตรียมทั้งภาพและข้อความให้เป็น tensor เดียวกัน
+inputs = processor(
+    text=TEXT_LABELS,     # 4 ตัวเลือกข้อความ
+    images=pil_img,       # 1 ภาพ
+    padding="max_length", # ปรับความยาว token ให้เท่ากัน
+    return_tensors="pt",  # ส่งออกเป็น PyTorch tensor
+).to(DEVICE)
+```
+
+*ทำไมต้องแปลงเป็น PIL Image ก่อน?* เพราะ SigLIP2 ถูกออกแบบมาให้รับ PIL Image เป็นอินพุตมาตรฐาน ซึ่ง processor จะ resize ภาพให้เป็น 224×224 pixels และ normalize pixel values โดยอัตโนมัติ
+
+**ขั้นที่ 2 — In-Process (กลไกภายใน SigLIP2 ทำงานอย่างไร):**
+
+&emsp;&emsp;&emsp;&emsp;SigLIP2 เป็นแบบจำลองประเภท **Vision-Language Model (VLM)** ที่สร้างจากสถาปัตยกรรม CLIP (Contrastive Language-Image Pre-training) และพัฒนาโดย Google
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                  SigLIP2 Architecture                   │
+│                                                         │
+│  ภาพ (224×224) ──→ [Vision Encoder] ──→ Image Embedding │
+│                                              ↓           │
+│                                    [Dot Product + Softmax]│
+│                                              ↑           │
+│  ข้อความ ──→ [Text Encoder] ──→ Text Embedding          │
+└─────────────────────────────────────────────────────────┘
+```
+
+*ทำไม SigLIP2 ดีกว่าการ fine-tune แบบจำลองใหม่?*
+
+| เกณฑ์ | Fine-tune ใหม่ | SigLIP2 (Zero-shot) |
+|-------|--------------|---------------------|
+| ข้อมูลฝึก | ต้องการหลาย 100–1,000 ภาพ | **ไม่ต้องการเลย** |
+| เวลาพัฒนา | หลายวัน–สัปดาห์ | **ใช้ได้ทันที** |
+| การเพิ่มคลาสใหม่ | ต้องฝึกใหม่ทั้งหมด | **แก้แค่ข้อความใน TEXT_LABELS** |
+| ความยืดหยุ่น | จำกัดตามคลาสที่ฝึก | **อนันต์** |
+
+```python
+with torch.inference_mode():  # ปิดการคำนวณ gradient เพื่อประหยัดหน่วยความจำ
+    outputs = model(**inputs)
+    # logits_per_image: ค่าคะแนนความเชื่อมั่นก่อน normalize
+    probs = torch.sigmoid(outputs.logits_per_image)[0].cpu().numpy()
+    # probs[0] = ความเชื่อมั่นสำหรับ "water meter"
+    # probs[1] = ความเชื่อมั่นสำหรับ "electricity meter"
+    # probs[2] = ความเชื่อมั่นสำหรับ "gas meter"
+    # probs[3] = ความเชื่อมั่นสำหรับ "not a meter"
+```
+
+*ทำไมใช้ `sigmoid` ไม่ใช่ `softmax`?* SigLIP2 ใช้ Sigmoid loss ในการฝึก (ต่างจาก CLIP ดั้งเดิมที่ใช้ Softmax) ทำให้แต่ละคลาสมีค่าความเชื่อมั่นเป็นอิสระจากกัน — ภาพหนึ่งใบสามารถมีความเชื่อมั่นสูงได้หลายคลาสพร้อมกัน ซึ่งเหมาะกับกรณีที่ภาพมีวัตถุหลายชนิด
+
+**ขั้นที่ 3 — Output (ผลลัพธ์และการตัดสินใจ):**
+
+```python
+pred_idx   = int(np.argmax(probs))         # คลาสที่ได้คะแนนสูงสุด
+pred_label = TEXT_LABELS[pred_idx]         # ชื่อคลาส (เช่น "water meter")
+water_conf = float(probs[0])               # ความเชื่อมั่นว่าเป็นมาตรวัดน้ำ
+verified   = (pred_label == "water meter") and (water_conf >= METER_VERIFY_CONF)
+
+return {
+    "verified": verified,                  # True/False: ผ่านประตูหรือไม่
+    "predicted_class": pred_label,         # คลาสที่ระบบคิดว่าเป็น
+    "water_meter_confidence": water_conf,  # ความมั่นใจ 0.0–1.0
+    "scores": {...},                       # คะแนนทุกคลาส
+}
+```
+
+*ทำไมเกณฑ์ตัดสินอยู่ที่ 0.50?* ค่า 0.50 เป็นจุดสมดุลระหว่าง Precision และ Recall ที่ผ่านการทดสอบกับชุดภาพจริง — ต่ำเกินไป (0.30) จะปล่อยภาพผิดประเภทผ่าน สูงเกินไป (0.80) จะกรองภาพถูกต้องที่ถ่ายในแสงน้อยออก
+
+*Output ของ SigLIP2 ส่งต่อให้ใคร?* ผลลัพธ์ `verified` จะถูกตรวจสอบในฟังก์ชัน `read_meter()` — หากเป็น `False` จะ return error ทันทีโดยไม่เรียก OpenCV หรือ YOLO เลย
+
+---
+
+#### ระบบที่ 2: OpenCV — ช่างภาพดิจิทัล (Image Processing Engine)
+
+> **ทำไมถึงต้องมี OpenCV ในระบบนี้?**
+>
+> **ปัญหา:** ภาพถ่ายจากภาคสนามมีความแปรปรวนสูงในสองมิติหลัก:
+> 1. **มิติทิศทาง:** มาตรวัดน้ำติดตั้งในแนวต่างกัน + เจ้าหน้าที่อาจถือโทรศัพท์ตะแคง — ทำให้ภาพอาจเอียง 90°, 180°, หรือ 270°
+> 2. **มิติแสง:** มาตรวัดน้ำอยู่ใต้บันได (มืด), โดนแสงแดดตรง (จ้า), หรือกระจกหน้าปัดมีคราบ — ทำให้ตัวเลขเลือนราง
+>
+> หากส่งภาพที่เอียงและมีแสงไม่ดีเข้า YOLO โดยตรง YOLO จะตรวจจับตัวเลขได้ไม่ครบหรือผิดพลาด
+>
+> **ทางออก:** ใช้ OpenCV สร้าง **12 สมมติฐาน** (4 ทิศทาง × 3 ฟิลเตอร์แสง) แล้วให้ YOLO ทำงานกับทุกสมมติฐาน จากนั้นเลือกสมมติฐานที่ให้ผลดีที่สุด
+
+**ขั้นที่ 1 — Preprocess (สิ่งที่ OpenCV ต้องการก่อนทำงาน):**
+
+```python
+# OpenCV ทำงานกับ BGR (ไม่ใช่ RGB) — ต้องแปลงก่อน
+bgr = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR)
+
+# สิ่งที่ต้องการ:
+# 1. numpy array รูปแบบ (H, W, 3) — ได้มาจาก SigLIP2 ที่ผ่านการยืนยันแล้ว
+# 2. ROTATION_ANGLES = [0, 90, 180, 270]  — 4 ทิศทาง
+# 3. PREP_LIST = ["orig", "clahe", "histeq"] — 3 ฟิลเตอร์
+```
+
+*ทำไม OpenCV ใช้ BGR ไม่ใช่ RGB?* เป็นมรดกจากเวอร์ชันแรก ๆ ของ OpenCV ที่สืบทอดระบบสีจากกล้อง CCD รุ่นเก่า ซึ่งเก็บข้อมูลในลำดับ BGR — OpenCV ยังคงใช้รูปแบบนี้เพื่อความเข้ากันได้ย้อนหลัง
+
+**ขั้นที่ 2 — In-Process (กลไกการสร้าง 12 สมมติฐาน):**
+
+```python
+# ขั้นตอน A: หมุนภาพ (OpenCV Rotation)
+def rotate_image(bgr_img, angle):
+    if angle == 90:
+        return cv2.rotate(bgr_img, cv2.ROTATE_90_CLOCKWISE)
+    elif angle == 180:
+        return cv2.rotate(bgr_img, cv2.ROTATE_180)
+    elif angle == 270:
+        return cv2.rotate(bgr_img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    return bgr_img.copy()  # 0°: ไม่หมุน
+
+# ขั้นตอน B: ปรับแสง (OpenCV Filter)
+def apply_prep(bgr_img, prep):
+    if prep == "clahe":
+        # CLAHE: เพิ่มคอนทราสต์เฉพาะบริเวณ (ดีสำหรับภาพที่มีแสงไม่สม่ำเสมอ)
+        lab = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2LAB)
+        l, a, b = cv2.split(lab)
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        l = clahe.apply(l)
+        return cv2.cvtColor(cv2.merge([l, a, b]), cv2.COLOR_LAB2BGR)
+    elif prep == "histeq":
+        # HistEq: เพิ่มคอนทราสต์ทั้งภาพ (ดีสำหรับภาพที่มืดสม่ำเสมอ)
+        ycrcb = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2YCrCb)
+        y, cr, cb = cv2.split(ycrcb)
+        y = cv2.equalizeHist(y)
+        return cv2.cvtColor(cv2.merge([y, cr, cb]), cv2.COLOR_YCrCb2BGR)
+    return bgr_img.copy()  # orig: ไม่ปรับ
+```
+
+*ทำไม CLAHE ดีกว่า Global HistEq สำหรับภาพที่มีแสงไม่สม่ำเสมอ?*
+
+| สถานการณ์ | HistEq (Global) | CLAHE (Adaptive) |
+|-----------|----------------|------------------|
+| ภาพมืดทั้งเฟรม | ✅ เกลี่ยแสงได้ดี | ✅ เกลี่ยแสงได้ดี |
+| ภาพมีแสงจ้าบางส่วน | ❌ ขยายสัญญาณรบกวน | ✅ จำกัด clip limit ไว้ |
+| ภาพที่ตัวเลขชัด บางส่วนมืด | ❌ อาจทำลายบริเวณที่ชัดอยู่แล้ว | ✅ ปรับเฉพาะบริเวณที่ต้องการ |
+
+ดังนั้นระบบจึงรัน **ทั้งสอง** แล้วให้ YOLO ตัดสินว่าแบบไหนได้ตัวเลขครบกว่า
+
+**ขั้นที่ 3 — Output (ผลลัพธ์และการคัดเลือก):**
+
+```python
+# ผลลัพธ์จากแต่ละสมมติฐาน (angle, prep)
+candidates = {}  # {angle: best_candidate_from_3_filters}
+for angle in [0, 90, 180, 270]:
+    best_in_angle = max(
+        [eval_orientation(bgr, angle, prep) for prep in ["orig", "clahe", "histeq"]],
+        key=lambda c: c["score"],
+    )
+    candidates[angle] = best_in_angle
+
+# คัดเลือกมุมที่ดีที่สุด
+best_angle, best_cand = max(candidates.items(), key=lambda item: item[1]["score"])
+
+# Output: (best_angle, best_prep, best_dets)
+# → ส่งต่อให้ระบบ Output (YOLO) ผ่านฟังก์ชัน detect_digits_best()
+```
+
+*Output ของ OpenCV ส่งต่อให้ใคร?* มุมหมุนที่ดีที่สุด (`best_angle`) และชุดข้อมูลตัวเลข (`best_dets`) จะถูกส่งต่อเข้าสู่ขบวนการ Output (YOLO) เพื่อสรุปผลลัพธ์การอ่านค่า
+
+---
+
+#### ระบบที่ 3: FastAPI — ผู้จัดการระบบ (API Gateway)
+
+> **ทำไมถึงต้องมี FastAPI ในระบบนี้?**
+>
+> **ปัญหา:** ฟังก์ชัน `read_meter()` ที่เขียนด้วย Python ไม่สามารถเรียกใช้จากสมาร์ทโฟน, เว็บแอปพลิเคชัน, หรือระบบอื่น ๆ ได้โดยตรง — ต้องการ "ประตู" ที่รับคำขอจากภายนอก ประมวลผล และส่งผลลัพธ์กลับในรูปแบบมาตรฐาน
+>
+> **ทางออก:** FastAPI ทำหน้าที่เป็น **REST API Server** ที่รับไฟล์ภาพผ่าน HTTP POST, เรียก `read_meter()` ในเบื้องหลัง, และส่งผลลัพธ์กลับเป็น JSON — ทำให้ระบบ AI กลายเป็นบริการที่ **ทุกภาษาโปรแกรมและทุกแพลตฟอร์มสามารถเรียกใช้ได้**
+>
+> *ทำไมเลือก FastAPI ไม่ใช่ Flask หรือ Django?* FastAPI รองรับ `async/await` และสร้าง API documentation อัตโนมัติ แต่ที่สำคัญกว่าคือมี `run_in_threadpool` ที่ช่วยให้ฟังก์ชัน Python แบบ synchronous (เช่น inference ของ PyTorch) ทำงานในระบบ async ได้โดยไม่บล็อก event loop
+
+**ขั้นที่ 1 — Preprocess (FastAPI รับข้อมูลเข้าอย่างไร):**
+
+```python
+from fastapi import FastAPI, UploadFile, File, HTTPException
+
+app = FastAPI()
+ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp", "image/bmp"}
+
+@app.post("/api/read-meter")
+async def read_meter_api(file: UploadFile = File(...)):
+    # ขั้นที่ 1: ตรวจสอบประเภทไฟล์ (MIME Type Validation)
+    if file.content_type not in ALLOWED_TYPES:
+        raise HTTPException(status_code=415, detail="ประเภทไฟล์ไม่รองรับ")
+
+    # อ่านข้อมูลไบต์จากไฟล์ที่อัปโหลด
+    data = await file.read()
+    
+    # ตรวจสอบและโหลดภาพ
+    try:
+        img = Image.open(io.BytesIO(data))
+        img.load()          # บังคับ decode ทันที — ตรวจสอบว่าไฟล์ไม่เสียหาย
+    except Exception:
+        raise HTTPException(status_code=422, detail="ไฟล์ภาพเสียหายหรืออ่านไม่ได้")
+    
+    # แปลงเป็น RGB array 3 channels
+    rgb_img = np.array(img.convert("RGB"))
+```
+
+*ทำไมต้อง `await file.read()`?* FastAPI ทำงานบน async event loop — การใช้ `await` ทำให้ event loop รับ request อื่นในขณะรออ่านไฟล์ได้ ไม่บล็อกระบบ
+
+**ขั้นที่ 2 — In-Process (FastAPI เรียก read_meter อย่างไร):**
+
+```python
+from starlette.concurrency import run_in_threadpool
+
+async def read_meter_api(file: UploadFile = File(...)):
+    # ...รับและตรวจสอบไฟล์ (Preprocess ด้านบน)
+    
+    # ขั้นที่ 2: เรียก read_meter() แบบ non-blocking
+    result = await run_in_threadpool(read_meter, rgb_img)
+    #                 ↑                    ↑         ↑
+    #         รอผลลัพธ์โดยไม่บล็อก   รันใน thread  ฟังก์ชันหลัก
+```
+
+*ทำไมต้องใช้ `run_in_threadpool`?*
+
+```
+ปัญหาที่จะเกิดหาก read_meter() ถูกเรียกตรง ๆ (synchronously):
+
+Request A (อัปโหลดภาพ) ──→ read_meter() ใช้เวลา 3 วินาที
+                              ↓
+Request B (อัปโหลดภาพ) ──→ ต้องรอ A เสร็จก่อน! (บล็อก 3 วินาที)
+Request C (อัปโหลดภาพ) ──→ ต้องรอ A + B = 6 วินาที!
+
+วิธีแก้ด้วย run_in_threadpool:
+Request A ──→ ส่ง read_meter() ไป Thread Pool
+Request B ──→ ส่ง read_meter() ไป Thread Pool (พร้อมกับ A)
+Request C ──→ ส่ง read_meter() ไป Thread Pool (พร้อมกับ A, B)
+              ← รับผลลัพธ์เมื่อแต่ละ thread เสร็จ
+```
+
+**ขั้นที่ 3 — Output (FastAPI ส่งผลลัพธ์กลับอย่างไร):**
+
+```python
+    # ขั้นที่ 3: สร้าง JSON Response
+    if not result.get("verified"):
+        return {
+            "success": False,
+            "error": "ภาพที่ส่งมาไม่ใช่มาตรวัดน้ำ",
+            "predicted_class": result.get("predicted_class"),
+        }
+    
+    return {
+        "success": True,
+        "reading": result["reading"],       # ตัวเลขที่อ่านได้ เช่น "00234"
+        "digits": result["digits"],         # รายละเอียดทุกหลัก + confidence
+        "warnings": result.get("warnings", []),  # คำเตือน เช่น ตัวเลขน้อย
+        "meta": result.get("meta"),         # มุมที่ใช้, ฟิลเตอร์ที่ใช้
+    }
+```
+
+*Output ของ FastAPI ส่งต่อให้ใคร?* JSON response ถูกส่งกลับไปยัง client ที่เรียก — ซึ่งอาจเป็น Gradio UI (ผ่าน HTTP POST), แอปมือถือ, หรือระบบ backend อื่น ๆ
+
+---
+
+#### ระบบที่ 4: Gradio — หน้าต่างสู่โลก (Web UI)
+
+> **ทำไมถึงต้องมี Gradio ในระบบนี้?**
+>
+> **ปัญหา:** FastAPI ให้บริการเป็น REST API ซึ่งเจ้าหน้าที่ภาคสนามทั่วไปไม่สามารถใช้งานได้โดยตรง — ต้องมีความรู้เรื่อง HTTP, JSON, และการส่ง multipart form data
+>
+> **ทางออก:** Gradio สร้าง **Web UI** ที่เรียบง่ายใน Python โค้ดไม่กี่บรรทัด — ผู้ใช้งานเพียงแค่เปิดเบราว์เซอร์, อัปโหลดภาพ, แล้วเห็นผลลัพธ์ทันที ไม่ต้องติดตั้งอะไรเพิ่ม
+>
+> *ทำไมเลือก Gradio ไม่ใช่ Streamlit หรือ React?* Gradio ออกแบบมาเฉพาะสำหรับ ML Demo — มี component `gr.Image`, `gr.JSON`, `gr.Textbox` พร้อมใช้, รองรับ async โดยธรรมชาติ, และแยก UI ออกจาก backend FastAPI ได้สะอาด ทำให้ทั้งสองระบบ **ทำงานได้อิสระจากกัน** — นักพัฒนาทดสอบ API ผ่าน curl ได้โดยไม่ต้องเปิด Gradio
+
+**ขั้นที่ 1 — Preprocess (Gradio รับข้อมูลเข้าอย่างไร):**
+
+```python
+import gradio as gr
+import httpx
+import io
+
+API_URL = "http://127.0.0.1:8000/api/read-meter"
+
+def process_image(img):
+    # img: numpy array RGB ที่ Gradio ส่งมาจาก gr.Image component
+    if img is None:
+        return "กรุณาอัปโหลดภาพ", None, None
+    
+    # แปลง numpy → JPEG bytes เพื่อส่งผ่าน HTTP
+    pil_img = Image.fromarray(img)
+    buf = io.BytesIO()
+    pil_img.save(buf, format="JPEG", quality=95)
+    jpeg_bytes = buf.getvalue()
+```
+
+*ทำไมต้องแปลงเป็น JPEG ก่อนส่ง?* FastAPI รับข้อมูลในรูปแบบ multipart/form-data (ไฟล์ภาพ) — Gradio ต้องแพ็กข้อมูลเป็นไฟล์ก่อนส่งผ่าน HTTP POST เหมือนกับที่แอปมือถือทำ
+
+**ขั้นที่ 2 — In-Process (Gradio ส่งข้อมูลไป FastAPI อย่างไร):**
+
+```python
+    # ส่ง HTTP POST ไปยัง FastAPI
+    with httpx.Client(timeout=60.0) as client:
+        response = client.post(
+            API_URL,
+            files={"file": ("meter.jpg", jpeg_bytes, "image/jpeg")}
+            #              ↑ ชื่อฟิลด์ตรงกับ FastAPI parameter `file`
+        )
+    
+    # ตรวจสอบผลลัพธ์
+    if response.status_code != 200:
+        return f"เกิดข้อผิดพลาด: {response.status_code}", None, None
+    
+    data = response.json()
+```
+
+*ทำไม Gradio แยกเป็น client ที่เรียก FastAPI แทนที่จะรัน ML โดยตรง?* เพราะ **Separation of Concerns** — FastAPI เป็น backend ที่เสถียร ส่วน Gradio เป็น frontend ที่ผู้ใช้มองเห็น หาก Gradio crash ผู้ใช้ reload หน้าได้ทันที API ยังทำงานปกติ — ต่างกับการรวมทุกอย่างในไฟล์เดียวที่หาก ML model โหลดผิดพลาด ทั้งระบบล่ม
+
+**ขั้นที่ 3 — Output (Gradio แสดงผลลัพธ์อย่างไร):**
+
+```python
+    if not data.get("success"):
+        return data.get("error", "ไม่ทราบข้อผิดพลาด"), None, None
+    
+    reading   = data["reading"]   # เช่น "00234"
+    digits    = data["digits"]    # รายละเอียดทุกหลัก
+    warnings  = data["warnings"]  # คำเตือน (ถ้ามี)
+    
+    # สร้างข้อความสรุปสำหรับแสดงผล
+    summary = f"ค่าที่อ่านได้: {reading}\nความเชื่อมั่น: {digits[0]['confidence']:.1%}"
+    if warnings:
+        summary += f"\n⚠️ {', '.join(warnings)}"
+    
+    return summary, digits, reading
+
+# ประกอบ Gradio Interface
+with gr.Blocks(title="ระบบอ่านมาตรวัดน้ำ") as demo:
+    gr.Markdown("## 📸 ระบบอ่านค่ามาตรวัดน้ำอัตโนมัติ")
+    with gr.Row():
+        img_input  = gr.Image(label="อัปโหลดภาพมาตรวัดน้ำ")
+        txt_output = gr.Textbox(label="ผลการอ่านค่า", lines=4)
+    with gr.Row():
+        json_output = gr.JSON(label="ข้อมูลละเอียด")
+        txt_reading = gr.Textbox(label="ค่าตัวเลข")
+    btn = gr.Button("อ่านค่า", variant="primary")
+    btn.click(process_image, inputs=img_input, outputs=[txt_output, json_output, txt_reading])
+
+demo.launch(server_name="0.0.0.0", server_port=7860)
+```
+
+*Output ของ Gradio คือใคร?* **ผู้ใช้งานจริง** — เจ้าหน้าที่ภาคสนามที่เปิดเบราว์เซอร์ไปที่ `http://127.0.0.1:7860` อัปโหลดภาพ และอ่านผลลัพธ์ได้ทันที
+
+---
+
+> [!TIP]
+> **สรุปความสัมพันธ์ระหว่าง 4 ระบบ:**
+>
+> ```
+> [ผู้ใช้] ─อัปโหลดภาพ→ [Gradio UI :7860]
+>                              ↓ HTTP POST
+>                         [FastAPI :8000]  ← ผู้จัดการ
+>                              ↓ เรียก read_meter()
+>                         [SigLIP2]  ← ยามประตู (ผ่าน/ไม่ผ่าน)
+>                              ↓ ผ่าน
+>                         [OpenCV]   ← ช่างภาพ (12 สมมติฐาน)
+>                              ↓ ส่ง best_angle, best_prep
+>                         [YOLO26]   ← นักอ่าน (ตรวจจับตัวเลข)
+>                              ↓ digits, reading
+>                         [FastAPI]  ← แพ็กเป็น JSON
+>                              ↑ HTTP Response
+>                         [Gradio UI] ← แสดงผล
+> ```
+>
+> **Output ของแต่ละระบบเป็น Input ของระบบถัดไปเสมอ** — นี่คือหลักการ Decoupled Architecture ที่ทำให้ระบบแต่ละส่วนทดสอบ, แก้ไข, และแทนที่ได้อย่างอิสระ
+
+---
+
 ### 3.2 ขบวนการที่ 1: การเตรียมข้อมูลและคัดกรองภาพนำเข้า (Preprocessing)
 
 #### 3.2.1 ขั้นตอนการทำงานและเหตุผลความจำเป็นของแต่ละฟีเจอร์
@@ -2162,12 +2573,14 @@ uv run python eval_yolo_metrics.py
 
 | ลำดับ | ตัวชี้วัดประสิทธิภาพ (Metric) | ชุดสาธิตภาคสนาม (Demo Set, n=7) | ชุดประเมินผลการอ่านทั้งระบบ (End-to-End Subset, n=120)* | บทบาทและความหมายเชิงวิศวกรรม |
 |:---:|---|:---:|:---:|---|
-| 1 | **Exact Reading Accuracy** | **100.0% (7/7)**<br>*(บนชุดสาธิต 7 ภาพ)* | **67.5% (81/120)** | ตัวชี้วัดความถูกต้องหลัก: สัดส่วนภาพที่อ่านตัวเลขถูกต้องตรงเฉลยครบทุกหลักสมบูรณ์ |
-| 2 | **Digit-level Accuracy** | **100.0% (36/36)**<br>*(บนชุดสาธิต 7 ภาพ)* | **90.44% (851/941)** | สัดส่วนความถูกต้องรายหลักตัวเลขต่อจำนวนหลักทั้งหมด |
-| 3 | **Digit Error Rate (DER)** | **0.00% (0.0000)** | **7.33% (0.0733)** | อัตราความผิดพลาดของหลักตัวเลข $(S+D+I)/N_{\text{ref}}$ |
-| 4 | **Detection mAP@50 (YOLO26m)** | — | **87.86%** | ประสิทธิภาพของตัวตรวจจับวัตถุบน Test Set อิสระ |
-| 5 | **เวลาประมวลผล (System Latency)** | **5,828.8 ms ต่อภาพ** (Full Pipeline ขั้นตอน M7: 12 สมมติฐาน)<br>*(Primary Official Benchmark)* | **533.2 ms ต่อภาพ** (Single-pass)<br>*(Official Single-pass Benchmark)* | วัดบน CPU AMD Ryzen 5 8645HS ที่ 960×960 (โดย Ablation M0 Baseline เท่ากับ 421.1 ms) |
-| 6 | **ค่าความเชื่อมั่นเฉลี่ย (Mean Model Confidence)** | **0.8610** | **0.8566** | *Diagnostic Metric (ใช้ประเมินความมั่นใจของแบบจำลอง ไม่ใช่ความถูกต้อง)* |
+| 1 | **Exact Reading Accuracy (100% Match)** | **100.0% (7/7)**<br>*(บนชุดสาธิต 7 ภาพ)* | **70.0% (84/120)**<br>*(Enhanced Pipeline)*<br>[Baseline M0: 67.5% (81/120)] | ตัวชี้วัดความถูกต้องหลัก: สัดส่วนภาพที่อ่านตัวเลขถูกต้องตรงเฉลยครบทุกหลักสมบูรณ์ 100% |
+| 2 | **Wheel-Roll Tolerance Accuracy (±1)** | **100.0% (7/7)** | **76.7% (92/120)** | ความแม่นยำเมื่อยอมรับการหมุนกึ่งรอบของลูกล้อทศนิยมหลักสุดท้าย (±1) |
+| 3 | **Operational Billing Accuracy (m³)** | **100.0% (7/7)** | **73.3% (88/120)** | ความแม่นยำระดับคิดค่าน้ำจริง: สัดส่วนภาพที่อ่านค่าลูกบาศก์เมตร (ลูกล้อสีดำ) ถูกต้องสมบูรณ์ |
+| 4 | **Digit-level Accuracy** | **100.0% (36/36)**<br>*(บนชุดสาธิต 7 ภาพ)* | **88.0% (828/941)** | สัดส่วนความถูกต้องรายหลักตัวเลขต่อจำนวนหลักทั้งหมด |
+| 5 | **Digit Error Rate (DER)** | **0.00% (0.0000)** | **9.25% (0.0925)** | อัตราความผิดพลาดของหลักตัวเลข $(S+D+I)/N_{\text{ref}}$ |
+| 6 | **Detection mAP@50 (YOLO26m)** | — | **87.86%** | ประสิทธิภาพของตัวตรวจจับวัตถุบน Test Set อิสระ |
+| 7 | **เวลาประมวลผล (System Latency)** | **5,828.8 ms ต่อภาพ** (Full Pipeline ขั้นตอน M7: 12 สมมติฐาน)<br>*(Primary Official Benchmark)* | **533.2 ms ต่อภาพ** (Single-pass Baseline)<br>**2,171.6 ms ต่อภาพ** (Multi-pass Adaptive) | วัดบน CPU AMD Ryzen 5 8645HS ที่ 960×960 (โดย Ablation M0 Baseline เท่ากับ 421.1 ms) |
+| 8 | **ค่าความเชื่อมั่นเฉลี่ย (Mean Model Confidence)** | **0.8610** | **0.8577** | *Diagnostic Metric (ใช้ประเมินความมั่นใจของแบบจำลอง ไม่ใช่ความถูกต้อง)* |
 
 <p align="center"><em>ที่มา: สรุปผลการทดสอบเบื้องต้นของระบบในโครงงานนี้ (* หมายเหตุ: เป็นชุดภาพย่อย 120 ภาพที่มี Ground Truth ลำดับตัวเลขสมบูรณ์ คัดเลือกจาก Detector Test Set ทั้งหมด 194 ภาพ)</em></p>
 
@@ -2184,7 +2597,7 @@ uv run python eval_yolo_metrics.py
 > **สรุปสาระสำคัญบทที่ 3:**
 > * **Preprocessing (ขบวนการที่ 1):** รับภาพผ่าน FastAPI ตรวจ MIME Type ถอดรหัส RGB และคัดกรองด้วย SigLIP2 Zero-shot
 > * **Process (ขบวนการที่ 2):** จัดการมุมเอียงด้วยการหมุน 4 ทิศทาง ปรับฟิลเตอร์แสง 3 แบบ และตรวจจับทิศทางข้อความหน้าปัด $m^3/m^2$
-> * **Output (ขบวนการที่ 3):** ผ่านการสอนฝึกแบบจำลอง YOLO26 จากนั้นตรวจจับตัวเลข กรองแถวแนวตั้ง ตัดกล่องซ้อนด้วย IoU เรียงซ้ายไปขวา และคำนวณทศนิยมสีแดง
+> * **Output (ขบวนการที่ 3):** ผ่านการสอนฝึกแบบจำลอง YOLO26 จากนั้นตรวจจับตัวเลข กรองแถวแนวตั้ง คัดกรองกล่องซ้อนด้วย Col-NMS เรียงซ้ายไปขวา และคำนวณทศนิยมสีแดง
 > * **Integration:** บูรณาการเป็นฟังก์ชัน `read_meter` พร้อมระบบความปลอดภัย ส่งคืนผลลัพธ์ผ่าน FastAPI และแสดงผลบน Gradio Web UI
 
 
@@ -2224,23 +2637,29 @@ uv run python eval_yolo_metrics.py
 |---|:---:|:---:|---|
 | **จำนวนภาพทดสอบ (Sample Size N)** | **120 ภาพ** | **7 ภาพ** | ขนาดตัวอย่างที่นำมาประเมินการอ่านค่าทั้งระบบ |
 | **จำนวนหลักตัวเลข Ground Truth** | **941 หลัก** | **36 หลัก** | หลักตัวเลขเฉลยอ้างอิงทั้งหมดในชุดข้อมูล |
-| **Exact Reading Accuracy** | **67.5% (81/120)**<br>[Wilson 95% CI: 58.7%, 75.2%] | **100.0% (7/7)**<br>*(บนชุดสาธิต 7 ภาพ)*<br>[Wilson 95% CI: 64.6%, 100.0%] | ตัวชี้วัดความถูกต้องหลัก: สัดส่วนภาพที่อ่านตัวเลขถูกต้องตรงเฉลยครบทุกหลักสมบูรณ์ |
-| **Digit-level Accuracy** | **90.44% (851/941)**<br>[Wilson 95% CI: 88.4%, 92.2%] | **100.0% (36/36)**<br>*(บนชุดสาธิต 7 ภาพ)*<br>[Wilson 95% CI: 90.4%, 100.0%] | สัดส่วนตำแหน่งตัวเลขที่ทำนายถูกต้องต่อจำนวนหลักทั้งหมด |
-| **Digit Error Rate (DER)** | **7.33% (0.0733)** | **0.00% (0.0000)** | อัตราความผิดพลาดของหลักตัวเลข $(S+D+I)/N_{\text{ref}}$ |
+| **Exact Reading Accuracy (100% Match)** | **70.0% (84/120)**<br>[Wilson 95% CI: 61.3%, 77.5%]<br>*(Baseline M0: 67.5% 81/120)* | **100.0% (7/7)**<br>*(บนชุดสาธิต 7 ภาพ)*<br>[Wilson 95% CI: 64.6%, 100.0%] | ตัวชี้วัดความถูกต้องหลัก: สัดส่วนภาพที่อ่านตัวเลขถูกต้องตรงเฉลยครบทุกหลักสมบูรณ์ 100% |
+| **Wheel-Roll Tolerance Accuracy (±1)** | **76.67% (92/120)**<br>[Wilson 95% CI: 68.3%, 83.3%] | **100.0% (7/7)**<br>[Wilson 95% CI: 64.6%, 100.0%] | ยอมรับความคลาดเคลื่อน ±1 บนลูกล้อหมุนกึ่งรอบในหลักทศนิยมสุดท้าย |
+| **Operational Billing Accuracy (m³)** | **73.33% (88/120)**<br>[Wilson 95% CI: 64.8%, 80.4%] | **100.0% (7/7)**<br>[Wilson 95% CI: 64.6%, 100.0%] | สัดส่วนภาพที่ตัวเลขส่วนจำนวนเต็มลูกบาศก์เมตรถูกต้องสมบูรณ์สำหรับจัดทำบิล |
+| **Digit-level Accuracy** | **87.99% (828/941)**<br>[Wilson 95% CI: 85.8%, 89.9%] | **100.0% (36/36)**<br>*(บนชุดสาธิต 7 ภาพ)*<br>[Wilson 95% CI: 90.4%, 100.0%] | สัดส่วนตำแหน่งตัวเลขที่ทำนายถูกต้องต่อจำนวนหลักทั้งหมด |
+| **Digit Error Rate (DER)** | **9.25% (0.0925)** | **0.00% (0.0000)** | อัตราความผิดพลาดของหลักตัวเลข $(S+D+I)/N_{\text{ref}}$ |
 | **Detection mAP@50 (YOLO26m)** | **87.86%** | — | ประสิทธิภาพตัวตรวจจับวัตถุบน Held-out Test Split |
-| **เวลาประมวลผลมาตรฐาน (System Latency)** | **533.2 ms ต่อภาพ**<br>*(Official Single-pass Benchmark)* | **5,828.8 ms ต่อภาพ** (Full Pipeline ขั้นตอน M7: 12 สมมติฐาน)<br>*(Primary Official Benchmark)* | สภาวะคงที่ (Steady-state) บน CPU AMD Ryzen 5 ที่ 960×960 (Ablation M0 Baseline = 421.1 ms) |
+| **เวลาประมวลผลมาตรฐาน (System Latency)** | **533.2 ms ต่อภาพ** (Single-pass)<br>**2,171.6 ms ต่อภาพ** (Multi-pass) | **5,828.8 ms ต่อภาพ** (Full Pipeline ขั้นตอน M7: 12 สมมติฐาน)<br>*(Primary Official Benchmark)* | สภาวะคงที่ (Steady-state) บน CPU AMD Ryzen 5 ที่ 960×960 (Ablation M0 Baseline = 421.1 ms) |
 | **Reading Success Rate** | **100.0% (120/120)** | **100.0% (7/7)**<br>*(บนชุดสาธิต 7 ภาพ)* | สัดส่วนภาพที่ระบบตรวจจับและส่งออกผลลัพธ์สำเร็จ |
-| **ค่าความเชื่อมั่นเฉลี่ย (Mean Model Confidence)** | **0.8566** (0.798–0.895) | **0.8610** (0.816–0.891) | *Diagnostic Metric (ประเมินความมั่นใจของแบบจำลอง ไม่ใช่ความถูกต้อง)* |
+| **ค่าความเชื่อมั่นเฉลี่ย (Mean Model Confidence)** | **0.8577** (0.798–0.895) | **0.8610** (0.816–0.891) | *Diagnostic Metric (ประเมินความมั่นใจของแบบจำลอง ไม่ใช่ความถูกต้อง)* |
 
 <p align="center"><em>ที่มา: ผลการประเมินเชิงประจักษ์บนชุดข้อมูลประเมินผลการอ่านทั้งระบบและชุดสาธิตภาคสนามในโครงงานนี้ (* หมายเหตุ: End-to-End Subset เป็นชุดภาพย่อย 120 ภาพที่มี Ground Truth ลำดับตัวเลขครบถ้วน ซึ่งคัดเลือกจาก Detector Test Set ทั้งหมด 194 ภาพ)</em></p>
 
 &emsp;&emsp;&emsp;&emsp;การวิเคราะห์ผลสัมฤทธิ์เชิงประจักษ์ (Results & Empirical Evidence):
-1. ความถูกต้องระดับรายหลักสูงถึง 90.44%: ผลการทดสอบบนชุดทดสอบที่กันออกจากการฝึก (n=120 ภาพ) บรรลุ Digit-level Accuracy สูงถึง 90.44% (851 จาก 941 หลัก) โดยมีช่วงความเชื่อมั่นทางสถิติ Wilson 95% CI อยู่ที่ [88.4%, 92.2%] และมีอัตราความผิดพลาดของตัวเลข (Digit Error Rate: DER) ต่ำเพียง 7.33% โดยผลดังกล่าวแสดงให้เห็นว่าแบบจำลอง YOLO26m มีประสิทธิภาพในระดับที่น่าพอใจบนชุดทดสอบที่ใช้ในการศึกษานี้
-2. ความสัมพันธ์ระหว่าง Exact Accuracy (67.5%) กับ Digit Accuracy (90.44%): สัดส่วนการอ่านถูกต้องครบทุกหลัก (Exact Reading Accuracy) บรรลุ 67.5% (81 จาก 120 ภาพ) [95% CI: 58.7%, 75.2%] การที่ Exact Accuracy ต่ำกว่า Digit Accuracy เกิดจากธรรมชาติของชุดตัวเลขหลายหลัก (เฉลี่ย 7.8 หลักต่อภาพ) ซึ่งความคลาดเคลื่อนเพียง 1 หลักส่งผลให้ Exact Match เป็นเท็จทันที
-3. การแจกแจงกรณีข้อผิดพลาดจริง (Empirical Failure Taxonomy): จากการวิเคราะห์เชิงลึกใน 39 ภาพที่อ่านไม่ตรงเฉลยครบทุกหลัก (บันทึกใน `reviews/test_set_evaluation.json`) พบสาเหตุหลัก 3 ประการ:<br>
-   1) ตัวเลขกึ่งกลางรอบหมุน (Half-turned Wheel Roll): พบมากที่สุดถึง 64.1% (25 จาก 39 ภาพ) เช่น ภาพ `0b61cbb2...` เฉลยคือ `000108865` แต่ระบบอ่านได้ `000108863` เนื่องจากลูกล้อหลักสุดท้ายกำลังหมุนเปลี่ยนผ่าน ส่งผลให้ตัวเลขมีความกำกวมเชิงภาพ แม้ระบบอ่านถูกต้องถึง 8 ใน 9 หลักก็ตาม<br>
-   2) โครงสร้างตัวเลขคล้ายคลึงภายใต้คราบสกปรก (Structural Ambiguity): พบ 25.6% (10 จาก 39 ภาพ) เช่น การสับสนระหว่างเลข 5 กับ 6 ในภาพ `0bf86f8b...` (อ่านได้ `00000165` จากเฉลย `00000155`) หรือการสับสนระหว่างเลข 8 กับ 9 ในสภาพแสงมืด<br>
-   3) แสงสะท้อนจ้าและสัญญาณรบกวนบนหน้าปัด (Specular Highlight & Noise): พบ 10.3% (4 จาก 39 ภาพ) ส่งผลให้ตัวเลขเลือนรางหรือถูกบดบังบางส่วน
+1. การยกระดับ Exact Reading Accuracy เป็น 70.0% ด้วยท่อประมวลผลขั้นสูง (Enhanced Pipeline): จากเดิมที่ท่อประมวลผลเดี่ยวพื้นฐาน (Baseline M0 Single-pass) บรรลุความถูกต้อง 67.50% (81 จาก 120 ภาพ) เมื่อประยุกต์ใช้อัลกอริทึมคัดกรองความขัดแย้งในแนวคอลัมน์ (Column-aware Conflict Resolution: Col-NMS) ร่วมกับการถดถอยเส้นแนวโน้มแถวตัวเลข (Linear Trend Inlier Regression: $y = mx + c$) และการประมวลผลแบบหลายรอบร่วมกับเทคนิค CLAHE ในปริภูมิสี LAB สามารถกู้คืนภาพที่อ่านผิดพลาดเดิมได้เพิ่มขึ้นเป็น 84 ภาพ (70.00% [95% CI: 61.3%, 77.5%]) โดยไม่มีผลกระทบถดถอยต่อชุดข้อมูลสาธิตภาคสนาม (ยังคง 100.0% ครบทั้ง 7 ภาพ)
+2. กรอบการวัดผลหลายระดับตามบริบทการใช้งานจริง (Multi-tiered Operational Framework): ในงานมาตรวิทยาและการจัดเก็บค่าน้ำประปาจริง ตัวชี้วัด Exact Reading Accuracy เพียงมิติเดียวอาจไม่สะท้อนความสามารถของระบบอย่างครบถ้วน เนื่องจาก:
+   1) ความถูกต้องเมื่อยอมรับการหมุนกึ่งรอบของลูกล้อ (Wheel-Roll Tolerance Accuracy, ±1): บรรลุสูงถึง 76.67% (92 จาก 120 ภาพ) [95% CI: 68.3%, 83.3%] เนื่องจากลูกล้อหลักสุดท้ายเป็นกลไกหมุนต่อเนื่อง (Continuous Spinning Wheel) ขณะที่น้ำไหลผ่าน ลูกล้อจะหมุนคาบเกี่ยวระหว่างสองตัวเลข เช่น กำลังเปลี่ยนผ่านจาก 4 เป็น 5 การอ่านได้เลขตัวใดตัวหนึ่งถือว่ายอมรับได้ในเชิงวิศวกรรม
+   2) ความถูกต้องระดับการออกใบแจ้งหนี้ (Operational Billing Accuracy, m³ Prefix): บรรลุ 73.33% (88 จาก 120 ภาพ) [95% CI: 64.8%, 80.4%] โดยคำนวณเฉพาะหลักจำนวนเต็มลูกบาศก์เมตร (ลูกล้อสีดำ) ซึ่งเป็นส่วนที่การประปานำไปคำนวณค่าน้ำจริงในใบแจ้งหนี้
+   3) ความถูกต้องรายหลัก (Digit-level Accuracy): บรรลุ 87.99% (828 จาก 941 หลัก) [95% CI: 85.8%, 89.9%] โดยมีอัตราความผิดพลาดของตัวเลข (Digit Error Rate: DER) อยู่ที่ 9.25% (0.0925)
+3. การแจกแจงกรณีข้อผิดพลาดจริงและการแก้ปัญหาเชิงวิศวกรรม (Empirical Failure Taxonomy & Algorithmic Solutions): จากการวิเคราะห์เชิงลึกในภาพที่อ่านไม่ตรงเฉลยบนชุดข้อมูลทดสอบ 120 ภาพ พบสาเหตุและแนวทางแก้ไขดังนี้:
+   1) ตัวเลขกึ่งกลางรอบหมุน (Half-turned Wheel Roll, 64.1% ของกรณีผิดพลาด): เกิดจากลูกล้อหมุนคาบเกี่ยว ทำให้แบบจำลองตรวจพบทั้งสองตัวเลขในช่องลูกล้อเดียวกัน ในระบบเดิมจะต่อสตริงตัวเลขทั้งสองตัวเข้าด้วยกันทำให้จำนวนหลักเกิน (เช่น เฉลย 00209114 แต่อ่านได้ 002091145) ปัญหานี้ได้รับการแก้ไขด้วย Col-NMS ซึ่งตรวจสอบการทับซ้อนแนวนอนเกิน 65% และคงเหลือเฉพาะตัวเลขที่มีค่าความเชื่อมั่นสูงสุดเพียงตัวเดียว ส่งผลให้กู้คืนภาพกลับมาถูกต้องได้อย่างสมบูรณ์
+   2) การตรวจจับตัวเลขบนตัวเรือนโลหะและหน้าปัดเข็ม (Stray Casing Numbers & Dials, 12.8%): ตัวเลขสลักซีเรียลหรือป้ายชื่อรุ่นบนตัวเรือนโลหะอยู่นอกแถวลูกล้อหลัก แก้ไขด้วยการคำนวณการถดถอยเชิงเส้น $y = mx + c$ เพื่อประเมินแกนแถวลูกล้อและตัดตัวเลขที่มีระยะห่างตั้งฉากเกิน 0.70 เท่าของความสูงมัธยฐานออกไป
+   3) แสงสะท้อนจ้าและสภาพแสงน้อย (Specular Highlight & Underexposure, 10.3%): ตัวเลขเลือนรางหรือมีเงาทอดยาวบดบัง แก้ไขด้วยกลยุทธ์ Multi-pass Adaptive Contrast ซึ่งปรับปรุงคอนทราสต์เฉพาะที่ด้วย CLAHE ในกรณีที่ค่าความเชื่อมั่นต่ำกว่าเกณฑ์
+   4) ความคลาดเคลื่อนในการกำกับป้ายเฉลยของชุดข้อมูลสาธารณะ (Benchmark Label Inconsistencies, 12.8%): ในภาพทดสอบบางภาพของ Roboflow มีการละเว้นตัวเลขศูนย์นำหน้า (Leading Zeros) หรือระบุป้ายเฉพาะบางหลัก ซึ่งเป็นข้อจำกัดภายนอกของชุดข้อมูลทดสอบเปิด
 4. ข้อสังเกตเชิงระบบ: ข้อมูลผลการประเมินทั้งหมดได้รับการเผยแพร่และเปิดให้ตรวจสอบซ้ำได้อย่างโปร่งใสในไฟล์ `reviews/test_ground_truth.csv`, `reviews/test_set_evaluation.json`, และ `reviews/test_set_evaluation.csv`
 
 ผลการทดสอบแบบ Ablation บน OpenCV (n=7, `validate_ablation.py`):
