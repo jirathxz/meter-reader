@@ -96,8 +96,8 @@
     "warnings": [
       "อาจกลับหัว! หมุน 180° ได้ 85833 (0.83) — ตรวจภาพก่อนบันทึก"
     ],
-    "elapsed_ms_reported": 17115.2,
-    "elapsed_ms_measured": 17115.2,
+    "elapsed_ms_reported": 47348.3,
+    "elapsed_ms_measured": 47348.4,
     "success": true,
     "verified": true
   },
@@ -198,8 +198,8 @@
     "warnings": [
       "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
     ],
-    "elapsed_ms_reported": 6102.6,
-    "elapsed_ms_measured": 6102.6,
+    "elapsed_ms_reported": 29493.4,
+    "elapsed_ms_measured": 29493.4,
     "success": true,
     "verified": true
   },
@@ -300,8 +300,8 @@
     "warnings": [
       "อาจกลับหัว! หมุน 180° ได้ 12934 (0.75) — ตรวจภาพก่อนบันทึก"
     ],
-    "elapsed_ms_reported": 5891.3,
-    "elapsed_ms_measured": 5891.3,
+    "elapsed_ms_reported": 26382.2,
+    "elapsed_ms_measured": 26382.2,
     "success": true,
     "verified": true
   },
@@ -415,8 +415,8 @@
       "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
       "ตรวจพบสัญลักษณ์ m หรือตัวอักษรบนหน้าปัดในแนวตั้ง — ปรับหมุนภาพ 270° ให้อ่านในแนวนอนเพื่อลดความคลาดเคลื่อน"
     ],
-    "elapsed_ms_reported": 6891.7,
-    "elapsed_ms_measured": 6891.7,
+    "elapsed_ms_reported": 33573.4,
+    "elapsed_ms_measured": 33573.4,
     "success": true,
     "verified": true
   },
@@ -518,8 +518,8 @@
       "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก",
       "ตรวจพบสัญลักษณ์ m หรือตัวอักษรบนหน้าปัดในแนวตั้ง — ปรับหมุนภาพ 270° ให้อ่านในแนวนอนเพื่อลดความคลาดเคลื่อน"
     ],
-    "elapsed_ms_reported": 6269.6,
-    "elapsed_ms_measured": 6269.6,
+    "elapsed_ms_reported": 20998.1,
+    "elapsed_ms_measured": 20998.2,
     "success": true,
     "verified": true
   },
@@ -620,8 +620,8 @@
     "warnings": [
       "อาจกลับหัว! หมุน 180° ได้ 85833 (0.84) — ตรวจภาพก่อนบันทึก"
     ],
-    "elapsed_ms_reported": 5346.1,
-    "elapsed_ms_measured": 5346.1,
+    "elapsed_ms_reported": 13370.6,
+    "elapsed_ms_measured": 13370.7,
     "success": true,
     "verified": true
   },
@@ -722,8 +722,8 @@
     "warnings": [
       "หลักแรกเป็น 0 — อาจเกินมา 1 หลัก"
     ],
-    "elapsed_ms_reported": 6553.0,
-    "elapsed_ms_measured": 6553.0,
+    "elapsed_ms_reported": 17706.2,
+    "elapsed_ms_measured": 17706.2,
     "success": true,
     "verified": true
   }

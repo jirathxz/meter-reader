@@ -102,14 +102,67 @@ def iou(box1: list[float], box2: list[float]) -> float:
 
 def dedup_detections(dets: list[dict[str, Any]], thresh: float = 0.45) -> list[dict[str, Any]]:
     """
-    Filter overlapping detection boxes using greedy Non-Maximum Suppression (NMS).
-    Keeps boxes with highest confidence, sorted horizontally left-to-right by center_x.
+    Filter overlapping detection boxes using greedy Non-Maximum Suppression (NMS),
+    resolves vertical column conflicts from half-turned wheel rolls, and prunes stray outliers.
     """
+    if not dets:
+        return []
+
     kept: list[dict[str, Any]] = []
     for d in sorted(dets, key=lambda x: x["confidence"], reverse=True):
         if not any(iou(d["bbox"], k["bbox"]) > thresh for k in kept):
             kept.append(d)
-    return sorted(kept, key=lambda x: x["center_x"])
+
+    # Vertical Column Conflict Check (Half-turned wheel roll):
+    col_kept: list[dict[str, Any]] = []
+    for d in sorted(kept, key=lambda x: x["confidence"], reverse=True):
+        conflict = False
+        for k in col_kept:
+            inter_x = max(0.0, min(d["bbox"][2], k["bbox"][2]) - max(d["bbox"][0], k["bbox"][0]))
+            min_w = min(d["bbox"][2] - d["bbox"][0], k["bbox"][2] - k["bbox"][0])
+            if min_w > 0 and (inter_x / min_w) > 0.65:
+                conflict = True
+                break
+        if not conflict:
+            col_kept.append(d)
+
+    col_kept.sort(key=lambda x: x["center_x"])
+
+    # Linear inlier row filtering if >= 4 digits
+    if len(col_kept) >= 4:
+        hs = [b["bbox"][3] - b["bbox"][1] for b in col_kept]
+        ws = [b["bbox"][2] - b["bbox"][0] for b in col_kept]
+        med_h = float(np.median(hs))
+        med_w = float(np.median(ws))
+
+        size_valid = [b for b in col_kept if 0.35 * med_h <= (b["bbox"][3] - b["bbox"][1]) <= 2.2 * med_h]
+        if len(size_valid) >= 3:
+            col_kept = size_valid
+
+        xs = np.array([b["center_x"] for b in col_kept])
+        ys = np.array([b["center_y"] for b in col_kept])
+        poly = np.polyfit(xs, ys, 1)
+        m, c = float(poly[0]), float(poly[1])
+
+        if abs(m) < 0.45:
+            inliers = []
+            for b in col_kept:
+                dist = abs(b["center_y"] - (m * b["center_x"] + c))
+                if dist <= 0.70 * med_h:
+                    inliers.append(b)
+            if len(inliers) >= 3:
+                col_kept = inliers
+
+        if len(col_kept) >= 4:
+            gaps = [col_kept[i+1]["center_x"] - col_kept[i]["center_x"] for i in range(len(col_kept)-1)]
+            med_gap = float(np.median(gaps))
+            if gaps[0] > max(2.8 * med_gap, 2.0 * med_w):
+                col_kept = col_kept[1:]
+                gaps = gaps[1:]
+            if len(gaps) >= 1 and gaps[-1] > max(2.8 * med_gap, 2.0 * med_w):
+                col_kept = col_kept[:-1]
+
+    return sorted(col_kept, key=lambda x: x["center_x"])
 
 
 def red_ratio(img_bgr: np.ndarray, bbox: list[float]) -> float:
