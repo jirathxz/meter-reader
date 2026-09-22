@@ -1227,35 +1227,28 @@ flowchart TD
 &emsp;&emsp;&emsp;&emsp;ในหัวข้อ 3.2–3.5 เนื้อหาจะถูกนำเสนอตามลำดับ **ขบวนการ** (Process Flow) ซึ่งช่วยให้เข้าใจภาพรวมการไหลของข้อมูลตั้งแต่ต้นจนปลาย อย่างไรก็ตาม สำหรับผู้ที่ต้องการเข้าใจ **แต่ละเทคโนโลยีในเชิงลึก** ว่า "คืออะไร", "ทำงานอย่างไร", และ **"เหตุผลเบื้องหลังการเลือกใช้ในระบบนี้"** หัวข้อ 3.1.5 นี้จะสอนทีละระบบตามลำดับการรวมเข้าในระบบ:
 
 ```mermaid
-flowchart LR
-    subgraph S1["1. SigLIP2"]
-        N1["🛡️ <b>ยามประตู (Verification)</b><br/>Zero-shot Classifier<br/><i>คัดกรองรูปภาพก่อนเข้าประมวลผล</i>"]
-    end
-    subgraph S2["2. OpenCV"]
-        N2["🎨 <b>ช่างภาพ (Normalization)</b><br/>Geometric & Contrast<br/><i>สร้างและทดสอบ 12 สมมติฐาน</i>"]
-    end
-    subgraph S3["3. FastAPI"]
-        N3["⚡ <b>ผู้จัดการ (Microservice)</b><br/>Async REST API<br/><i>กระจายงานแบบ Non-blocking</i>"]
-    end
-    subgraph S4["4. Gradio"]
-        N4["🖥️ <b>หน้าต่างสู่โลก (Web UI)</b><br/>Client Interface<br/><i>ส่วนติดต่อผู้ใช้งานภาคสนาม</i>"]
-    end
+flowchart TD
+    S1["<b>ระบบที่ 1: SigLIP2 (AI Image Classifier)</b><br/>คัดกรองวัตถุว่าเป็นภาพมาตรวัดน้ำจริงหรือไม่ (Zero-shot Classification)"]
+    S2["<b>ระบบที่ 2: OpenCV (Image Processing Engine)</b><br/>ชดเชยมุมมองและแสงด้วย 12 Hypotheses Tuning (หมุน 4 มุม x ปรับแสง 3 ระดับ)"]
+    S3["<b>ระบบที่ 3: FastAPI (Web Service Gateway)</b><br/>แปลงฟังก์ชันการประมวลผลเป็น REST API แบบ Non-blocking Concurrency"]
+    S4["<b>ระบบที่ 4: Gradio (Interactive User Interface)</b><br/>หน้าต่างเว็บสำหรับอัปโหลดภาพและแสดงผลลัพธ์ผ่านเครือข่าย HTTP"]
 
-    N1 -->|"ภาพที่ผ่านการยืนยัน"| N2
-    N2 -->|"ระนาบและภาพที่ดีที่สุด"| N3
-    N3 -->|"REST API Endpoint"| N4
+    S1 -->|"1. ภาพผ่านเกณฑ์การตรวจสอบ"| S2
+    S2 -->|"2. ท่อประมวลผล read_meter() พร้อมใช้งาน"| S3
+    S3 -->|"3. ให้บริการข้อมูลผ่าน REST API"| S4
 
-    classDef c1 fill:#e6f7ff,stroke:#1890ff,stroke-width:1.5px;
-    classDef c2 fill:#fff7e6,stroke:#fa8c16,stroke-width:1.5px;
-    classDef c3 fill:#f6ffed,stroke:#52c41a,stroke-width:1.5px;
-    classDef c4 fill:#f9f0ff,stroke:#722ed1,stroke-width:1.5px;
-    class N1 c1;
-    class N2 c2;
-    class N3 c3;
-    class N4 c4;
+    classDef s1 fill:#f0f5ff,stroke:#2f54eb,stroke-width:1.5px;
+    classDef s2 fill:#fffbe6,stroke:#d48806,stroke-width:1.5px;
+    classDef s3 fill:#f6ffed,stroke:#52c41a,stroke-width:1.5px;
+    classDef s4 fill:#f9f0ff,stroke:#722ed1,stroke-width:1.5px;
+
+    class S1 s1;
+    class S2 s2;
+    class S3 s3;
+    class S4 s4;
 ```
 
-<p align="center"><strong>แผนภาพที่ 3.1.1: ลำดับการรวม 4 ระบบหลักและบทบาทหน้าที่ในกระบวนการประมวลผล</strong></p>
+<p align="center"><strong>แผนภาพที่ 3.1.1: ลำดับการเชื่อมโยงของ 4 ระบบหลักในกระบวนการประมวลผล</strong></p>
 
 &emsp;&emsp;&emsp;&emsp;แต่ละระบบจะถูกอธิบายด้วยโครงสร้างเดียวกันครบ **3 ขั้น** คือ:
 
@@ -1301,38 +1294,38 @@ inputs = processor(
 
 ```mermaid
 flowchart TD
-    subgraph Stage1["ขั้นที่ 1: Preprocess (เตรียมข้อมูล)"]
-        Raw["ภาพถ่ายนำเข้า (RGB numpy array)"] --> PIL["แปลงเป็น PIL Image (Image.fromarray)"]
-        Labels["ข้อความป้ายกำกับ 4 คลาส<br/>('water meter', 'electricity meter',<br/>'gas meter', 'not a meter')"] --> Proc["SigLIP2 AutoProcessor"]
-        PIL -->|"Resize 224x224 & Normalize"| Proc
-        Proc --> Inp["PyTorch Tensors<br/>(pixel_values & input_ids)"]
+    subgraph Pre["ขั้นที่ 1: Preprocess (การเตรียมข้อมูล)"]
+        IMG["ภาพถ่าย RGB"] --> PROC["AutoProcessor<br/>ปรับขนาดภาพ 224x224 พิกเซล และทำ Normalization"]
+        TXT["ชุดข้อความ 4 หมวดหมู่วัตถุ<br/>('water meter', 'electricity meter', ...)"] --> PROC
     end
 
-    subgraph Stage2["ขั้นที่ 2: In-Process (กลไก VLM & Sigmoid Loss)"]
-        Inp --> VEnc["Vision Transformer (ViT)<br/><i>สกัดเวกเตอร์คุณลักษณะของภาพ</i>"]
-        Inp --> TEnc["Text Transformer<br/><i>สกัดเวกเตอร์คุณลักษณะของข้อความ</i>"]
-        VEnc --> IEmb["Image Embedding"]
-        TEnc --> TEmb["Text Embeddings (4 หมวดหมู่)"]
-        IEmb & TEmb --> Dot["Dot Product Cosine Similarity"]
-        Dot --> Sig["ฟังก์ชัน Sigmoid (Loss อิสระต่อคลาส)<br/><i>probs = sigmoid(logits)</i>"]
+    subgraph Proc["ขั้นที่ 2: In-Process (การคำนวณแบบจำลอง Dual-Encoder)"]
+        PROC -->|"Image Tensor"| VIT["Vision Encoder (ViT)<br/>สกัดเวกเตอร์คุณลักษณะภาพ"]
+        PROC -->|"Text Tokens"| TXT_ENC["Text Encoder<br/>สกัดเวกเตอร์คุณลักษณะข้อความ"]
+        
+        VIT --> DOT["Dot Product & Sigmoid Activation<br/>คำนวณความสอดคล้องระหว่างภาพและข้อความ"]
+        TXT_ENC --> DOT
+        
+        DOT --> SCORES["คะแนนความน่าจะเป็นแยกอิสระ 4 คลาส<br/>(ค่าความเชื่อมั่นแต่ละคลาส 0.0 - 1.0)"]
     end
 
-    subgraph Stage3["ขั้นที่ 3: Output (การตัดสินใจคัดกรอง)"]
-        Sig --> Scores["คะแนนความเชื่อมั่นแต่ละคลาส (0.0 - 1.0)"]
-        Scores --> Cond{"เงื่อนไขการผ่านด่าน:<br/>1. คลาสสูงสุด == 'water meter'<br/>2. ความเชื่อมั่น >= 0.50"}
-        Cond -->|ผ่านเกณฑ์| Pass["verified = True<br/><i>ส่งภาพต่อไปยังขบวนการถัดไป</i>"]
-        Cond -->|ไม่ผ่านเกณฑ์| Fail["verified = False<br/><i>ปฏิเสธภาพทันที (Early Exit Guard)</i>"]
+    subgraph Out["ขั้นที่ 3: Output (การตัดสินใจ)"]
+        SCORES --> DEC{"คลาสสูงสุด = 'water meter'<br/>และ ค่าความเชื่อมั่น >= 0.50 ?"}
+        DEC -->|"ใช่"| PASS["ผ่านการคัดกรอง (verified = True)<br/>ส่งภาพต่อไปยัง OpenCV และ YOLO"]
+        DEC -->|"ไม่ใช่"| FAIL["ปฏิเสธภาพ (Early Exit)<br/>แจ้งเตือน: ภาพไม่ใช่มาตรวัดน้ำ"]
     end
 
-    classDef pre fill:#e6f7ff,stroke:#1890ff,stroke-width:1px;
-    classDef proc fill:#f9f0ff,stroke:#722ed1,stroke-width:1px;
-    classDef out fill:#f6ffed,stroke:#52c41a,stroke-width:1px;
-    class Stage1 pre;
-    class Stage2 proc;
-    class Stage3 out;
+    classDef norm fill:#f0f5ff,stroke:#2f54eb,stroke-width:1.5px;
+    classDef proc fill:#f9f0ff,stroke:#722ed1,stroke-width:1.5px;
+    classDef pass fill:#f6ffed,stroke:#52c41a,stroke-width:1.5px;
+    classDef fail fill:#fff1f0,stroke:#f5222d,stroke-width:1.5px;
+    class IMG,TXT,PROC norm;
+    class VIT,TXT_ENC,DOT,SCORES proc;
+    class PASS pass;
+    class FAIL fail;
 ```
 
-<p align="center"><strong>แผนภาพที่ 3.1.2: สถาปัตยกรรมและการทำงาน 3 ขั้น (Preprocess → In-Process → Output) ของ SigLIP2 Zero-shot</strong></p>
+<p align="center"><strong>แผนภาพที่ 3.1.2: สถาปัตยกรรมและการทำงาน 3 ขั้น (Preprocess → In-Process → Output) ของ SigLIP2</strong></p>
 
 *เปรียบเทียบ: SigLIP2 Zero-shot กับการ Fine-tune แบบจำลองใหม่*
 
@@ -1408,32 +1401,22 @@ bgr = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2BGR)
 
 ```mermaid
 flowchart TD
-    In["ภาพ BGR จาก SigLIP2 (cv2.cvtColor)"] --> Rot["หมุนภาพ 4 ระนาบ (OpenCV Rotation)"]
+    IN["ภาพ BGR จาก SigLIP2"] --> ROT["มิติที่ 1: หมุนภาพ 4 ทิศทาง<br/>(0°, 90°, 180°, 270°)"]
 
-    Rot --> A0["0° (ภาพทิศทางเดิม)"]
-    Rot --> A90["90° ตามเข็มนาฬิกา"]
-    Rot --> A180["180° กลับหัว"]
-    Rot --> A270["270° ทวนเข็มนาฬิกา"]
+    ROT --> FILTER["มิติที่ 2: ปรับสภาพแสง 3 ฟิลเตอร์<br/>(Original, CLAHE คอนทราสต์เฉพาะจุด, HistEq ทั่วทั้งภาพ)"]
 
-    A0 --> F0_1["orig: ภาพปกติ"] & F0_2["clahe: ปรับคอนทราสต์เฉพาะส่วน"] & F0_3["histeq: เกลี่ยแสงทั้งภาพ"]
-    A90 --> F90_1["orig: ภาพปกติ"] & F90_2["clahe: ปรับคอนทราสต์เฉพาะส่วน"] & F90_3["histeq: เกลี่ยแสงทั้งภาพ"]
-    A180 --> F180_1["orig: ภาพปกติ"] & F180_2["clahe: ปรับคอนทราสต์เฉพาะส่วน"] & F180_3["histeq: เกลี่ยแสงทั้งภาพ"]
-    A270 --> F270_1["orig: ภาพปกติ"] & F270_2["clahe: ปรับคอนทราสต์เฉพาะส่วน"] & F270_3["histeq: เกลี่ยแสงทั้งภาพ"]
+    FILTER --> HYPO["เกิดชุดภาพสมมติฐานทั้งหมด 12 รูปแบบ<br/>(4 มุมมอง x 3 รูปแบบแสง = 12 Candidates)"]
 
-    subgraph Hypo["รวม 12 สมมติฐานภาพ (4 ระนาบ x 3 ฟิลเตอร์แสง)"]
-        F0_1 & F0_2 & F0_3 & F90_1 & F90_2 & F90_3 & F180_1 & F180_2 & F180_3 & F270_1 & F270_2 & F270_3
-    end
+    HYPO --> EVAL["ฟังก์ชันประเมิน eval_orientation()<br/>วิเคราะห์สัญลักษณ์หน่วย m³ + ผลคะแนนตรวจจับตัวเลขจาก YOLO"]
 
-    Hypo --> Eval["ประเมินคุณภาพใน eval_orientation()<br/><i>ตรวจสอบข้อความหน้าปัด m3/m2 และความมั่นใจตัวเลข</i>"]
-    Eval --> Pick["คัดเลือกสมมติฐานที่ได้คะแนนสูงสุดเพียง 1 เดียว<br/><b>(best_angle, best_prep, best_dets)</b>"]
-    Pick --> Out["ส่งต่อภาพมุมตรงและคมชัดให้ขั้นตอน Output"]
+    EVAL --> BEST["คัดเลือกภาพสมมติฐานที่ดีที่สุดเพียง 1 เดียว<br/>(best_angle, best_prep, best_dets)"]
 
-    classDef rot fill:#fff7e6,stroke:#fa8c16,stroke-width:1px;
-    classDef filt fill:#e6f7ff,stroke:#1890ff,stroke-width:1px;
+    classDef step fill:#f0f5ff,stroke:#2f54eb,stroke-width:1.5px;
+    classDef cand fill:#fffbe6,stroke:#d48806,stroke-width:1.5px;
     classDef best fill:#f6ffed,stroke:#52c41a,stroke-width:2px;
-    class A0,A90,A180,A270 rot;
-    class F0_1,F0_2,F0_3,F90_1,F90_2,F90_3,F180_1,F180_2,F180_3,F270_1,F270_2,F270_3 filt;
-    class Pick best;
+    class IN,ROT,FILTER,EVAL step;
+    class HYPO cand;
+    class BEST best;
 ```
 
 <p align="center"><strong>แผนภาพที่ 3.1.3: กลไกการสร้างและคัดเลือก 12 สมมติฐานภาพ (12 Hypotheses Tuning) ของ OpenCV</strong></p>
@@ -1558,29 +1541,29 @@ async def read_meter_api(file: UploadFile = File(...)):
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor C1 as ผู้ใช้คนที่ 1 (Client 1)
-    actor C2 as ผู้ใช้คนที่ 2 (Client 2)
-    participant EV as FastAPI Async Event Loop
-    participant TP as Worker ThreadPool
-    participant ML as ฟังก์ชัน read_meter() [CPU/GPU]
+    participant C1 as ผู้ใช้งานที่ 1
+    participant C2 as ผู้ใช้งานที่ 2
+    participant EV as FastAPI Event Loop
+    participant TP as ThreadPool Worker
+    participant ML as ฟังก์ชัน read_meter()
 
-    Note over EV,ML: การทำงานแบบ Non-blocking Concurrency ผ่าน run_in_threadpool
-    C1->>EV: 1. อัปโหลดภาพที่ 1 (POST /api/read-meter)
-    EV->>EV: await file.read() (Non-blocking I/O)
-    EV->>TP: มอบหมายงาน read_meter(ภาพ 1) ให้ Thread 1
-    TP->>ML: เริ่มคำนวณโมเดลภาพ 1 (ใช้เวลา 3 วินาที)
-    Note over EV: Event Loop ว่างทันที! พร้อมรับคำขอถัดไปโดยไม่รอ
-    C2->>EV: 2. อัปโหลดภาพที่ 2 (POST /api/read-meter)
-    EV->>EV: await file.read() (Non-blocking I/O)
-    EV->>TP: มอบหมายงาน read_meter(ภาพ 2) ให้ Thread 2
-    TP->>ML: เริ่มคำนวณโมเดลภาพ 2 คู่ขนานกัน
-    ML-->>TP: โมเดลภาพ 1 คำนวณเสร็จสิ้น
-    TP-->>EV: คืนค่าผลลัพธ์ภาพ 1
-    EV-->>C1: 3. ส่งคืน JSON ผลการอ่านภาพที่ 1
-    ML-->>TP: โมเดลภาพ 2 คำนวณเสร็จสิ้น
-    TP-->>EV: คืนค่าผลลัพธ์ภาพ 2
-    EV-->>C2: 4. ส่งคืน JSON ผลการอ่านภาพที่ 2
+    Note over EV,ML: สถาปัตยกรรมแบบ Non-blocking Concurrency
+    C1->>EV: อัปโหลดภาพที่ 1
+    EV->>TP: มอบหมายงานเข้าเธรดแยก (Worker 1)
+    TP->>ML: เริ่มประมวลผลโมเดลภาพที่ 1
+    Note over EV: Event Loop ว่างทันที พร้อมรับคำขอใหม่
+
+    C2->>EV: อัปโหลดภาพที่ 2 (ส่งมาพร้อมกัน)
+    EV->>TP: มอบหมายงานเข้าเธรดแยก (Worker 2)
+    TP->>ML: เริ่มประมวลผลโมเดลภาพที่ 2 (คู่ขนาน)
+
+    ML-->>TP: ภาพที่ 1 ประมวลผลเสร็จสิ้น
+    TP-->>EV: ส่งคืนผลลัพธ์ภาพที่ 1
+    EV-->>C1: ส่งคำตอบ JSON ภาพที่ 1
+
+    ML-->>TP: ภาพที่ 2 ประมวลผลเสร็จสิ้น
+    TP-->>EV: ส่งคืนผลลัพธ์ภาพที่ 2
+    EV-->>C2: ส่งคำตอบ JSON ภาพที่ 2
 ```
 
 <p align="center"><strong>แผนภาพที่ 3.1.4: การประมวลผลคำขอแบบไม่ปิดกั้น (Non-blocking Concurrency) ด้วย ThreadPool ใน FastAPI</strong></p>
@@ -1663,32 +1646,29 @@ def process_image(img):
 *หลักการ Separation of Concerns — เหตุที่ Gradio แยกออกจาก ML โดยสมบูรณ์:* FastAPI เป็น backend ที่เสถียร ส่วน Gradio เป็น frontend ที่ผู้ใช้มองเห็น หาก Gradio crash ผู้ใช้ reload หน้าได้ทันที API ยังทำงานปกติ — ต่างกับการรวมทุกอย่างในไฟล์เดียวที่หาก ML model โหลดผิดพลาด ทั้งระบบล่ม
 
 ```mermaid
-flowchart LR
-    subgraph Frontend["🖥️ ส่วนติดต่อผู้ใช้ (Frontend: Gradio Web UI :7860)"]
-        GUI["หน้าเว็บเบราว์เซอร์<br/><i>gr.Image, gr.Button, gr.Textbox</i>"]
-        Encoder["ตัวแปลงข้อมูลภาพ<br/><i>numpy array → JPEG bytes</i>"]
-        Client["ตัวส่งคำขอ HTTP<br/><i>httpx.Client(timeout=60s)</i>"]
-
-        GUI --> Encoder --> Client
+flowchart TD
+    subgraph Frontend["ฝั่งผู้ใช้งาน (Frontend: Gradio Web UI :7860)"]
+        A["1. หน้าจอเว็บเบราว์เซอร์<br/>รับภาพถ่ายจากผู้ใช้"] --> B["2. HTTP Client (httpx)<br/>แปลงภาพเป็น JPEG และส่งคำขอ"]
     end
 
-    subgraph Backend["⚡ เซิร์ฟเวอร์บริการ (Backend: FastAPI REST API :8000)"]
-        Route["API Route: /api/read-meter<br/><i>รับ UploadFile</i>"]
-        Validation["ตรวจสอบความปลอดภัย<br/><i>MIME Type & PIL decode</i>"]
-        Pipeline["ML Pipeline<br/><i>read_meter(SigLIP2 + OpenCV + YOLO)</i>"]
-        JSONRes["จัดรูปแบบผลลัพธ์<br/><i>JSON Payload</i>"]
-
-        Route --> Validation --> Pipeline --> JSONRes
+    subgraph Backend["ฝั่งประมวลผล (Backend: FastAPI Service :8000)"]
+        C["3. API Route (/api/read-meter)<br/>รับคำขอและตรวจสอบความปลอดภัย"] --> D["4. ML Pipeline (read_meter)<br/>SigLIP2 → OpenCV → YOLO26"]
+        D --> E["5. JSON Response Builder<br/>สรุปผลการอ่านค่าและส่งกลับ"]
     end
 
-    Client ==>|"1. HTTP POST multipart/form-data"| Route
-    JSONRes ==>|"2. HTTP 200 OK (JSON Data)"| Client
-    Client -.->|"3. นำข้อมูลอัปเดตหน้าจอทันที"| GUI
+    subgraph Result["การแสดงผลลัพธ์ (Presentation)"]
+        F["6. หน้าต่าง Gradio แสดงผลลัพธ์<br/>ตัวเลขมิเตอร์น้ำและระดับความเชื่อมั่น"]
+    end
+
+    B -->|"HTTP POST (Multipart)"| C
+    E -->|"HTTP 200 OK (JSON)"| F
 
     classDef fe fill:#f9f0ff,stroke:#722ed1,stroke-width:1.5px;
-    classDef be fill:#f6ffed,stroke:#52c41a,stroke-width:1.5px;
-    class Frontend fe;
-    class Backend be;
+    classDef be fill:#f0f5ff,stroke:#2f54eb,stroke-width:1.5px;
+    classDef re fill:#f6ffed,stroke:#52c41a,stroke-width:1.5px;
+    class Frontend,A,B fe;
+    class Backend,C,D,E be;
+    class Result,F re;
 ```
 
 <p align="center"><strong>แผนภาพที่ 3.1.5: สถาปัตยกรรมแยกส่วนอิสระ (Separation of Concerns) ระหว่าง Gradio Frontend และ FastAPI Backend</strong></p>
@@ -1734,37 +1714,41 @@ demo.launch(server_name="0.0.0.0", server_port=7860)
 >
 > ```mermaid
 > flowchart TD
->     User(["👤 ผู้ใช้งานภาคสนาม"]) -->|1. อัปโหลดภาพถ่ายมาตรวัด| Gradio["🖥️ <b>Gradio Web UI (:7860)</b><br/><i>รับภาพ ตรวจสอบ และแปลงเป็น JPEG Bytes</i>"]
->     
->     Gradio -->|2. HTTP POST multipart/form-data| FastAPI["⚡ <b>FastAPI Gateway (:8000)</b><br/><i>รับคำขอ ตรวจสอบ MIME Type และส่งเข้า ThreadPool</i>"]
->     
->     FastAPI -->|3. ส่งต่อข้อมูล RGB Array| SigLIP["🛡️ <b>ระบบที่ 1: SigLIP2 (ยามประตู)</b><br/><i>Zero-shot Image Classification</i>"]
->     
->     SigLIP -->|ผ่านเกณฑ์: water meter และ Conf >= 0.50| OpenCV["🎨 <b>ระบบที่ 2: OpenCV (ช่างภาพ)</b><br/><i>สร้างและประเมิน 12 สมมติฐาน (4 มุม x 3 แสง)</i>"]
->     SigLIP -.->|ไม่ผ่านเกณฑ์: ภาพไม่ถูกต้อง| Reject["❌ <b>Early Rejection</b><br/><i>แจ้งเตือน: ภาพไม่ใช่มาตรวัดน้ำ</i>"]
->     
->     OpenCV -->|4. ส่งต่อระนาบและภาพที่ดีที่สุด| YOLO["🎯 <b>การรู้จำตัวเลข (YOLO26)</b><br/><i>ตรวจจับพิกัดตัวเลข คัดกรองกรอบซ้อน และวิเคราะห์สีแดง</i>"]
->     
->     YOLO -->|5. ค่าตัวเลขและระดับความเชื่อมั่น| Summary["📦 <b>รวมข้อมูลผลการอ่านค่า</b><br/><i>{reading, digits, confidence, warnings}</i>"]
->     Reject --> Summary
->     
->     Summary -->|6. ส่งคืน JSON Payload| FastAPI
->     FastAPI -->|7. HTTP 200 Response| Gradio
->     Gradio -->|8. เรนเดอร์บนหน้าเว็บทันที| User
+>     subgraph Stage1["1. ส่วนรับคำขอและส่งต่องาน (Ingestion Layer)"]
+>         A["ผู้ใช้งานอัปโหลดภาพถ่าย"] --> B["Gradio Web UI (พอร์ต 7860)<br/>ส่งต่อภาพผ่านเครือข่ายด้วย HTTP POST"]
+>         B --> C["FastAPI Gateway (พอร์ต 8000)<br/>รับคำขอ ตรวจสอบ MIME type และส่งเข้า ThreadPool"]
+>     end
 > 
->     classDef ui fill:#f9f0ff,stroke:#722ed1,stroke-width:2px;
->     classDef gw fill:#f6ffed,stroke:#52c41a,stroke-width:2px;
->     classDef ai fill:#e6f7ff,stroke:#1890ff,stroke-width:2px;
->     classDef cv fill:#fff7e6,stroke:#fa8c16,stroke-width:2px;
->     classDef err fill:#fff1f0,stroke:#f5222d,stroke-width:2px;
->     class Gradio ui;
->     class FastAPI gw;
->     class SigLIP,YOLO ai;
->     class OpenCV cv;
->     class Reject err;
+>     subgraph Stage2["2. ส่วนคัดกรองความถูกต้อง (Verification Layer)"]
+>         C --> D{"SigLIP2 คัดกรองภาพ<br/>(เป็นมาตรวัดน้ำ และ Conf >= 0.50 ?)"}
+>         D -->|"ไม่ผ่านเกณฑ์"| REJ["ปฏิเสธคำขอทันที (Early Exit)<br/>แจ้งเตือน: ภาพไม่ใช่มาตรวัดน้ำ"]
+>     end
+> 
+>     subgraph Stage3["3. ส่วนประมวลผลภาพและอ่านค่า (Computer Vision Layer)"]
+>         D -->|"ผ่านเกณฑ์"| E["OpenCV Engine<br/>สร้าง 12 สมมติฐาน (4 มุม x 3 แสง) และเลือกภาพที่ดีที่สุด"]
+>         E --> F["YOLO26 Digit Reader<br/>ตรวจจับพิกัดตัวเลข คัดกรองกรอบซ้อน และวิเคราะห์สีแดง"]
+>     end
+> 
+>     subgraph Stage4["4. ส่วนสรุปผลและแสดงข้อมูล (Output Layer)"]
+>         F --> G["รวบรวมผลลัพธ์เป็น JSON Payload<br/>(reading, digits, confidence, meta)"]
+>         REJ --> G
+>         G --> H["ส่งกลับไปยัง Gradio Web UI<br/>แสดงตัวเลขและระดับความเชื่อมั่นบนหน้าจอ"]
+>     end
+> 
+>     classDef ing fill:#f0f5ff,stroke:#2f54eb,stroke-width:1.5px;
+>     classDef ver fill:#fffbe6,stroke:#d48806,stroke-width:1.5px;
+>     classDef cv fill:#f6ffed,stroke:#52c41a,stroke-width:1.5px;
+>     classDef rej fill:#fff1f0,stroke:#f5222d,stroke-width:1.5px;
+>     classDef out fill:#f9f0ff,stroke:#722ed1,stroke-width:1.5px;
+> 
+>     class A,B,C ing;
+>     class D ver;
+>     class REJ rej;
+>     class E,F cv;
+>     class G,H out;
 > ```
 >
-> <p align="center"><strong>แผนภาพที่ 3.1.6: การไหลของข้อมูลแบบครบวงจร (End-to-End Pipeline) เชื่อมโยง 4 ระบบหลักตามหลักการ Decoupled Architecture</strong></p>
+> <p align="center"><strong>แผนภาพที่ 3.1.6: การไหลของข้อมูลแบบครบวงจร (End-to-End Pipeline) เชื่อมโยง 4 ระบบหลัก</strong></p>
 >
 > **Output ของแต่ละระบบเป็น Input ของระบบถัดไปเสมอ** — นี่คือหลักการ Decoupled Architecture ที่ทำให้ระบบแต่ละส่วนทดสอบ, แก้ไข, และแทนที่ได้อย่างอิสระ
 
