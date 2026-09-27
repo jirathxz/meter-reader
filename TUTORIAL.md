@@ -1172,8 +1172,8 @@ flowchart TD
         A2 --> A3["ตรวจสอบและโหลดภาพ<br/>(PIL Image.open / load)"]
         A3 --> A4["แปลงปริภูมิสีเป็น RGB มาตรฐาน<br/>(RGB 3-Channels uint8)"]
         A4 --> A5{"ตรวจสอบว่าเป็นมาตรวัดน้ำจริงหรือไม่?<br/>(SigLIP2 Zero-shot Classifier)"}
-        A5 -->|"ผ่านเกณฑ์ (Conf >= 0.50)"| A6["ส่งต่อไปยังขั้นตอนที่ 2 (Process)"]
-        A5 -->|"ไม่ผ่านเกณฑ์"| A7["ปฏิเสธการประมวลผล (Early Exit)<br/>แจ้งเตือน: ภาพไม่ใช่มาตรวัดน้ำ"]
+        A5 -- "ผ่านเกณฑ์ (Conf >= 0.50)" --> A6["ส่งต่อไปยังขั้นตอนที่ 2 (Process)"]
+        A5 -- "ไม่ผ่านเกณฑ์" --> A7["ปฏิเสธการประมวลผล (Early Exit)<br/>แจ้งเตือน: ภาพไม่ใช่มาตรวัดน้ำ"]
         A6 -.-> CP1["[Checkpoint 1: ทดสอบ Preprocessing & Gatekeeper]"]
     end
 
@@ -1182,8 +1182,8 @@ flowchart TD
         B2 --> B3["ปรับปรุงคุณภาพแสง 3 รูปแบบ<br/>(OpenCV Filter: Orig, CLAHE, HistEq)"]
         B3 --> B4["สร้างชุดภาพสมมติฐาน 12 รูปแบบ<br/>(4 ทิศทาง x 3 ฟิลเตอร์ = 12 Candidates)"]
         B4 --> B5{"ตรวจสอบทิศทางข้อความหน้าปัด m³<br/>(detect_dial_text_orientation)"}
-        B5 -->|"ข้อความแนวตั้ง"| B6["ปรับมุมให้ข้อความเป็นแนวนอน"]
-        B5 -->|"ข้อความแนวนอน"| B7["ส่งต่อชุดภาพเข้าประเมินสมมติฐาน"]
+        B5 -- "ข้อความแนวตั้ง" --> B6["ปรับมุมให้ข้อความเป็นแนวนอน"]
+        B5 -- "ข้อความแนวนอน" --> B7["ส่งต่อชุดภาพเข้าประเมินสมมติฐาน"]
         B6 --> B7
         B7 --> B8["ส่งชุดภาพพร้อมระนาบไปยังขั้นตอนที่ 3"]
         B8 -.-> CP2["[Checkpoint 2: ทดสอบ Process & Transformation]"]
@@ -1193,8 +1193,8 @@ flowchart TD
         C0["[Training Prerequisite: แบบจำลอง YOLO26]<br/>(น้ำหนักแบบจำลอง weights/MeterOCR.pt)"] --> C1["ส่งภาพเข้าตรวจจับตัวเลขด้วย YOLO26<br/>(Inference 10 Classes: digits 0-9)"]
         C1 --> C2["ตัดกรอบซ้อนทับด้วย IoU Deduplication<br/>(IoU Threshold = 0.45)"]
         C2 --> C3{"วิเคราะห์ทิศทางการเรียงตัวเลข<br/>(is_vertical Filter)"}
-        C3 -->|"เรียงแนวตั้ง"| C4["ตัดทิ้ง (เป็นเลขวันที่/ซีเรียล)"]
-        C3 -->|"เรียงแนวนอน"| C5["คัดเลือกสมมติฐานที่ดีที่สุด (detect_digits_best)<br/>สูตรคำนวณคะแนน Score = MeanConf x N x Bonus"]
+        C3 -- "เรียงแนวตั้ง" --> C4["ตัดทิ้ง (เป็นเลขวันที่/ซีเรียล)"]
+        C3 -- "เรียงแนวนอน" --> C5["คัดเลือกสมมติฐานที่ดีที่สุด (detect_digits_best)<br/>สูตรคำนวณคะแนน Score = MeanConf x N x Bonus"]
         C5 --> C6["เรียงลำดับตัวเลขจากซ้ายไปขวา<br/>(Sort by Bounding Box xmin)"]
         C6 --> C7["วิเคราะห์หลักทศนิยมสีแดง<br/>(HSV Red Ratio >= 0.25)"]
         C7 --> C8["บูรณาการไปป์ไลน์และระบบความปลอดภัย<br/>(read_meter: flip_guard, align, cross_check)"]
@@ -1228,13 +1228,27 @@ flowchart TD
 
 &emsp;&emsp;&emsp;&emsp;ระบบนี้บูรณาการเทคโนโลยีหลัก 4 ตัวเข้าด้วยกันอย่างกลมกลืน โดยแต่ละเทคโนโลยีมีบทบาทหน้าที่ที่สอดรับกับ 3 ขั้นตอนอย่างชัดเจน:
 
-| เทคโนโลยี | สถาปัตยกรรม/บทบาท | ขั้นตอนหลักที่สังกัด | เหตุผลความจำเป็นในเชิงวิศวกรรม |
-|---|---|:---:|---|
-| **SigLIP2** | Vision-Language Foundation Model | **ขั้นตอนที่ 1: Preprocessing** | ทำหน้าที่เป็น Gatekeeper คัดกรองภาพตั้งแต่ต้นทางด้วย Zero-shot Classification ป้องกันภาพผิดประเภทไม่ให้ผ่านไปใช้ทรัพยากรคำนวณของระบบ |
-| **OpenCV** | Digital Image Processing Engine | **ขั้นตอนที่ 2: Process** | รับผิดชอบการแปลงภาพเชิงเรขาคณิต (หมุน 4 ทิศทาง) และปรับแก้ระดับแสง (3 ฟิลเตอร์) เพื่อสร้างชุดสมมติฐาน 12 รูปแบบที่ทนทานต่อสภาพหน้างาน |
-| **YOLO26** | Single-Stage Object Detector | **ขั้นตอนที่ 3: Output** | ทำหน้าที่อนุมานระบุพิกัดและจำแนกตัวเลขแต่ละหลัก (0–9) จากภาพเต็มเฟรมโดยตรง ทนทานต่อการเอียงและแสงเงาดีกว่า OCR ดั้งเดิม |
-| **FastAPI** | Modern Asynchronous Web Framework | **ขั้นตอนที่ 1 & 3 (Delivery)** | รับไฟล์ภาพไบนารีผ่าน HTTP Multipart (Preprocessing) และส่งมอบผลลัพธ์ JSON ผ่าน REST API ด้วยสถาปัตยกรรม Non-blocking ThreadPool (Output) |
-| **Gradio** | Interactive Machine Learning Interface | **ขั้นตอนที่ 1 & 3 (Presentation)** | หน้าต่างเว็บสำหรับผู้ใช้ภาคสนามในการอัปโหลดภาพ (Preprocessing) และแสดงผลค่าตัวเลข ความเชื่อมั่น และข้อความเตือนความปลอดภัย (Output) |
+&emsp;&emsp;&emsp;&emsp;การจำแนกบทบาทของทั้ง 4 เทคโนโลยีหลักตามสถาปัตยกรรม 3 ขั้นตอน มีรายละเอียดดังนี้:
+
+&emsp;&emsp;&emsp;&emsp;1. **เทคโนโลยี SigLIP2 (Vision-Language Foundation Model):**  
+&emsp;&emsp;&emsp;&emsp;- *สังกัด:* ขั้นตอนที่ 1 (Preprocessing)  
+&emsp;&emsp;&emsp;&emsp;- *เหตุผลความจำเป็นในเชิงวิศวกรรม:* ทำหน้าที่เป็น Gatekeeper คัดกรองภาพตั้งแต่ต้นทางด้วย Zero-shot Classification เพื่อคัดแยกภาพที่ไม่ใช่มาตรวัดน้ำออกทันที ช่วยป้องกันภาพผิดประเภทไม่ให้ผ่านไปใช้ทรัพยากรคำนวณของระบบ
+
+&emsp;&emsp;&emsp;&emsp;2. **เทคโนโลยี OpenCV (Digital Image Processing Engine):**  
+&emsp;&emsp;&emsp;&emsp;- *สังกัด:* ขั้นตอนที่ 2 (Process)  
+&emsp;&emsp;&emsp;&emsp;- *เหตุผลความจำเป็นในเชิงวิศวกรรม:* รับผิดชอบการแปลงภาพเชิงเรขาคณิต (หมุน 4 ทิศทาง) และปรับแก้ระดับแสง (3 ฟิลเตอร์) เพื่อสร้างชุดสมมติฐาน 12 รูปแบบที่ทนทานต่อสภาพหน้างานจริง
+
+&emsp;&emsp;&emsp;&emsp;3. **เทคโนโลยี YOLO26 (Single-Stage Object Detector):**  
+&emsp;&emsp;&emsp;&emsp;- *สังกัด:* ขั้นตอนที่ 3 (Output)  
+&emsp;&emsp;&emsp;&emsp;- *เหตุผลความจำเป็นในเชิงวิศวกรรม:* ทำหน้าที่อนุมานระบุพิกัดและจำแนกตัวเลขแต่ละหลัก (0–9) จากภาพเต็มเฟรมโดยตรง ทนทานต่อการเอียงและแสงเงาได้ดีกว่า OCR ดั้งเดิม
+
+&emsp;&emsp;&emsp;&emsp;4. **เทคโนโลยี FastAPI (Modern Asynchronous Web Framework):**  
+&emsp;&emsp;&emsp;&emsp;- *สังกัด:* ขั้นตอนที่ 1 (Preprocessing) และขั้นตอนที่ 3 (Output - Delivery)  
+&emsp;&emsp;&emsp;&emsp;- *เหตุผลความจำเป็นในเชิงวิศวกรรม:* รับไฟล์ภาพไบนารีผ่าน HTTP Multipart และส่งมอบผลลัพธ์ JSON ผ่าน REST API ด้วยสถาปัตยกรรม Non-blocking ThreadPool ที่รองรับการประมวลผลพร้อมกัน
+
+&emsp;&emsp;&emsp;&emsp;5. **เทคโนโลยี Gradio (Interactive Machine Learning Interface):**  
+&emsp;&emsp;&emsp;&emsp;- *สังกัด:* ขั้นตอนที่ 1 (Preprocessing) และขั้นตอนที่ 3 (Output - Presentation)  
+&emsp;&emsp;&emsp;&emsp;- *เหตุผลความจำเป็นในเชิงวิศวกรรม:* เป็นหน้าต่างเว็บสำหรับผู้ใช้ภาคสนามในการอัปโหลดภาพ และแสดงผลค่าตัวเลข ความเชื่อมั่น และข้อความเตือนความปลอดภัย
 
 ```mermaid
 flowchart TD
@@ -1243,9 +1257,9 @@ flowchart TD
     S3["<b>ระบบที่ 3: FastAPI (Web Service Gateway)</b><br/>แปลงฟังก์ชันการประมวลผลเป็น REST API แบบ Non-blocking Concurrency"]
     S4["<b>ระบบที่ 4: Gradio (Interactive User Interface)</b><br/>หน้าต่างเว็บสำหรับอัปโหลดภาพและแสดงผลลัพธ์ผ่านเครือข่าย HTTP"]
 
-    S1 -->|"1. ภาพผ่านเกณฑ์การตรวจสอบ"| S2
-    S2 -->|"2. ท่อประมวลผล read_meter() พร้อมใช้งาน"| S3
-    S3 -->|"3. ให้บริการข้อมูลผ่าน REST API"| S4
+    S1 -- "1. ภาพผ่านเกณฑ์การตรวจสอบ" --> S2
+    S2 -- "2. ท่อประมวลผล read_meter() พร้อมใช้งาน" --> S3
+    S3 -- "3. ให้บริการข้อมูลผ่าน REST API" --> S4
 
     classDef s1 fill:#f0f5ff,stroke:#2f54eb,stroke-width:1.5px;
     classDef s2 fill:#fffbe6,stroke:#d48806,stroke-width:1.5px;
@@ -1264,11 +1278,11 @@ flowchart TD
 
 &emsp;&emsp;&emsp;&emsp;เพื่อให้ผู้ศึกษาเข้าใจกลไกการทำงานของแต่ละเทคโนโลยีอย่างลึกซึ้ง หัวข้อนี้จะอธิบายรายละเอียดของ 4 เทคโนโลยีหลัก โดยใช้รูปแบบการสอนแบบ **3 ขั้นตอนย่อย (Preprocess → In-Process → Output)** ที่เป็นมาตรฐานเดียวกันทั้งหมด:
 
-| ขั้นย่อย | มโนทัศน์หลัก | สิ่งที่อธิบายในแต่ละระบบ |
-|---|---|---|
-| **Preprocess** | ข้อมูลนำเข้าและเงื่อนไขตั้งต้น | รับข้อมูลอะไร? ต้องจัดเตรียมหรือแปลงสภาพข้อมูลอย่างไรก่อนป้อนเข้าระบบ? |
-| **In-Process** | กลไกการคำนวณและประมวลผลภายใน | ใช้อัลกอริทึมใด? ทำงานอย่างไรในหน่วยความจำ? เหตุใดจึงเลือกวิธีนี้แทนวิธีอื่น? |
-| **Output** | ผลผลิตและการส่งมอบข้อมูล | ได้ผลลัพธ์ชนิดใดออกมา? โครงสร้างข้อมูลเป็นอย่างไร? และส่งต่อไปยังขั้นตอนใด? |
+&emsp;&emsp;&emsp;&emsp;กรอบมโนทัศน์หลัก 3 ขั้นย่อยในการสอนทำความเข้าใจเชิงลึกรายเทคโนโลยี ประกอบด้วย:
+
+&emsp;&emsp;&emsp;&emsp;1. **ขั้นตอน Preprocess (ข้อมูลนำเข้าและเงื่อนไขตั้งต้น):** วิเคราะห์ว่ารับข้อมูลชนิดใดเข้ามา ต้องจัดเตรียม ถอดรหัส หรือแปลงสภาพข้อมูลอย่างไรก่อนป้อนเข้าสู่ระบบคำนวณ  
+&emsp;&emsp;&emsp;&emsp;2. **ขั้นตอน In-Process (กลไกการคำนวณและประมวลผลภายใน):** ใช้อัลกอริทึมใด มีการแปลงรูปทรงเรขาคณิตหรือการคำนวณอย่างไรในหน่วยความจำ และเหตุใดจึงเลือกใช้วิธีนี้แทนวิธีอื่น  
+&emsp;&emsp;&emsp;&emsp;3. **ขั้นตอน Output (ผลผลิตและการส่งมอบข้อมูล):** ได้ผลผลิตชนิดใดออกมา โครงสร้างข้อมูลเป็นอย่างไร และส่งมอบต่อไปยังขั้นตอนถัดไปในลักษณะใด
 
 ---
 
@@ -1312,8 +1326,8 @@ flowchart TD
     end
 
     subgraph Proc["ขั้นที่ 2: In-Process (การคำนวณแบบจำลอง Dual-Encoder)"]
-        PROC -->|"Image Tensor"| VIT["Vision Encoder (ViT)<br/>สกัดเวกเตอร์คุณลักษณะภาพ"]
-        PROC -->|"Text Tokens"| TXT_ENC["Text Encoder<br/>สกัดเวกเตอร์คุณลักษณะข้อความ"]
+        PROC -- "Image Tensor" --> VIT["Vision Encoder (ViT)<br/>สกัดเวกเตอร์คุณลักษณะภาพ"]
+        PROC -- "Text Tokens" --> TXT_ENC["Text Encoder<br/>สกัดเวกเตอร์คุณลักษณะข้อความ"]
         
         VIT --> DOT["Dot Product & Sigmoid Activation<br/>คำนวณความสอดคล้องระหว่างภาพและข้อความ"]
         TXT_ENC --> DOT
@@ -1323,8 +1337,8 @@ flowchart TD
 
     subgraph Out["ขั้นที่ 3: Output (การตัดสินใจ)"]
         SCORES --> DEC{"คลาสสูงสุด = 'water meter'<br/>และ ค่าความเชื่อมั่น >= 0.50 ?"}
-        DEC -->|"ใช่"| PASS["ผ่านการคัดกรอง (verified = True)<br/>ส่งภาพต่อไปยัง OpenCV และ YOLO"]
-        DEC -->|"ไม่ใช่"| FAIL["ปฏิเสธภาพ (Early Exit)<br/>แจ้งเตือน: ภาพไม่ใช่มาตรวัดน้ำ"]
+        DEC -- "ใช่" --> PASS["ผ่านการคัดกรอง (verified = True)<br/>ส่งภาพต่อไปยัง OpenCV และ YOLO"]
+        DEC -- "ไม่ใช่" --> FAIL["ปฏิเสธภาพ (Early Exit)<br/>แจ้งเตือน: ภาพไม่ใช่มาตรวัดน้ำ"]
     end
 
     classDef norm fill:#f0f5ff,stroke:#2f54eb,stroke-width:1.5px;
@@ -1341,12 +1355,23 @@ flowchart TD
 
 *เปรียบเทียบ: SigLIP2 Zero-shot กับการ Fine-tune แบบจำลองใหม่*
 
-| มิติการเปรียบเทียบ | การฝึกแบบจำลองจำแนกประเภทใหม่ (Fine-tuning) | การใช้งาน SigLIP2 (Zero-shot) |
-|---|---|---|
-| ชุดข้อมูลภาพสำหรับฝึก | ต้องรวบรวมภาพมาตรวัดน้ำและสิ่งของอื่นนับพันภาพ | **ไม่ต้องการชุดข้อมูลภาพฝึกแม้แต่ภาพเดียว** |
-| ระยะเวลาในการพัฒนา | ใช้เวลาหลายวันถึงหลายสัปดาห์ในการเทรนและจูน | **พร้อมใช้งานได้ทันที (Zero Development Latency)** |
-| การเพิ่มคลาสใหม่ | ต้องจัดเตรียมชุดข้อมูลและเริ่มเทรนใหม่ทั้งหมด | **เพียงแค่เพิ่มข้อความลงในอาร์เรย์ TEXT_LABELS** |
-| ความยืดหยุ่นต่อสิ่งแปลกปลอม | ตรวจจับได้เฉพาะวัตถุที่อยู่ในชุดข้อมูลฝึก | **เข้าใจความหมายทางภาษาธรรมชาติได้อย่างกว้างขวาง** |
+&emsp;&emsp;&emsp;&emsp;การเปรียบเทียบระหว่างการฝึกแบบจำลองจำแนกประเภทใหม่ (Fine-tuning) กับการใช้งาน SigLIP2 (Zero-shot) ใน 4 มิติหลัก:
+
+&emsp;&emsp;&emsp;&emsp;1. **มิติด้านชุดข้อมูลภาพสำหรับฝึก:**  
+&emsp;&emsp;&emsp;&emsp;- *การฝึกแบบจำลองใหม่ (Fine-tuning):* ต้องรวบรวมภาพมาตรวัดน้ำและสิ่งของอื่นนับพันภาพเพื่อใช้ในการฝึก  
+&emsp;&emsp;&emsp;&emsp;- *การใช้งาน SigLIP2 (Zero-shot):* ไม่ต้องการชุดข้อมูลภาพฝึกแม้แต่ภาพเดียว (Zero Additional Training Data)
+
+&emsp;&emsp;&emsp;&emsp;2. **มิติด้านระยะเวลาในการพัฒนา:**  
+&emsp;&emsp;&emsp;&emsp;- *การฝึกแบบจำลองใหม่ (Fine-tuning):* ใช้เวลาหลายวันถึงหลายสัปดาห์ในการเทรนและปรับแต่งไฮเปอร์พารามิเตอร์  
+&emsp;&emsp;&emsp;&emsp;- *การใช้งาน SigLIP2 (Zero-shot):* พร้อมใช้งานได้ทันที (Zero Development Latency)
+
+&emsp;&emsp;&emsp;&emsp;3. **มิติด้านการเพิ่มคลาสใหม่:**  
+&emsp;&emsp;&emsp;&emsp;- *การฝึกแบบจำลองใหม่ (Fine-tuning):* ต้องจัดเตรียมชุดข้อมูลและเริ่มเทรนโมเดลใหม่ทั้งหมด  
+&emsp;&emsp;&emsp;&emsp;- *การใช้งาน SigLIP2 (Zero-shot):* เพียงแค่เพิ่มข้อความภาษาธรรมชาติลงในอาร์เรย์คำค้นหา (TEXT_LABELS)
+
+&emsp;&emsp;&emsp;&emsp;4. **มิติด้านความยืดหยุ่นต่อสิ่งแปลกปลอม:**  
+&emsp;&emsp;&emsp;&emsp;- *การฝึกแบบจำลองใหม่ (Fine-tuning):* ตรวจจับได้เฉพาะวัตถุที่ตรงกับชุดข้อมูลฝึกเท่านั้น  
+&emsp;&emsp;&emsp;&emsp;- *การใช้งาน SigLIP2 (Zero-shot):* เข้าใจความหมายทางภาษาธรรมชาติได้อย่างกว้างขวาง จึงคัดแยกสิ่งแปลกปลอมได้แม่นยำ
 
 ```python
 with torch.inference_mode():  # ปิด Gradient เพื่อประหยัดหน่วยความจำและเร่งความเร็ว
@@ -1451,11 +1476,11 @@ def apply_prep(bgr_img, prep):
 
 *ตารางเปรียบเทียบคุณสมบัติระหว่าง CLAHE และ Global HistEq:*
 
-| คุณลักษณะ | Global Histogram Equalization (HistEq) | Contrast Limited Adaptive HistEq (CLAHE) |
-|---|---|---|
-| ขอบเขตการประมวลผล | ทั่วทั้งผืนภาพพร้อมกันในมิติเดียว | แบ่งภาพออกเป็นตารางย่อย (Tile Grid 8×8) |
-| พฤติกรรมเมื่อภาพมีแสงจ้า | ขยายสัญญาณรบกวน (Noise) บริเวณแสงสะท้อนจ้า | จำกัดความชันคอนทราสต์ด้วย Clip Limit ป้องกัน Noise |
-| กรณีที่เหมาะสม | ภาพที่มืดทึบหรือสลัวสม่ำเสมอตลอดทั้งเฟรม | ภาพที่มีแสงตกกระทบไม่สม่ำเสมอ หรือมีเงาพาดผ่านหน้าปัด |
+&emsp;&emsp;&emsp;&emsp;การเปรียบเทียบคุณลักษณะระหว่าง Global Histogram Equalization (HistEq) และ CLAHE มีประเด็นสำคัญ 3 ประการ:
+
+&emsp;&emsp;&emsp;&emsp;1. **ขอบเขตการประมวลผล:** Global HistEq ประมวลผลทั่วทั้งผืนภาพพร้อมกันในมิติเดียว ขณะที่ CLAHE แบ่งภาพออกเป็นตารางย่อย (Tile Grid ขนาด 8×8) เพื่อประมวลผลความสว่างเฉพาะถิ่น  
+&emsp;&emsp;&emsp;&emsp;2. **พฤติกรรมเมื่อภาพมีแสงจ้า:** Global HistEq จะขยายสัญญาณรบกวน (Noise) บริเวณแสงสะท้อนจ้า ขณะที่ CLAHE จำกัดความชันคอนทราสต์ด้วย Clip Limit ทำให้ควบคุมการเกิด Noise ได้อย่างมีประสิทธิภาพ  
+&emsp;&emsp;&emsp;&emsp;3. **กรณีการใช้งานที่เหมาะสม:** Global HistEq เหมาะกับภาพที่มืดทึบหรือสลัวสม่ำเสมอตลอดทั้งเฟรม ขณะที่ CLAHE เหมาะกับภาพที่มีแสงตกกระทบไม่สม่ำเสมอ หรือมีเงาพาดผ่านหน้าปัดมาตรวัดน้ำ
 
 **ขั้นที่ 3 — Output (ผลลัพธ์ชุดภาพสมมติฐานและการส่งต่อ):**
 
@@ -1631,8 +1656,8 @@ flowchart TD
         F["6. หน้าต่าง Gradio แสดงผลลัพธ์<br/>ตัวเลขมิเตอร์น้ำและระดับความเชื่อมั่น"]
     end
 
-    B -->|"HTTP POST (Multipart)"| C
-    E -->|"HTTP 200 OK (JSON)"| F
+    B -- "HTTP POST (Multipart)" --> C
+    E -- "HTTP 200 OK (JSON)" --> F
 
     classDef fe fill:#f9f0ff,stroke:#722ed1,stroke-width:1.5px;
     classDef be fill:#f0f5ff,stroke:#2f54eb,stroke-width:1.5px;
@@ -1676,11 +1701,11 @@ flowchart TD
 > 
 >     subgraph Stage2["2. ส่วนคัดกรองความถูกต้อง (Verification Layer)"]
 >         C --> D{"SigLIP2 คัดกรองภาพ<br/>(เป็นมาตรวัดน้ำ และ Conf >= 0.50 ?)"}
->         D -->|"ไม่ผ่านเกณฑ์"| REJ["ปฏิเสธคำขอทันที (Early Exit)<br/>แจ้งเตือน: ภาพไม่ใช่มาตรวัดน้ำ"]
+>         D -- "ไม่ผ่านเกณฑ์" --> REJ["ปฏิเสธคำขอทันที (Early Exit)<br/>แจ้งเตือน: ภาพไม่ใช่มาตรวัดน้ำ"]
 >     end
 > 
 >     subgraph Stage3["3. ส่วนประมวลผลภาพและอ่านค่า (Computer Vision Layer)"]
->         D -->|"ผ่านเกณฑ์"| E["OpenCV Engine<br/>สร้าง 12 สมมติฐาน (4 มุม x 3 แสง) และเลือกภาพที่ดีที่สุด"]
+>         D -- "ผ่านเกณฑ์" --> E["OpenCV Engine<br/>สร้าง 12 สมมติฐาน (4 มุม x 3 แสง) และเลือกภาพที่ดีที่สุด"]
 >         E --> F["YOLO26 Digit Reader<br/>ตรวจจับพิกัดตัวเลข คัดกรองกรอบซ้อน และวิเคราะห์สีแดง"]
 >     end
 > 
@@ -1845,7 +1870,7 @@ def run_checkpoint1_visual():
     rect1 = patches.Rectangle((20, 20), 460, 140, linewidth=2, edgecolor='#16a34a', facecolor='#dcfce7', alpha=0.9)
     axes[0].add_patch(rect1)
     axes[0].text(35, 55, "[CHECKPOINT 1: PASSED]", fontsize=11, fontweight='bold', color='#15803d')
-    axes[0].text(35, 85, "MIME: image/jpeg | Valid RGB 3-Channels", fontsize=9, color='#1e293b')
+    axes[0].text(35, 85, "MIME: image/jpeg -- Valid RGB 3-Channels", fontsize=9, color='#1e293b')
     axes[0].text(35, 110, f"SigLIP2 Class: '{res_pos['predicted_class']}'", fontsize=9, fontweight='bold', color='#1e293b')
     axes[0].text(35, 135, f"Water Meter Confidence: {res_pos['confidence']:.2%} >= 50.00%", fontsize=9, color='#15803d')
 
@@ -1856,7 +1881,7 @@ def run_checkpoint1_visual():
     rect2 = patches.Rectangle((20, 20), 460, 140, linewidth=2, edgecolor='#dc2626', facecolor='#fee2e2', alpha=0.9)
     axes[1].add_patch(rect2)
     axes[1].text(35, 55, "[CHECKPOINT 1: REJECTED]", fontsize=11, fontweight='bold', color='#b91c1c')
-    axes[1].text(35, 85, "MIME: Checked | Invalid Water Meter Feature", fontsize=9, color='#1e293b')
+    axes[1].text(35, 85, "MIME: Checked -- Invalid Water Meter Feature", fontsize=9, color='#1e293b')
     axes[1].text(35, 110, f"SigLIP2 Class: '{res_neg['predicted_class']}'", fontsize=9, fontweight='bold', color='#1e293b')
     axes[1].text(35, 135, f"Water Meter Confidence: {res_neg['confidence']:.2%} < 50.00% (Early Exit)", fontsize=9, color='#b91c1c')
 
@@ -2414,8 +2439,8 @@ def run_checkpoint3_visual():
     reading = "".join(str(d["digit"]) for d in clean_dets)
     mean_conf = np.mean([d["confidence"] for d in clean_dets]) if clean_dets else 0.0
     summary_text = (
-        f"Detected Sequence: {reading}  |  Digits: {len(clean_dets)}  |  Mean Confidence: {mean_conf:.2%}\n"
-        f"Sorting: Left-to-Right by xmin (OK)  |  Vertical Filter: PASSED (Horizontal Row)  |  Decimals: {num_decimals} Red Digit(s)"
+        f"Detected Sequence: {reading} , Digits: {len(clean_dets)} , Mean Confidence: {mean_conf:.2%}\n"
+        f"Sorting: Left-to-Right by xmin (OK) , Vertical Filter: PASSED (Horizontal Row) , Decimals: {num_decimals} Red Digit(s)"
     )
     plt.figtext(0.5, 0.02, summary_text, wrap=True, horizontalalignment='center', fontsize=10, fontweight='bold',
                  bbox=dict(boxstyle='round,pad=0.6', facecolor='#dbeafe', edgecolor='#2563eb', alpha=0.95))
@@ -2524,11 +2549,13 @@ HEALTH_ENDPOINT = f"{API_URL}/api/health"
 def fetch_health():
     try:
         data = httpx.get(HEALTH_ENDPOINT, timeout=5).json()
-        return f"สถานะระบบ: ปกติ (API Online) | อุปกรณ์: {data['device']}"
+        return f"สถานะระบบ: ปกติ (API Online) -- อุปกรณ์: {data['device']}"
     except Exception as exc:
         return f"ระบบออฟไลน์ ({exc}) — กรุณาสั่งทำงาน `uv run python main.py`"
 
-def predict(image: Image.Image | None):
+from typing import Optional
+
+def predict(image: Optional[Image.Image] = None):
     if image is None:
         raise gr.Error("กรุณาเลือกไฟล์ภาพมาตรวัดน้ำก่อน")
 
@@ -2610,13 +2637,35 @@ uv run python validate.py
 
 <p align="center"><strong>ตารางที่ 3.1: แนวทางการวิเคราะห์และแก้ไขปัญหาของระบบ (Debugging Matrix)</strong></p>
 
-| อาการที่พบ (Symptom) | สาเหตุที่เป็นไปได้ (Cause) | สิ่งที่ควรตรวจสอบ (Check) | วิธีแก้ไข (Action) | ผลลัพธ์ที่ควรได้ (Expected) |
-|---|---|---|---|---|
-| **แจ้งเตือน "ภาพนี้ไม่ใช่มิเตอร์น้ำ"** | ค่าความเชื่อมั่นของ SigLIP2 ต่ำกว่า 0.50 เนื่องจากมีสิ่งรบกวนในพื้นหลัง | ค่าใน `meter_check.confidence` และ `scores` | ถ่ายภาพให้เห็นเฉพาะตัวเรือนมิเตอร์ หรือปรับลดเกณฑ์ `METER_VERIFY_CONF = 0.40` ใน `main.py` | ระบบยืนยันประเภทมาตรวัดน้ำและเข้าสู่ขั้นตอนถัดไป |
-| **ตัวเลขขาดหายไปบางหลัก** | ตัวเลขเลือนราง มีเงาบดบัง หรือความเชื่อมั่นต่ำกว่าเกณฑ์ 0.35 | ตรวจสอบว่าหลักที่หายไปมีความมืดหรือแสงสะท้อนจ้าหรือไม่ | ปรับลดเกณฑ์ `YOLO_CONF = 0.30` หรือทดสอบเปิดใช้งานฟิลเตอร์ `histeq` | ตรวจพบตัวเลขครบทุกหลักบนหน้าปัด |
-| **อ่านได้เลขกลับหัว เช่น 6 เป็น 9** | ภาพถ่ายหมุนกลับหัว 180° และไม่มีหลักทศนิยมสีแดงให้สังเกต | ตรวจสอบข้อความเตือนในฟิลด์ `warnings` ของ `read_meter` | ระบบจะสร้างคำเตือน `[อาจกลับหัว]` เพื่อให้เจ้าหน้าที่ตรวจสอบตาเปล่าก่อนยืนยันข้อมูล | มีสัญญาณเตือนความปลอดภัยปรากฏชัดเจน |
-| **ตรวจพบตัวเลขบนป้ายวันที่ขอบตัวเรือน** | มีตัวเลขพิมพ์ในแนวดิ่งบริเวณขอบโลหะของมาตรวัดน้ำ | ตรวจสอบพิกัด `bbox` ของตัวเลขที่ตรวจพบ | ฟังก์ชัน `is_vertical` จะคำนวณอัตราส่วนการกระจายพิกัดและคัดกรองออกโดยอัตโนมัติ | ประมวลผลเฉพาะแถวตัวเลขในแนวนอน |
-| **หน้าต่าง Gradio แสดง "API ไม่พร้อม"** | เว็บเซอร์วิส Backend ยังไม่ได้เริ่มทำงาน หรือระบุพอร์ตผิดพลาด | ตรวจสอบหน้าต่างคำสั่งว่า Uvicorn ทำงานอยู่ที่พอร์ต 8000 หรือไม่ | ดำเนินการสั่งทำงานคำสั่ง `uv run python main.py` | หน้าต่าง Gradio แสดงสถานะ `สถานะระบบ: ปกติ` |
+&emsp;&emsp;&emsp;&emsp;1. **กรณีแจ้งเตือน "ภาพนี้ไม่ใช่มิเตอร์น้ำ":**  
+&emsp;&emsp;&emsp;&emsp;- *สาเหตุที่เป็นไปได้:* ค่าความเชื่อมั่นของ SigLIP2 ต่ำกว่า 0.50 เนื่องจากมีสิ่งรบกวนในพื้นหลังหรือมุมกล้องห่างเกินไป  
+&emsp;&emsp;&emsp;&emsp;- *สิ่งที่ควรตรวจสอบ:* ตรวจสอบค่าตัวเลขใน `meter_check.confidence` และรายการคะแนน `scores`  
+&emsp;&emsp;&emsp;&emsp;- *วิธีแก้ไข:* ถ่ายภาพใหม่ให้เห็นเฉพาะตัวเรือนมิเตอร์อย่างชัดเจน หรือปรับลดเกณฑ์ `METER_VERIFY_CONF = 0.40` ใน `main.py`  
+&emsp;&emsp;&emsp;&emsp;- *ผลลัพธ์ที่ควรได้:* ระบบสามารถยืนยันประเภทมาตรวัดน้ำและส่งต่อเข้าสู่ขั้นตอนถัดไปได้สำเร็จ
+
+&emsp;&emsp;&emsp;&emsp;2. **กรณีตัวเลขขาดหายไปบางหลัก:**  
+&emsp;&emsp;&emsp;&emsp;- *สาเหตุที่เป็นไปได้:* ตัวเลขเลือนราง มีเงาบดบัง หรือความเชื่อมั่นของโมเดลต่ำกว่าเกณฑ์ 0.35  
+&emsp;&emsp;&emsp;&emsp;- *สิ่งที่ควรตรวจสอบ:* ตรวจสอบว่าหลักที่หายไปมีความมืดหรือแสงสะท้อนจ้าหรือไม่  
+&emsp;&emsp;&emsp;&emsp;- *วิธีแก้ไข:* ปรับลดเกณฑ์ `YOLO_CONF = 0.30` หรือทดสอบเปิดใช้งานฟิลเตอร์ `histeq` เพิ่มเติม  
+&emsp;&emsp;&emsp;&emsp;- *ผลลัพธ์ที่ควรได้:* ระบบตรวจพบตัวเลขครบทุกหลักบนหน้าปัดมาตรวัดน้ำ
+
+&emsp;&emsp;&emsp;&emsp;3. **กรณีอ่านได้เลขกลับหัว เช่น 6 เป็น 9:**  
+&emsp;&emsp;&emsp;&emsp;- *สาเหตุที่เป็นไปได้:* ภาพถ่ายถูกหมุนกลับหัว 180 องศา และไม่มีหลักทศนิยมสีแดงให้สังเกต  
+&emsp;&emsp;&emsp;&emsp;- *สิ่งที่ควรตรวจสอบ:* ตรวจสอบข้อความเตือนในฟิลด์ `warnings` ของฟังก์ชัน `read_meter`  
+&emsp;&emsp;&emsp;&emsp;- *วิธีแก้ไข:* ระบบจะสร้างคำเตือน `[อาจกลับหัว]` เพื่อให้เจ้าหน้าที่ตรวจสอบตาเปล่าก่อนยืนยันข้อมูล  
+&emsp;&emsp;&emsp;&emsp;- *ผลลัพธ์ที่ควรได้:* มีสัญญาณเตือนความปลอดภัยปรากฏชัดเจนในผลลัพธ์ JSON
+
+&emsp;&emsp;&emsp;&emsp;4. **กรณีตรวจพบตัวเลขบนป้ายวันที่ขอบตัวเรือน:**  
+&emsp;&emsp;&emsp;&emsp;- *สาเหตุที่เป็นไปได้:* มีตัวเลขพิมพ์ในแนวดิ่งบริเวณขอบโลหะของมาตรวัดน้ำ  
+&emsp;&emsp;&emsp;&emsp;- *สิ่งที่ควรตรวจสอบ:* ตรวจสอบพิกัด `bbox` ของตัวเลขที่ตรวจพบ  
+&emsp;&emsp;&emsp;&emsp;- *วิธีแก้ไข:* ฟังก์ชัน `is_vertical` จะคำนวณอัตราส่วนการกระจายพิกัดและคัดกรองออกโดยอัตโนมัติ  
+&emsp;&emsp;&emsp;&emsp;- *ผลลัพธ์ที่ควรได้:* ระบบประมวลผลเฉพาะแถวตัวเลขในแนวนอนบนหน้าปัด
+
+&emsp;&emsp;&emsp;&emsp;5. **กรณีหน้าต่าง Gradio แสดง "API ไม่พร้อม":**  
+&emsp;&emsp;&emsp;&emsp;- *สาเหตุที่เป็นไปได้:* เว็บเซอร์วิส Backend ยังไม่ได้เริ่มทำงาน หรือระบุพอร์ตเชื่อมต่อผิดพลาด  
+&emsp;&emsp;&emsp;&emsp;- *สิ่งที่ควรตรวจสอบ:* ตรวจสอบหน้าต่างคำสั่งว่า Uvicorn ทำงานอยู่ที่พอร์ต 8000 หรือไม่  
+&emsp;&emsp;&emsp;&emsp;- *วิธีแก้ไข:* ดำเนินการสั่งทำงานคำสั่ง `uv run python main.py`  
+&emsp;&emsp;&emsp;&emsp;- *ผลลัพธ์ที่ควรได้:* หน้าต่าง Gradio แสดงสถานะ `สถานะระบบ: ปกติ`
 
 <p align="center"><em>ที่มา: จากการพัฒนาและทดสอบการทำงานของระบบในโครงงานนี้</em></p>
 
@@ -2656,16 +2705,45 @@ uv run python gradio_app.py
 
 <p align="center"><strong>ตารางที่ 3.2: สรุปผลการทดสอบการทำงานของระบบเบื้องต้นสำหรับผู้พัฒนา</strong></p>
 
-| ลำดับ | ตัวชี้วัดประสิทธิภาพ (Metric) | ชุดสาธิตภาคสนาม (Demo Set, n=7) | ชุดประเมินผลการอ่านทั้งระบบ (End-to-End Subset, n=120)* | บทบาทและความหมายเชิงวิศวกรรม |
-|:---:|---|:---:|:---:|---|
-| 1 | **Exact Reading Accuracy (100% Match)** | **100.0% (7/7)**<br>*(บนชุดสาธิต 7 ภาพ)* | **70.0% (84/120)**<br>*(Enhanced Pipeline)*<br>[Baseline M0: 67.5% (81/120)] | ตัวชี้วัดความถูกต้องหลัก: สัดส่วนภาพที่อ่านตัวเลขถูกต้องตรงเฉลยครบทุกหลักสมบูรณ์ 100% |
-| 2 | **Wheel-Roll Tolerance Accuracy (±1)** | **100.0% (7/7)** | **76.7% (92/120)** | ความแม่นยำเมื่อยอมรับการหมุนกึ่งรอบของลูกล้อทศนิยมหลักสุดท้าย (±1) |
-| 3 | **Operational Billing Accuracy (m³)** | **100.0% (7/7)** | **73.3% (88/120)** | ความแม่นยำระดับคิดค่าน้ำจริง: สัดส่วนภาพที่อ่านค่าลูกบาศก์เมตร (ลูกล้อสีดำ) ถูกต้องสมบูรณ์ |
-| 4 | **Digit-level Accuracy** | **100.0% (36/36)**<br>*(บนชุดสาธิต 7 ภาพ)* | **88.0% (828/941)** | สัดส่วนความถูกต้องรายหลักตัวเลขต่อจำนวนหลักทั้งหมด |
-| 5 | **Digit Error Rate (DER)** | **0.00% (0.0000)** | **9.25% (0.0925)** | อัตราความผิดพลาดของหลักตัวเลข $(S+D+I)/N_{\text{ref}}$ |
-| 6 | **Detection mAP@50 (YOLO26m)** | — | **87.86%** | ประสิทธิภาพของตัวตรวจจับวัตถุบน Test Set อิสระ |
-| 7 | **เวลาประมวลผล (System Latency)** | **5,828.8 ms ต่อภาพ** (Full Pipeline ขั้นตอน M7: 12 สมมติฐาน)<br>*(Primary Official Benchmark)* | **533.2 ms ต่อภาพ** (Single-pass Baseline)<br>**2,171.6 ms ต่อภาพ** (Multi-pass Adaptive) | วัดบน CPU AMD Ryzen 5 8645HS ที่ 960×960 (โดย Ablation M0 Baseline เท่ากับ 421.1 ms) |
-| 8 | **ค่าความเชื่อมั่นเฉลี่ย (Mean Model Confidence)** | **0.8610** | **0.8577** | *Diagnostic Metric (ใช้ประเมินความมั่นใจของแบบจำลอง ไม่ใช่ความถูกต้อง)* |
+&emsp;&emsp;&emsp;&emsp;1. **ตัวชี้วัดที่ 1: Exact Reading Accuracy (ความถูกต้องแบบ 100% Match):**  
+&emsp;&emsp;&emsp;&emsp;- *ชุดสาธิตภาคสนาม (Demo Set, n=7):* 100.0% (7/7 ภาพ)  
+&emsp;&emsp;&emsp;&emsp;- *ชุดประเมินผลการอ่านทั้งระบบ (End-to-End Subset, n=120):* 70.0% (84/120 ภาพ) บน Enhanced Pipeline เทียบกับ 67.5% (81/120 ภาพ) บน Baseline M0  
+&emsp;&emsp;&emsp;&emsp;- *บทบาทและความหมายเชิงวิศวกรรม:* ตัวชี้วัดความถูกต้องหลัก แสดงสัดส่วนภาพที่อ่านตัวเลขถูกต้องตรงเฉลยครบทุกหลักสมบูรณ์ 100%
+
+&emsp;&emsp;&emsp;&emsp;2. **ตัวชี้วัดที่ 2: Wheel-Roll Tolerance Accuracy (ความถูกต้องเมื่อยอมรับการหมุนกึ่งรอบ ±1):**  
+&emsp;&emsp;&emsp;&emsp;- *ชุดสาธิตภาคสนาม (Demo Set, n=7):* 100.0% (7/7 ภาพ)  
+&emsp;&emsp;&emsp;&emsp;- *ชุดประเมินผลการอ่านทั้งระบบ (End-to-End Subset, n=120):* 76.7% (92/120 ภาพ)  
+&emsp;&emsp;&emsp;&emsp;- *บทบาทและความหมายเชิงวิศวกรรม:* สะท้อนความแม่นยำเชิงปฏิบัติการเมื่อยอมรับการหมุนกึ่งรอบของลูกล้อทศนิยมหลักสุดท้าย
+
+&emsp;&emsp;&emsp;&emsp;3. **ตัวชี้วัดที่ 3: Operational Billing Accuracy (ความถูกต้องระดับคิดค่าน้ำจริง):**  
+&emsp;&emsp;&emsp;&emsp;- *ชุดสาธิตภาคสนาม (Demo Set, n=7):* 100.0% (7/7 ภาพ)  
+&emsp;&emsp;&emsp;&emsp;- *ชุดประเมินผลการอ่านทั้งระบบ (End-to-End Subset, n=120):* 73.3% (88/120 ภาพ)  
+&emsp;&emsp;&emsp;&emsp;- *บทบาทและความหมายเชิงวิศวกรรม:* สัดส่วนภาพที่อ่านค่าลูกบาศก์เมตร (ลูกล้อสีดำ) ถูกต้องสมบูรณ์สำหรับคำนวณค่าน้ำประปา
+
+&emsp;&emsp;&emsp;&emsp;4. **ตัวชี้วัดที่ 4: Digit-level Accuracy (ความถูกต้องรายหลักตัวเลข):**  
+&emsp;&emsp;&emsp;&emsp;- *ชุดสาธิตภาคสนาม (Demo Set, n=7):* 100.0% (36/36 หลัก)  
+&emsp;&emsp;&emsp;&emsp;- *ชุดประเมินผลการอ่านทั้งระบบ (End-to-End Subset, n=120):* 88.0% (828/941 หลัก)  
+&emsp;&emsp;&emsp;&emsp;- *บทบาทและความหมายเชิงวิศวกรรม:* สัดส่วนความถูกต้องของตัวเลขแต่ละหลักต่อจำนวนหลักทั้งหมด
+
+&emsp;&emsp;&emsp;&emsp;5. **ตัวชี้วัดที่ 5: Digit Error Rate (DER - อัตราความผิดพลาดของหลักตัวเลข):**  
+&emsp;&emsp;&emsp;&emsp;- *ชุดสาธิตภาคสนาม (Demo Set, n=7):* 0.00% (0.0000)  
+&emsp;&emsp;&emsp;&emsp;- *ชุดประเมินผลการอ่านทั้งระบบ (End-to-End Subset, n=120):* 9.25% (0.0925)  
+&emsp;&emsp;&emsp;&emsp;- *บทบาทและความหมายเชิงวิศวกรรม:* อัตราความผิดพลาดของหลักตัวเลขคำนวณจาก (ผลรวมการแทนที่ การตกหล่น และการแทรก) ต่อจำนวนหลักอ้างอิง
+
+&emsp;&emsp;&emsp;&emsp;6. **ตัวชี้วัดที่ 6: Detection mAP@50 (YOLO26m):**  
+&emsp;&emsp;&emsp;&emsp;- *ชุดสาธิตภาคสนาม (Demo Set, n=7):* ประเมินผ่านโมเดลสำเร็จรูป  
+&emsp;&emsp;&emsp;&emsp;- *ชุดประเมินผลการอ่านทั้งระบบ (End-to-End Subset, n=120):* 87.86% บน Test Set อิสระ  
+&emsp;&emsp;&emsp;&emsp;- *บทบาทและความหมายเชิงวิศวกรรม:* ประสิทธิภาพของตัวตรวจจับวัตถุในการจำแนกและระบุตำแหน่งตัวเลข
+
+&emsp;&emsp;&emsp;&emsp;7. **ตัวชี้วัดที่ 7: เวลาประมวลผล (System Latency):**  
+&emsp;&emsp;&emsp;&emsp;- *ชุดสาธิตภาคสนาม (Demo Set, n=7):* 5,828.8 ms ต่อภาพ (Full Pipeline ขั้นตอน M7: 12 สมมติฐาน)  
+&emsp;&emsp;&emsp;&emsp;- *ชุดประเมินผลการอ่านทั้งระบบ (End-to-End Subset, n=120):* 533.2 ms ต่อภาพ (Single-pass Baseline) และ 2,171.6 ms ต่อภาพ (Multi-pass Adaptive)  
+&emsp;&emsp;&emsp;&emsp;- *บทบาทและความหมายเชิงวิศวกรรม:* วัดบน CPU AMD Ryzen 5 8645HS ที่ขนาดภาพ 960x960 พิกเซล
+
+&emsp;&emsp;&emsp;&emsp;8. **ตัวชี้วัดที่ 8: ค่าความเชื่อมั่นเฉลี่ย (Mean Model Confidence):**  
+&emsp;&emsp;&emsp;&emsp;- *ชุดสาธิตภาคสนาม (Demo Set, n=7):* 0.8610  
+&emsp;&emsp;&emsp;&emsp;- *ชุดประเมินผลการอ่านทั้งระบบ (End-to-End Subset, n=120):* 0.8577  
+&emsp;&emsp;&emsp;&emsp;- *บทบาทและความหมายเชิงวิศวกรรม:* ตัวชี้วัดเชิงวินิจฉัย (Diagnostic Metric) ใช้ประเมินความมั่นใจของแบบจำลอง ไม่ใช่ความถูกต้องโดยตรง
 
 <p align="center"><em>ที่มา: สรุปผลการทดสอบเบื้องต้นของระบบในโครงงานนี้ (* หมายเหตุ: เป็นชุดภาพย่อย 120 ภาพที่มี Ground Truth ลำดับตัวเลขสมบูรณ์ คัดเลือกจาก Detector Test Set ทั้งหมด 194 ภาพ)</em></p>
 
