@@ -2,7 +2,7 @@
 
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
-[![Version v4.1](https://img.shields.io/badge/Release-v4.1-blue.svg)](https://github.com/jirathxz/meter-reader/releases/tag/v4.1)
+[![Version v5.1](https://img.shields.io/badge/Release-v5.1-blue.svg)](https://github.com/jirathxz/meter-reader/releases/tag/v5.1)
 [![YOLO26m](https://img.shields.io/badge/Detector-YOLO26m-00FFFF.svg)](https://docs.ultralytics.com/)
 [![SigLIP2](https://img.shields.io/badge/Zero--shot-SigLIP2--Base-4285F4.svg)](https://huggingface.co/google/siglip2-base-patch16-224)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
