@@ -9,6 +9,7 @@ import cv2
 import gradio as gr
 import httpx
 import numpy as np
+from typing import Optional
 from PIL import Image
 
 API_URL = "http://127.0.0.1:8000"
@@ -19,8 +20,8 @@ HEALTH_ENDPOINT = f"{API_URL}/api/health"
 def fetch_health() -> str:
     try:
         data = httpx.get(HEALTH_ENDPOINT, timeout=10).json()
-        return (f"API: ok | device: {data['device']} | "
-                f"YOLO: {'พร้อม' if data['yolo_loaded'] else 'ยังไม่โหลด'} | "
+        return (f"API: ok, device: {data['device']}, "
+                f"YOLO: {'พร้อม' if data['yolo_loaded'] else 'ยังไม่โหลด'}, "
                 f"SigLIP: {'พร้อม' if data['siglip_loaded'] else 'ยังไม่โหลด'}")
     except Exception as exc:
         return f"API ไม่พร้อม ({exc}) - รัน `python main.py` ก่อน"
@@ -78,7 +79,7 @@ def draw_digits_processed(image_rgb, digits, best_angle=0, prep="orig"):
     return canvas
 
 
-def predict(image: Image.Image | None):
+def predict(image: Optional[Image.Image] = None):
     if image is None:
         raise gr.Error("กรุณาเลือกภาพมิเตอร์ก่อน")
     buf = io.BytesIO()
@@ -104,26 +105,26 @@ def predict(image: Image.Image | None):
     annotated = draw_digits_processed(arr_rgb, data.get("digits", []), best_angle=best_angle, prep=prep)
 
     rows = [[d["position"], d["digit"], f"{d['confidence']:.2%}",
-             "แน่ใจ" if d["reliable"] else "⚠ ตรวจสอบ"] for d in data.get("digits", [])]
+             "แน่ใจ" if d["reliable"] else "[ตรวจสอบ]"] for d in data.get("digits", [])]
     mc = data["meter_check"]
-    check_line = (f"✅ มิเตอร์น้ำ ({mc['confidence']:.0%})"
+    check_line = (f"[มิเตอร์น้ำ] ({mc['confidence']:.0%})"
                   if mc["verified"] else
-                  f"❌ ไม่ใช่มิเตอร์น้ำ: จำแนกเป็น {mc['predicted_class']} ({mc['confidence']:.0%})")
+                  f"[ไม่ใช่มิเตอร์น้ำ]: จำแนกเป็น {mc['predicted_class']} ({mc['confidence']:.0%})")
 
     if best is None: variant = "—"
-    elif prep == "histeq": variant = f"มุม {best['angle']}° + HistEq"
-    elif prep == "clahe": variant = f"มุม {best['angle']}° + CLAHE"
-    else: variant = f"มุม {best['angle']}°"
+    elif prep == "histeq": variant = f"มุม {best['angle']} องศา + HistEq"
+    elif prep == "clahe": variant = f"มุม {best['angle']} องศา + CLAHE"
+    else: variant = f"มุม {best['angle']} องศา"
 
-    meta_info = (f"**สถานะ:** {check_line}  |  "
-                 f"**การประมวลผล:** {variant}  |  "
+    meta_info = (f"**สถานะ:** {check_line}\n\n"
+                 f"**การประมวลผล:** {variant}\n\n"
                  f"**เวลา:** {data['elapsed_ms']:.0f} ms")
 
     warns = data.get("warnings", [])
     if warns:
-        warn_text = "### ⚠️ รายการแจ้งเตือน\n" + "\n".join(f"- {w}" for w in warns)
+        warn_text = "### [คำเตือน] รายการแจ้งเตือน\n" + "\n".join(f"(คำเตือน) {w}" for w in warns)
     else:
-        warn_text = "✅ **ผลการตรวจจับสมบูรณ์ ไม่พบข้อผิดพลาด**"
+        warn_text = "**[ปกติ] ผลการตรวจจับสมบูรณ์ ไม่พบข้อผิดพลาด**"
 
     reading_display = data["reading"] if data["reading"] else "—"
 
@@ -133,7 +134,7 @@ def predict(image: Image.Image | None):
 with gr.Blocks(title="Meter Reader - อ่านค่ามิเตอร์น้ำ") as demo:
     gr.Markdown(
         """
-# 🚰 Meter Reader — ระบบอ่านเลขมิเตอร์น้ำอัตโนมัติ
+# Meter Reader — ระบบอ่านเลขมิเตอร์น้ำอัตโนมัติ
 อัปโหลดภาพหน้าปัดมิเตอร์ เพื่อให้ระบบคัดแยกและอ่านตัวเลขแต่ละหลักอัตโนมัติ
         """
     )
@@ -144,7 +145,7 @@ with gr.Blocks(title="Meter Reader - อ่านค่ามิเตอร์�
         with gr.Column(scale=1):
             image_in = gr.Image(type="pil", label="ภาพมิเตอร์ (ถ่ายตรง ไม่เอียง แสงพอ)",
                                 sources=["upload", "webcam", "clipboard"])
-            btn = gr.Button("🔍 อ่านค่ามิเตอร์", variant="primary", size="lg")
+            btn = gr.Button("อ่านค่ามิเตอร์", variant="primary", size="lg")
             meta_out = gr.Markdown()
         with gr.Column(scale=2):
             reading_out = gr.Label(label="ค่ามิเตอร์ที่อ่านได้", value="—")
