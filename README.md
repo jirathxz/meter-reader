@@ -2,7 +2,7 @@
 
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
-[![Version v5.1](https://img.shields.io/badge/Release-v5.1-blue.svg)](https://github.com/jirathxz/meter-reader/releases/tag/v5.1)
+[![Version v6.0](https://img.shields.io/badge/Release-v6.0-blue.svg)](https://github.com/jirathxz/meter-reader/releases/tag/v6.0)
 [![YOLO26m](https://img.shields.io/badge/Detector-YOLO26m-00FFFF.svg)](https://docs.ultralytics.com/)
 [![SigLIP2](https://img.shields.io/badge/Zero--shot-SigLIP2--Base-4285F4.svg)](https://huggingface.co/google/siglip2-base-patch16-224)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
@@ -10,6 +10,16 @@
 [![Unit Tests](https://img.shields.io/badge/Tests-11%2F11%20Passed-brightgreen.svg)]()
 
 ระบบอ่านค่าตัวเลขบนหน้าปัดมาตรวัดน้ำแบบกลไกลูกล้อแนวนอน (Mechanical Velocity Meter) จากภาพถ่ายด้วยการเรียนรู้เชิงลึก (Deep Learning) และการประมวลผลภาพดิจิทัล (Digital Image Processing) พัฒนาบน **Python 3.11** ภายใต้สถาปัตยกรรมแบบ Functional Modular Pipeline พร้อมทั้งมีระบบความปลอดภัยทางเรขาคณิต (Geometric Safety Guards) และการประเมินผลเชิงประจักษ์อย่างเป็นระบบ (Empirical Evaluation)
+
+---
+
+## เอกสารรายงานโครงงานวิชาการ (Academic Documentation)
+
+เอกสารรายงานโครงงานฉบับสมบูรณ์ตามมาตรฐานคู่มือมหาวิทยาลัยราชภัฏนครปฐม และระเบียบวิธีวิจัย CRISP-DM 6 ขั้นตอน:
+
+1. **[บทที่ 1 บทนำ (Chapter 1: Introduction)](docs/chapter-1-watermeter.md):** ที่มาและความสำคัญ วัตถุประสงค์ ขอบเขตโครงงาน 5 มิติ ประโยชน์ที่คาดว่าจะได้รับ นิยามศัพท์ และแผนการดำเนินงาน (Gantt Chart)
+2. **[บทที่ 2 หลักการและทฤษฎีที่เกี่ยวข้อง (Chapter 2: Literature & Theory)](docs/chapter-2-watermeter.md):** แนวคิดระบบ AMR ดั้งเดิม, คอมพิวเตอร์วิทัศน์, ปริภูมิสี, CLAHE, แบบจำลอง YOLO26m, สถาปัตยกรรม SigLIP2 Zero-shot, ตารางวิเคราะห์เปรียบเทียบงานวิจัย
+3. **[บทที่ 3 วิธีการดำเนินงานโครงงาน (Chapter 3: CRISP-DM Methodology)](docs/chapter-3-watermeter.md):** กระบวนการดำเนินงาน 6 ขั้นตอนตามมาตรฐาน CRISP-DM (Business Understanding, Data Understanding, Data Preparation, Modeling, Evaluation, Deployment)
 
 ---
 
@@ -64,6 +74,14 @@ meter-reader/
 ├── requirements.txt            # รายการไลบรารีและแพ็กเกจที่ต้องติดตั้ง
 ├── LICENSE                     # สัญญาอนุญาตการใช้งานซอฟต์แวร์ (GNU AGPLv3)
 ├── TUTORIAL.md                 # คู่มือฉบับเต็มภาษาไทยตามมาตรฐานงานวิจัยเชิงประจักษ์ (v4.1)
+├── chapter-1-watermeter.md     # บทที่ 1 บทนำ ฉบับวิชาการ (100% DOCX Parity)
+├── chapter-2-watermeter.md     # บทที่ 2 ทฤษฎีและงานวิจัยที่เกี่ยวข้อง (100% DOCX Parity)
+├── chapter-3-watermeter.md     # บทที่ 3 วิธีดำเนินงาน CRISP-DM 6 ขั้นตอน (100% DOCX Parity)
+├── docs/                       # โฟลเดอร์เอกสารรายงานวิชาการและไดอะแกรม
+│   ├── chapter-1-watermeter.md
+│   ├── chapter-2-watermeter.md
+│   ├── chapter-3-watermeter.md
+│   └── diagrams/               # ไดอะแกรมความละเอียดสูง (300 DPI Monochrome)
 ├── meter_img/                  # ชุดภาพตัวอย่างสาธิตมาตรวัดน้ำ (Demo Set, n=7)
 │   └── ground_truth.csv        # ค่าเฉลยตัวเลขของชุดภาพสาธิต
 ├── tests/                      # ชุดทดสอบอัตโนมัติ (Automated Unit Tests)
