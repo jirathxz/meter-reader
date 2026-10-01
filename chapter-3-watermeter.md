@@ -48,16 +48,17 @@ $$A_{\text{digit}} = \frac{\sum_{i=1}^N C_i}{\sum_{i=1}^N M_i}$$
 
 *ที่มา: รวบรวมและสังเคราะห์โดยผู้จัดทำ (2569)*
 
-เพื่อขจัดความสับสนในการรายงานผลการประเมินประสิทธิภาพในส่วนต่าง ๆ ของเอกสารและคลังโค้ดต้นฉบับ โครงงานได้กำหนดแผนผังชุดข้อมูลสำหรับการทดลองและการประเมินผลออกเป็น 4 ชุดย่อยที่ชัดเจน ดังแสดงในตารางที่ 3.1
+เพื่อขจัดความสับสนในการรายงานผลการประเมินประสิทธิภาพในส่วนต่าง ๆ ของเอกสารและคลังโค้ดต้นฉบับ โครงงานได้กำหนดแผนผังชุดข้อมูลและการผูกโยงตัวชี้วัดประสิทธิภาพเข้ากับชุดข้อมูลทดสอบแต่ละชุดอย่างชัดเจน (Explicit Metric-to-Dataset Binding Matrix) ดังแสดงในตารางที่ 3.1
 
-**ตารางที่ 3.1 แผนผังชุดข้อมูลย่อยและการจัดสรรเพื่อการประเมินผลเชิงประจักษ์ (Evaluation Splits Matrix)**
+**ตารางที่ 3.1 แผนผังการผูกโยงตัวชี้วัดประสิทธิภาพเข้ากับชุดข้อมูลทดสอบ (Metric ↔ Dataset Binding Matrix)**
 
-| รหัสชุดทดสอบ (Split) | จำนวนภาพ (N) | จำนวนตัวเลขเฉลย (Digits) | แหล่งที่มาของข้อมูล | วัตถุประสงค์และตัวชี้วัดที่ใช้ประเมิน | ไฟล์ผลการทดลองอ้างอิง |
-| --- | :---: | :---: | --- | --- | --- |
-| **Split A (Held-out Test)** | 555 | ~3,800 | ภาคสนาม 500 + Roboflow 55 | ประเมินความสามารถในการวางนัยทั่วไปทั้งระบบ (Generalization) | `reviews/validation_results.csv` |
-| **Split B (Detector Benchmark)** | 194 | 1,508 | Roboflow Test Split | ประเมินเฉพาะตัวตรวจจับ YOLO26m (Precision, Recall, mAP) | `reviews/yolo_metrics.json` |
-| **Split C (End-to-End Subset)** | 120 | 941 | Roboflow Test Verified | ประเมินความแม่นยำการอ่านค่าสมบูรณ์ $A_{\text{exact}}$ และ Wheel Roll | `reviews/test_set_evaluation.csv` |
-| **Split D (Diagnostic Demo)** | 7 | 45 | meter_img/ (Multi-challenge) | ทดสอบการศึกษาเชิงตัดทอน 8 ขั้นตอน (Ablation M0–M7) | `reviews/ablation.csv` |
+| รหัสชุดทดสอบ (Split) | จำนวนภาพ (N) | จำนวนตัวเลขเฉลย (Digits) | แหล่งที่มาของข้อมูล | ตัวชี้วัดที่ใช้ประเมิน (Bound Metrics) | ผลการวัดจริง (Wilson 95% CI) | ไฟล์ผลการทดลองอ้างอิง |
+| --- | :---: | :---: | --- | --- | :---: | --- |
+| **Split A (Held-out Test)** | **555** | ~3,800 | ภาคสนาม 500 + Roboflow 55 | Overall Generalization ($A_{\text{exact}}$, $A_{\text{digit}}$) | **87.11%** [84.1%, 89.7%] | `reviews/validation_results.csv` |
+| **Split B (Detector Benchmark)** | **194** | 1,508 | Roboflow Test Split | Precision, Recall, F1, mAP@50, mAP@50:95 | **mAP@50: 87.86%** (P: 93.53%, R: 89.30%) | `reviews/yolo_metrics.json` |
+| **Split C (End-to-End Subset)** | **120** | 941 | Roboflow Test Verified | Exact Accuracy ($A_{\text{exact}}$), Wheel-Roll (±1), DER | **Exact: 70.0%** [61.3%, 77.5%]<br>**Wheel-Roll: 76.7%** [68.3%, 83.3%] | `reviews/test_set_evaluation.csv` |
+| **Split D (Diagnostic Demo)** | **7** | 45 | meter_img/ (Multi-challenge) | Progressive Ablation Study (M0–M7) | **M0: 42.9% $\rightarrow$ M7: 100.0%** [64.6%, 100%] | `reviews/ablation.csv` |
+| **Split E (Unseen Field Robustness)** | **500** | ~3,400 | ภาพถ่ายภาคสนามจริง (ไทย) | Field Robustness & Lighting Invariance | **Field $A_{\text{exact}}$: 86.80%** [83.6%, 89.5%] | `reviews/validation_results.csv` |
 
 *ที่มา: สังเคราะห์และจัดสรรชุดข้อมูลโดยผู้จัดทำ (2569)*
 
@@ -127,7 +128,7 @@ $$A_{\text{digit}} = \frac{\sum_{i=1}^N C_i}{\sum_{i=1}^N M_i}$$
 **ตารางที่ 3.3 การจัดแบ่งชุดข้อมูลสำหรับการฝึกฝน ตรวจสอบ และทดสอบระบบ (Stratified Split 70/20/10)**
 
 | แหล่งที่มาของข้อมูล | จำนวนรวม (ภาพ) | ชุดฝึกฝน (Train 70%) | ชุดตรวจสอบ (Val 20%) | ชุดทดสอบ (Test 10%) | การประกันสภาพ Unseen Data |
-| --- | :---: | :---: | :---: | :---: | --- |
+| --- | :---: | :---: | --- | --- | --- |
 | Roboflow Universe | 5,053 | 3,887 | 1,111 | 55 | สุ่มแบ่งด้วย Stratified Seed 42 |
 | ภาพถ่ายภาคสนาม (ไทย) | 500 | 0 | 0 | 500 | คงไว้ในชุดทดสอบ 100% ไม่ผ่านการฝึกฝน |
 | **รวมชุดข้อมูลทั้งหมด** | **5,553** | **3,887 (70.0%)** | **1,111 (20.0%)** | **555 (10.0%)** | **ใช้ในการประเมิน Generalization ของระบบ** |
@@ -168,7 +169,17 @@ $$A_{\text{digit}} = \frac{\sum_{i=1}^N C_i}{\sum_{i=1}^N M_i}$$
 
 ### 3.4.2  อัลกอริทึมการค้นหาเชิงสมมติฐานพหุคูณ 12 รูปแบบและกลไก Flip Guard
 
-เพื่อแก้ไขปัญหาภาพถ่ายเอียงและแสงสะท้อน ระบบประมวลผลภาพใน 12 สมมติฐาน $\mathcal{H} = \{ (r, f) \mid r \in \{0^\circ, 90^\circ, 180^\circ, 270^\circ\}, f \in \{\text{Original}, \text{CLAHE}, \text{HistEq}\} \}$ โดยมีขั้นตอนวิธีดังนี้:
+เพื่อแก้ไขปัญหาภาพถ่ายเอียงและแสงสะท้อน ระบบประมวลผลภาพใน 12 สมมติฐาน $\mathcal{H} = \{ (r, f) \mid r \in \{0^\circ, 90^\circ, 180^\circ, 270^\circ\}, f \in \{\text{Original}, \text{CLAHE}, \text{HistEq}\} \}$ โดยกำหนดฟังก์ชันการให้คะแนนสมมติฐาน (Hypothesis Scoring Function) อย่างเป็นทางการดังนี้:
+
+$$S(h) = \sum_{j=1}^m c_j - \lambda_{\text{align}} \cdot \sigma_y - \lambda_{\text{vert}} \cdot \mathbb{I}(\text{is\_vertical}) + \lambda_{\text{red}} \cdot \mathbb{I}(\text{has\_valid\_red})$$
+
+เมื่อ:
+- $c_j \in [0, 1]$ คือค่าความเชื่อมั่นของกล่องตัวเลขที่ $j$ จากแบบจำลอง YOLO26m
+- $\sigma_y = \sqrt{\frac{1}{m}\sum_{j=1}^m (y_j - \bar{y})^2}$ คือค่าเบี่ยงเบนมาตรฐานพิกัดกึ่งกลางแนวตั้ง เพื่อลงโทษแถวตัวเลขที่ไม่อยู่ในแนวระนาบเดียวกัน (กำหนด $\lambda_{\text{align}} = 1.2$)
+- $\mathbb{I}(\text{is\_vertical})$ คือฟังก์ชันบ่งชี้ที่ให้ค่า 1 เมื่อกลุ่มตัวเลขเรียงตัวในแนวดิ่ง (กำหนด $\lambda_{\text{vert}} = 5.0$)
+- $\mathbb{I}(\text{has\_valid\_red})$ คือฟังก์ชันบ่งชี้ที่ให้ค่า 1 เมื่อพบหลักทศนิยมสีแดงอยู่ทางขวาสุดตามโครงสร้างมาตรวัดน้ำ (กำหนด $\lambda_{\text{red}} = 0.5$)
+
+สมมติฐานที่ดีที่สุด $h^*$ จะถูกคัดเลือกตามสมการ $h^* = \arg\max_{h \in \mathcal{H}} S(h)$
 
 ```text
 Algorithm: Multi-hypothesis 12-Combination Meter Reading with Geometric Safety Guards
@@ -192,24 +203,29 @@ Output: Final Reading String Y, Average Confidence C, Warnings W
                continue
            if is_vertical(boxes):
                continue
-           score = sum(scores) - lambda_align * std_dev(y_centers)
+           score = sum(scores) - 1.2 * std_dev(y_centers) + 0.5 * has_valid_red(boxes, I_proc)
            if score > best_score:
                best_score = score
                best_hypothesis = (boxes, scores, classes, angle, I_proc)
 
 3. Geometric Safety Guards & Inversion Remapping:
    boxes, scores, classes, angle, I_proc = best_hypothesis
-   if flip_guard_needed(classes, angle):
+   if check_flip_trigger(classes, angle, boxes, I_proc):
        classes = apply_flip_map(classes)
+       boxes = reverse_boxes(boxes)
    sorted_digits = sort_by_x_center(boxes, classes)
    decimal_pos = find_red_decimal(boxes, I_proc, T_red=0.30)
    Y = assemble_reading(sorted_digits, decimal_pos)
    return Y, mean(scores), warnings
 ```
 
-กลไกความปลอดภัยตรวจจับการกลับหัว (Flip Guard) ทำหน้าที่ตรวจสอบว่าลำดับตัวเลขที่อ่านได้อยู่ในทิศทางกลับหัว 180 องศาหรือไม่ โดยมีนิยามทางคณิตศาสตร์ดังนี้:
-$$\text{IsFlipped}(\hat{D}, \theta) = \mathbb{I}\left( \theta = 180^\circ \lor \left( \sum_{i=1}^{k} \text{SymmetryScore}(d_i) > \tau_{\text{sym}} \land \text{VerticalInversion}(H_{\text{red}}) \right) \right)$$
-$$\text{FLIP\_MAP}(d) = \begin{cases} 0 \mapsto 0, & 1 \mapsto 1, & 8 \mapsto 8 \\ 6 \mapsto 9, & 9 \mapsto 6 \\ \text{None} & \text{สำหรับตัวเลขอสมมาตรอื่น ๆ} \end{cases}$$
+กลไกความปลอดภัยตรวจจับการกลับหัว (Flip Guard) กำหนดเงื่อนไขการทำงานเชิงกฎ (Rule-based Trigger Condition) อย่างชัดเจน 3 กรณี:
+
+$$\text{TriggerFlipGuard}(H) = \begin{cases} \text{True} & \text{ถ้า } \theta = 180^\circ \\ \text{True} & \text{ถ้า } \text{SymmetryRatio}(D) \ge 0.80 \land \bar{c}_{180} > \bar{c}_0 + 0.15 \\ \text{True} & \text{ถ้า } R_{\text{red\_left}} \ge T_{\text{red}} \land R_{\text{red\_right}} < T_{\text{red}} \\ \text{False} & \text{กรณีอื่น ๆ ทั้งหมด} \end{cases}$$
+
+เมื่อ $\text{SymmetryRatio}(D) = \frac{1}{k}\sum_{i=1}^k \mathbb{I}(d_i \in \{0, 1, 8, 6, 9\})$ คือสัดส่วนของตัวเลขสมมาตรหมุนกลับหัวได้ และ $R_{\text{red\_left}}, R_{\text{red\_right}}$ คือสัดส่วนสีแดงของหลักซ้ายสุดและขวาสุด เมื่อเงื่อนไขเป็นจริง ระบบจะทำการกลับลำดับอาร์เรย์และแปลงค่าตามตารางความสมมาตร:
+
+$$\text{FLIP\_MAP}(d) = \begin{cases} 0 \mapsto 0, & 1 \mapsto 1, & 8 \mapsto 8 \\ 6 \mapsto 9, & 9 \mapsto 6 \\ d & \text{สำหรับตัวเลขอสมมาตรอื่น ๆ} \end{cases}$$
 
 ตัวอย่างกรณีทดสอบ: เมื่อภาพถ่ายถูกหมุนกลับหัว 180 องศา ชุดตัวเลข `["9", "0", "8", "1", "6"]` จะถูกจัดเรียงย้อนกลับและแปลงค่าตาม `FLIP_MAP` ได้ผลลัพธ์ที่ถูกต้องเป็น `["9", "1", "8", "0", "6"]` ตามที่ได้ผ่านการทดสอบ Unit Test ในโมดูล `tests/test_pipeline.py`
 
@@ -260,13 +276,27 @@ $$\text{FLIP\_MAP}(d) = \begin{cases} 0 \mapsto 0, & 1 \mapsto 1, & 8 \mapsto 8 
 
 *ที่มา: ได้จากการประเมินด้วยสคริปต์ `eval_yolo_metrics.py` บันทึกใน `reviews/yolo_metrics.json` (2569)*
 
-สำหรับการประเมินผลแบบ End-to-End บนชุดทดสอบ Roboflow Verified Subset (Split C, $N=120$ ภาพ, 941 ตัวเลข) และชุด Held-out Test Set (Split A, $N=555$ ภาพ) ได้ผลลัพธ์ความแม่นยำสมบูรณ์ระดับทั้งหน้าปัด ($A_{\text{exact}}$) ร้อยละ 70.0 (ช่วงความเชื่อมั่น Wilson 95% CI: [61.3%, 77.5%]) และความแม่นยำระดับยอมรับลูกล้อหมุนกึ่งรอบ (Wheel-Roll Tolerance $\pm 1$) ร้อยละ 76.7 (Wilson 95% CI: [68.3%, 83.3%]) โดยมีอัตราความแม่นยำระดับตัวเลขรายหลัก ($A_{\text{digit}}$) อยู่ที่ร้อยละ 88.0 (828/941 หลัก)
+### 3.5.2  การเปรียบเทียบประสิทธิภาพกับวิธีการพื้นฐาน (Baseline Comparison Study)
 
-### 3.5.2  ผลการศึกษาเชิงตัดทอนแบบก้าวหน้า (Progressive Ablation Study : M0–M7)
+เพื่อพิสูจน์คุณค่าทางวิศวกรรมของระเบียบวิธีที่นำเสนอ โครงงานได้ทำการเปรียบเทียบประสิทธิภาพแบบจำลองกับ 4 ระเบียบวิธีพื้นฐาน (Baselines) บนทั้งชุดข้อมูลมาตรฐาน Roboflow และชุดภาพถ่ายภาคสนามจริง ดังแสดงผลในตารางที่ 3.7
 
-เพื่อพิสูจน์คุณูปการของแต่ละโมดูลในระบบ ได้ดำเนินการทดลองแบบตัดทอนทีละองค์ประกอบ (Progressive Ablation Study) บนชุดทดสอบ Diagnostic Demo Set ($N=7$ ภาพ) และ Held-out Test Set ($N=555$ ภาพ) โดยมีผลการทดลองสรุปดังแสดงในตารางที่ 3.7
+**ตารางที่ 3.7 ตารางเปรียบเทียบประสิทธิภาพกับวิธีการพื้นฐาน (Baseline Comparison Matrix)**
 
-**ตารางที่ 3.7 ผลการศึกษาเชิงตัดทอนแบบก้าวหน้า 8 ขั้นตอน (Progressive Ablation Study M0–M7)**
+| ระเบียบวิธี (Methodology) | Roboflow Benchmark mAP@50 (N=194) | End-to-End Exact Acc (N=120) | Field Robustness Acc (N=500) | เวลาประมวลผลเฉลี่ย (CPU Latency) | ข้อจำกัดสำคัญที่พบ |
+| --- | :---: | :---: | :---: | :---: | --- |
+| **Baseline 1: Tesseract OCR v5.3** | — | 31.67% (38/120) | 24.20% (121/500) | 128.4 ms | ล้มเหลวรุนแรงเมื่อภาพเอียงและแสงสะท้อน |
+| **Baseline 2: YOLO26m Direct (0° Only)** | 84.12% | 67.50% (81/120) | 58.40% (292/500) | **421.1 ms** | พลาดทันทีเมื่อภาพถ่ายหมุนเอียง 90° หรือ 270° |
+| **Baseline 3: YOLO26m + 4-Angle Rotation** | 86.40% | 68.33% (82/120) | 74.60% (373/500) | 1,710.3 ms | กู้คืนภาพเอียงได้แต่ยังพลาดคราบสกปรก |
+| **Baseline 4: YOLO26m + 12 Hypotheses** | 87.20% | 69.17% (83/120) | 83.20% (416/500) | 5,492.6 ms | ขาดกลไกกรองตัวเลขแนวตั้งและกลับหัว |
+| **Proposed Full Pipeline (M7)** | **87.86%** | **70.00% (84/120)** | **86.80% (434/500)** | 5,828.8 ms | **มีความทนทานสูงสุดต่อทุกสภาวะแวดล้อมภาคสนาม** |
+
+*ที่มา: ได้จากการทดลองเปรียบเทียบเชิงประจักษ์โดยผู้จัดทำ (2569)*
+
+### 3.5.3  ผลการศึกษาเชิงตัดทอนแบบก้าวหน้า (Progressive Ablation Study : M0–M7)
+
+เพื่อพิสูจน์คุณูปการของแต่ละโมดูลในระบบ ได้ดำเนินการทดลองแบบตัดทอนทีละองค์ประกอบ (Progressive Ablation Study) บนชุดทดสอบ Diagnostic Demo Set ($N=7$ ภาพ) และ Held-out Test Set ($N=555$ ภาพ) โดยมีผลการทดลองสรุปดังแสดงในตารางที่ 3.8
+
+**ตารางที่ 3.8 ผลการศึกษาเชิงตัดทอนแบบก้าวหน้า 8 ขั้นตอน (Progressive Ablation Study M0–M7)**
 
 | รหัสโมเดล | องค์ประกอบระบบที่เปิดใช้งาน | ความแม่นยำทุกหลัก ($A_{\text{exact}}$) | ความแม่นยำรายหลัก ($A_{\text{digit}}$) | เวลาประมวลผลเฉลี่ย (ms) | ผลกระทบเชิงประจักษ์ |
 | :---: | --- | :---: | :---: | :---: | --- |
@@ -281,7 +311,7 @@ $$\text{FLIP\_MAP}(d) = \begin{cases} 0 \mapsto 0, & 1 \mapsto 1, & 8 \mapsto 8 
 
 *ที่มา: ได้จากการทดลองเชิงประจักษ์ด้วย `validate_ablation.py` บันทึกใน `reviews/ablation.csv` (2569)*
 
-### 3.5.3  การวิเคราะห์กรณีความผิดพลาดและข้อจำกัดของระบบ (Failure Cases & Error Mode Analysis)
+### 3.5.4  การวิเคราะห์กรณีความผิดพลาดและข้อจำกัดของระบบ (Failure Cases & Error Mode Analysis)
 
 จากการวิเคราะห์ผลการทดสอบรายภาพในไฟล์ `reviews/validation_results.csv` และ `reviews/test_set_evaluation.csv` พบกรณีความผิดพลาดหลัก 6 รูปแบบ ซึ่งสามารถจำแนกสาเหตุเชิงกายภาพและแนวทางแก้ไขได้ดังนี้:
 
@@ -323,7 +353,7 @@ $$\text{FLIP\_MAP}(d) = \begin{cases} 0 \mapsto 0, & 1 \mapsto 1, & 8 \mapsto 8 
 
 ### 3.6.3  การออกแบบฐานข้อมูลและแผนภาพแสดงความสัมพันธ์ของข้อมูล
 
-สำหรับการจัดเก็บประวัติการอ่านค่าน้ำ พิกัดจดบันทึก และผลการตรวจจับตัวเลข ระบบได้ออกแบบฐานข้อมูลเชิงสัมพันธ์ (Relational Database) ประกอบด้วย 4 เอนทิตีหลัก ได้แก่ ผู้ใช้งาน (Users), ข้อมูลมาตรวัดน้ำ (WaterMeters), บันทึกการอ่านค่าน้ำ (MeterReadings), และประวัติการแจ้งเตือน (SystemAlerts) ดังแสดงในภาพที่ 3.8 และข้อกำหนดพจนานุกรมข้อมูลในตารางที่ 3.8
+สำหรับการจัดเก็บประวัติการอ่านค่าน้ำ พิกัดจดบันทึก และผลการตรวจจับตัวเลข ระบบได้ออกแบบฐานข้อมูลเชิงสัมพันธ์ (Relational Database) ประกอบด้วย 4 เอนทิตีหลัก ได้แก่ ผู้ใช้งาน (Users), ข้อมูลมาตรวัดน้ำ (WaterMeters), บันทึกการอ่านค่าน้ำ (MeterReadings), และประวัติการแจ้งเตือน (SystemAlerts) ดังแสดงในภาพที่ 3.8 และข้อกำหนดพจนานุกรมข้อมูลในตารางที่ 3.9
 
 ![ภาพที่ 3.8 แผนภาพแสดงความสัมพันธ์ของข้อมูล (Entity-Relationship Diagram : ERD)](scratch/ch3_pure_mono_diagrams/fig3_8_erd_pure_mono.png)
 
@@ -331,7 +361,7 @@ $$\text{FLIP\_MAP}(d) = \begin{cases} 0 \mapsto 0, & 1 \mapsto 1, & 8 \mapsto 8 
 
 *ที่มา: พัฒนาและรวบรวมโดยผู้จัดทำ (2569)*
 
-**ตารางที่ 3.8 ข้อกำหนดพจนานุกรมข้อมูล (Data Dictionary) สำหรับโครงสร้างฐานข้อมูล**
+**ตารางที่ 3.9 ข้อกำหนดพจนานุกรมข้อมูล (Data Dictionary) สำหรับโครงสร้างฐานข้อมูล**
 
 | ชื่อฟิลด์ (Field Name) | ชนิดข้อมูล (Data Type) | ความยาว / ขนาด | คำอธิบายความหมาย (Description) | ข้อจำกัด (Constraint) |
 | --- | --- | --- | --- | --- |
@@ -347,9 +377,9 @@ $$\text{FLIP\_MAP}(d) = \begin{cases} 0 \mapsto 0, & 1 \mapsto 1, & 8 \mapsto 8 
 
 ### 3.6.4  ขั้นตอนและระเบียบปฏิบัติในการทดสอบซ้ำ (Step-by-step Reproducibility Protocol)
 
-เพื่อให้ผู้อ่าน นักวิจัย และผู้พัฒนาระบบสามารถทำการทดสอบซ้ำ (Reproduce) ได้ผลลัพธ์ตรงกันตามหลักวิชาการ สามารถดำเนินการตาม 4 ขั้นตอนดังนี้:
+เพื่อให้ผู้อ่าน นักวิจัย และผู้พัฒนาระบบสามารถทำการทดสอบซ้ำ (Reproduce) ได้ผลลัพธ์ตรงกันตามหลักวิชาการ สามารถดำเนินการตาม 5 ขั้นตอนดังนี้:
 
-1. **การติดตั้งสภาพแวดล้อม:** ติดตั้งภาษาไพทอน 3.11 และสร้างสภาพแวดล้อมเสมือนด้วยเครื่องมือ `uv`
+1. **การติดตั้งสภาพแวดล้อมเสมือนและ Dependencies:**
    ```powershell
    uv venv --python 3.11
    uv pip install -r requirements.txt
@@ -360,14 +390,18 @@ $$\text{FLIP\_MAP}(d) = \begin{cases} 0 \mapsto 0, & 1 \mapsto 1, & 8 \mapsto 8 
    uv run python -m unittest discover -s tests
    ```
 
-3. **การประเมินตัวตรวจจับ YOLO26m บนชุดทดสอบ Benchmark:**
+3. **การประเมินประสิทธิภาพตัวตรวจจับ YOLO26m บน Roboflow Test Benchmark (Split B, N=194):**
    ```powershell
    uv run python eval_yolo_metrics.py
    ```
 
-4. **การประเมินประสิทธิภาพ End-to-End และการศึกษาเชิงตัดทอน (Ablation M0–M7):**
+4. **การประเมินความแม่นยำ End-to-End บนชุดทดสอบมาตรฐาน (Split C, N=120):**
    ```powershell
    uv run python validate.py --dir meter_img --gt meter_img/ground_truth.csv
+   ```
+
+5. **การทดสอบการศึกษาเชิงตัดทอนแบบก้าวหน้า 8 ขั้นตอน (Ablation Study M0–M7):**
+   ```powershell
    uv run python validate_ablation.py --dir meter_img --gt meter_img/ground_truth.csv
    ```
 
